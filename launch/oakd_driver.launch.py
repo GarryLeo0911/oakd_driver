@@ -100,8 +100,8 @@ def generate_launch_description():
     # OAK-D driver node with comprehensive parameter passing
     oakd_node = Node(
         package='oakd_driver',
-        executable='oakd_node',
-        name='oakd_node',
+        executable='oakd_driver_node',
+        name='oakd_driver',
         parameters=[
             LaunchConfiguration('config_file'),
             {
@@ -121,7 +121,7 @@ def generate_launch_description():
             }
         ],
         output='screen',
-        respawn=True,
+        respawn=False,
         respawn_delay=2
     )
     

@@ -1,4 +1,17 @@
-opencv-python>=4.5.0
-depthai>=2.20.0
-numpy>=1.20.0
-sensor_msgs_py
+# C++ Dependencies (install via system package manager)
+# Ubuntu/Debian:
+# sudo apt update
+# sudo apt install ros-jazzy-cv-bridge ros-jazzy-image-transport ros-jazzy-camera-info-manager
+# sudo apt install libopencv-dev libusb-1.0-0-dev
+
+# DepthAI library (install from source or package)
+# Option 1: From source
+# git clone --recursive https://github.com/luxonis/depthai-core.git
+# cd depthai-core && mkdir build && cd build
+# cmake .. && make -j$(nproc) && sudo make install
+
+# Option 2: Pre-built package (Ubuntu 22.04+)
+# wget -qO- https://raw.githubusercontent.com/luxonis/depthai/main/install_dependencies.sh | bash
+# sudo apt install libdepthai-dev
+
+# Note: This C++ implementation eliminates Python dependency issues
