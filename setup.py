@@ -17,6 +17,9 @@ setup(
     ],
     install_requires=[
         'setuptools',
+        'opencv-python',
+        'depthai',
+        'numpy',
     ],
     zip_safe=True,
     maintainer='Your Name',

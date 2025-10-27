@@ -5,39 +5,33 @@ from rclpy.node import Node
 from sensor_msgs.msg import Image, PointCloud2, CameraInfo
 from geometry_msgs.msg import TransformStamped
 from tf2_ros import TransformBroadcaster
-import pip
+import subprocess
+import sys
+import os
 
 # Optional imports - will gracefully handle missing dependencies
 try:
     import cv2
     CV2_AVAILABLE = True
 except ImportError:
-    pip.main(['install', 'cv2'])
-    import cv2
     CV2_AVAILABLE = False
     
 try:
     import depthai as dai
     DEPTHAI_AVAILABLE = True
 except ImportError:
-    pip.main(['install', 'depthai'])
-    import depthai as dai
     DEPTHAI_AVAILABLE = False
     
 try:
     import numpy as np
     NUMPY_AVAILABLE = True
 except ImportError:
-    pip.main(['install', 'numpy'])
-    import numpy as np
     NUMPY_AVAILABLE = False
     
 try:
     from cv_bridge import CvBridge
     CV_BRIDGE_AVAILABLE = True
 except ImportError:
-    pip.main(['install', 'cv_bridge'])
-    from cv_bridge import CvBridge
     CV_BRIDGE_AVAILABLE = False
 
 import sensor_msgs_py.point_cloud2 as pc2
@@ -50,14 +44,36 @@ class OAKDNode(Node):
         super().__init__('oakd_node')
         
         # Check for required dependencies
-        if not all([CV2_AVAILABLE, DEPTHAI_AVAILABLE, NUMPY_AVAILABLE, CV_BRIDGE_AVAILABLE]):
+        missing_deps = []
+        if not CV2_AVAILABLE:
+            missing_deps.append("opencv-python")
+        if not DEPTHAI_AVAILABLE:
+            missing_deps.append("depthai")
+        if not NUMPY_AVAILABLE:
+            missing_deps.append("numpy")
+        if not CV_BRIDGE_AVAILABLE:
+            missing_deps.append("cv_bridge")
+            
+        if missing_deps:
             self.get_logger().error(
-                f"Missing dependencies: "
-                f"cv2={CV2_AVAILABLE}, depthai={DEPTHAI_AVAILABLE}, "
-                f"numpy={NUMPY_AVAILABLE}, cv_bridge={CV_BRIDGE_AVAILABLE}"
+                f"Missing required dependencies: {', '.join(missing_deps)}"
             )
-            self.get_logger().error("Install missing dependencies: pip3 install opencv-python depthai numpy")
-            return
+            self.get_logger().error(
+                "Please install missing dependencies with:"
+            )
+            self.get_logger().error(
+                f"pip install {' '.join(missing_deps)}"
+            )
+            self.get_logger().error(
+                "Or if using ROS2, install via apt:"
+            )
+            self.get_logger().error(
+                "sudo apt install python3-opencv python3-numpy ros-humble-cv-bridge"
+            )
+            self.get_logger().error(
+                "For depthai: pip install depthai"
+            )
+            raise RuntimeError(f"Missing dependencies: {', '.join(missing_deps)}")
         
         # Declare parameters
         self.declare_parameter('fps', 30)

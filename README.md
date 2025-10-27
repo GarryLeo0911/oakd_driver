@@ -31,8 +31,40 @@ sudo apt install ros-jazzy-tf2-ros ros-jazzy-tf2-geometry-msgs
 
 ### Python Dependencies
 ```bash
-# DepthAI SDK for OAK-D camera
+# Method 1: Using pip (in virtual environment or with --user flag)
+pip install --user depthai opencv-python numpy
+
+# Method 2: Using requirements.txt
+pip install --user -r requirements.txt
+
+# Method 3: For system-wide installation on Ubuntu (if allowed)
+sudo apt install python3-opencv python3-numpy
+pip install --user depthai  # depthai not available via apt
+
+# Method 4: Using conda (if conda environment is active)
+conda install opencv numpy
+pip install depthai  # depthai not available via conda
+```
+
+### Installation and Dependency Issues
+
+If you encounter "externally-managed-environment" error:
+
+```bash
+# Option 1: Use virtual environment (RECOMMENDED)
+python3 -m venv ~/oakd_venv
+source ~/oakd_venv/bin/activate
 pip install depthai opencv-python numpy
+
+# Option 2: Use --user flag
+pip install --user depthai opencv-python numpy
+
+# Option 3: Use system packages where available
+sudo apt install python3-opencv python3-numpy
+pip install --user depthai
+
+# Option 4: Use pipx for isolated installation
+pipx install depthai
 ```
 
 ## Installation
