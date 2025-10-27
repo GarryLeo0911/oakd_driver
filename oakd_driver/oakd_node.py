@@ -5,30 +5,39 @@ from rclpy.node import Node
 from sensor_msgs.msg import Image, PointCloud2, CameraInfo
 from geometry_msgs.msg import TransformStamped
 from tf2_ros import TransformBroadcaster
+import pip
 
 # Optional imports - will gracefully handle missing dependencies
 try:
     import cv2
     CV2_AVAILABLE = True
 except ImportError:
+    pip.main(['install', 'cv2'])
+    import cv2
     CV2_AVAILABLE = False
     
 try:
     import depthai as dai
     DEPTHAI_AVAILABLE = True
 except ImportError:
+    pip.main(['install', 'depthai'])
+    import depthai as dai
     DEPTHAI_AVAILABLE = False
     
 try:
     import numpy as np
     NUMPY_AVAILABLE = True
 except ImportError:
+    pip.main(['install', 'numpy'])
+    import numpy as np
     NUMPY_AVAILABLE = False
     
 try:
     from cv_bridge import CvBridge
     CV_BRIDGE_AVAILABLE = True
 except ImportError:
+    pip.main(['install', 'cv_bridge'])
+    from cv_bridge import CvBridge
     CV_BRIDGE_AVAILABLE = False
 
 import sensor_msgs_py.point_cloud2 as pc2

@@ -5,12 +5,15 @@ from rclpy.node import Node
 from sensor_msgs.msg import PointCloud2
 from geometry_msgs.msg import PoseStamped
 import sensor_msgs_py.point_cloud2 as pc2
+import pip
 
 # Optional numpy import
 try:
     import numpy as np
     NUMPY_AVAILABLE = True
 except ImportError:
+    pip.main(['install', 'numpy'])
+    import numpy as np
     NUMPY_AVAILABLE = False
 
 
