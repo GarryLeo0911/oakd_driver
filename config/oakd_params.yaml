@@ -1,13 +1,40 @@
 oakd_node:
   ros__parameters:
-    fps: 30
-    rgb_resolution: "1080p"
-    depth_resolution: "720p"
-    confidence_threshold: 200
-    lr_check: true
-    subpixel: false
-    extended_disparity: false
-    baseline: 75.0  # mm
-    focal_length: 883.15  # pixels
-    frame_id: "oakd_frame"
-    publish_tf: true
+    # Device connection parameters
+    i_mx_id: ""                          # MX ID of the device to connect to (empty for auto-detect)
+    i_ip: ""                             # IP address for PoE cameras
+    i_usb_port_id: ""                    # USB port ID
+    i_usb_speed: "SUPER_PLUS"           # USB speed: HIGH, SUPER, SUPER_PLUS
+    
+    # Camera parameters
+    i_fps: 30                            # Camera FPS
+    i_rgb_resolution: "1080p"            # RGB resolution: 720p, 1080p, 4K
+    i_depth_resolution: "720p"           # Depth resolution: 400p, 720p, 800p
+    
+    # Stereo depth parameters
+    i_depth_confidence_threshold: 200    # Confidence threshold (0-255)
+    i_depth_lr_check: true              # Enable left-right check
+    i_depth_subpixel: false             # Enable subpixel accuracy
+    i_depth_extended_disparity: false   # Enable extended disparity
+    i_depth_preset_mode: "HIGH_ACCURACY" # Preset mode: HIGH_ACCURACY, HIGH_DENSITY
+    
+    # Frame parameters following luxonis naming convention
+    i_tf_camera_name: "oak"             # Camera name for topics and frames
+    i_tf_camera_model: ""               # Camera model (auto-detected if empty)
+    i_tf_base_frame: "base_link"        # Base frame for TF
+    i_tf_parent_frame: "oak_camera_frame" # Parent frame for TF
+    i_publish_tf_from_calibration: true # Publish TF from calibration data
+    
+    # IR illumination parameters
+    i_enable_ir: false                  # Enable IR illumination
+    i_laser_dot_brightness: 800         # Laser dot brightness (0-1200mA)
+    i_floodlight_brightness: 0          # Floodlight brightness (0-1500mA)
+    
+    # Pipeline parameters
+    i_pipeline_type: "RGBD"             # Pipeline type
+    i_pipeline_dump: false              # Save pipeline schema to file
+    i_calibration_dump: false           # Save calibration data to file
+    i_external_calibration_path: ""     # Path to external calibration file
+    
+    # Error handling
+    i_restart_on_diagnostics_error: false # Restart camera on diagnostics error

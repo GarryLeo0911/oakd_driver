@@ -1,3 +1,4 @@
 opencv-python>=4.5.0
 depthai>=2.20.0
 numpy>=1.20.0
+sensor_msgs_py
