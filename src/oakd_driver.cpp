@@ -696,8 +696,11 @@ void OAKDDriver::publish_rgb_camera_info()
       info->p[4] = 0.0; info->p[5] = intrinsics[1][1]; info->p[6] = intrinsics[1][2]; info->p[7] = 0.0;
       info->p[8] = 0.0; info->p[9] = 0.0; info->p[10] = 1.0; info->p[11] = 0.0;
       
-      // Distortion coefficients
-      info->d = distortion;
+      // Distortion coefficients (convert float to double)
+      info->d.clear();
+      for (float coeff : distortion) {
+        info->d.push_back(static_cast<double>(coeff));
+      }
       
     } catch (...) {
       // Use default values if calibration fails
@@ -753,8 +756,11 @@ void OAKDDriver::publish_depth_camera_info()
       info->p[4] = 0.0; info->p[5] = intrinsics[1][1]; info->p[6] = intrinsics[1][2]; info->p[7] = 0.0;
       info->p[8] = 0.0; info->p[9] = 0.0; info->p[10] = 1.0; info->p[11] = 0.0;
       
-      // Distortion coefficients
-      info->d = distortion;
+      // Distortion coefficients (convert float to double)
+      info->d.clear();
+      for (float coeff : distortion) {
+        info->d.push_back(static_cast<double>(coeff));
+      }
       
     } catch (...) {
       // Use default values if calibration fails
@@ -813,7 +819,7 @@ void OAKDDriver::publish_diagnostics()
     
     // Camera status
     diagnostic_msgs::msg::DiagnosticStatus status;
-    status.name = this->get_name() + ": Camera Status";
+    status.name = std::string(this->get_name()) + ": Camera Status";
     status.hardware_id = device_info_.count("mxid") ? device_info_["mxid"] : "unknown";
     
     if (camera_running_ && device_) {
@@ -844,9 +850,9 @@ void OAKDDriver::publish_diagnostics()
       // Add temperature if available
       try {
         auto temps = device_->getChipTemperature();
-        for (const auto& [temp_source, temp_value] : temps) {
-          kv.key = "Temperature " + std::to_string(static_cast<int>(temp_source));
-          kv.value = std::to_string(temp_value) + "°C";
+        for (const auto& temp_pair : temps) {
+          kv.key = "Temperature " + std::to_string(static_cast<int>(temp_pair.first));
+          kv.value = std::to_string(temp_pair.second) + "°C";
           status.values.push_back(kv);
         }
       } catch (...) {

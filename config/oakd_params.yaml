@@ -6,32 +6,32 @@ oakd_node:
     i_usb_port_id: ""                    # USB port ID
     i_usb_speed: "SUPER_PLUS"           # USB speed: HIGH, SUPER, SUPER_PLUS
     
-    # Camera parameters
+    # Camera parameters optimized for OAK-D
     i_fps: 30                            # Camera FPS
     i_rgb_resolution: "1080p"            # RGB resolution: 720p, 1080p, 4K
     i_depth_resolution: "720p"           # Depth resolution: 400p, 720p, 800p
     
-    # Stereo depth parameters
+    # Stereo depth parameters optimized for OAK-D performance
     i_depth_confidence_threshold: 200    # Confidence threshold (0-255)
-    i_depth_lr_check: true              # Enable left-right check
-    i_depth_subpixel: false             # Enable subpixel accuracy
-    i_depth_extended_disparity: false   # Enable extended disparity
-    i_depth_preset_mode: "HIGH_ACCURACY" # Preset mode: HIGH_ACCURACY, HIGH_DENSITY
+    i_depth_lr_check: true              # Enable left-right check for better quality
+    i_depth_subpixel: false             # Disable for better performance
+    i_depth_extended_disparity: false   # Enable for close-range detection
+    i_depth_preset_mode: "DEFAULT"      # Use DEFAULT preset (HIGH_ACCURACY deprecated)
     
     # Frame parameters following luxonis naming convention
     i_tf_camera_name: "oak"             # Camera name for topics and frames
-    i_tf_camera_model: ""               # Camera model (auto-detected if empty)
+    i_tf_camera_model: "OAK-D"          # Specify OAK-D model
     i_tf_base_frame: "base_link"        # Base frame for TF
     i_tf_parent_frame: "oak_camera_frame" # Parent frame for TF
     i_publish_tf_from_calibration: true # Publish TF from calibration data
     
-    # IR illumination parameters
-    i_enable_ir: false                  # Enable IR illumination
+    # IR illumination parameters (OAK-D has IR capabilities)
+    i_enable_ir: true                   # Enable IR illumination for better depth
     i_laser_dot_brightness: 800         # Laser dot brightness (0-1200mA)
-    i_floodlight_brightness: 0          # Floodlight brightness (0-1500mA)
+    i_floodlight_brightness: 200        # Floodlight brightness (0-1500mA)
     
     # Pipeline parameters
-    i_pipeline_type: "RGBD"             # Pipeline type
+    i_pipeline_type: "RGBD"             # RGB + Depth pipeline for OAK-D
     i_pipeline_dump: false              # Save pipeline schema to file
     i_calibration_dump: false           # Save calibration data to file
     i_external_calibration_path: ""     # Path to external calibration file
