@@ -22,7 +22,7 @@ fi
 if command -v apt &> /dev/null; then
     echo "Installing system dependencies..."
     sudo apt update
-    sudo apt install -y python3-opencv python3-numpy ros-humble-cv-bridge
+    sudo apt install -y python3-opencv python3-numpy ros-jazzy-cv-bridge
 fi
 
 echo "Installation complete!"

@@ -68,7 +68,7 @@ class OAKDNode(Node):
                 "Or if using ROS2, install via apt:"
             )
             self.get_logger().error(
-                "sudo apt install python3-opencv python3-numpy ros-humble-cv-bridge"
+                "sudo apt install python3-opencv python3-numpy ros-jazzy-cv-bridge"
             )
             self.get_logger().error(
                 "For depthai: pip install depthai"

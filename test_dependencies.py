@@ -66,7 +66,7 @@ def test_imports():
         from cv_bridge import CvBridge
         print(f"✓ cv_bridge available")
     except ImportError:
-        print("! cv_bridge not available (install ros-humble-cv-bridge)")
+        print("! cv_bridge not available (install ros-jazzy-cv-bridge)")
     
     print("=" * 50)
     print("✓ All core dependencies are available!")
@@ -80,5 +80,5 @@ if __name__ == "__main__":
     else:
         print("\nPlease install missing dependencies:")
         print("pip install --user depthai opencv-python numpy")
-        print("sudo apt install ros-humble-cv-bridge")
+        print("sudo apt install ros-jazzy-cv-bridge")
         sys.exit(1)
