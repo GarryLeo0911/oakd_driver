@@ -325,8 +325,10 @@ void OAKDDriver::detect_and_connect_device()
         device_info_["name"] = device_->getDeviceInfo().name;
         device_info_["device_name"] = device_->getDeviceName();
         
-        if (device_->getDeviceInfo().getXLinkDeviceDesc().protocol != dai::XLinkProtocol::X_LINK_TCP_IP) {
+        try {
           device_info_["usb_speed"] = std::to_string(static_cast<int>(device_->getUsbSpeed()));
+        } catch (...) {
+          device_info_["usb_speed"] = "unknown";
         }
         
         // Set camera model if not specified
@@ -362,8 +364,8 @@ void OAKDDriver::connect_device(const dai::DeviceInfo& device_info, dai::UsbSpee
 {
   RCLCPP_INFO(this->get_logger(), "Connecting to device using %s", description.c_str());
   
-  if (device_info.state == dai::XLinkDeviceState::X_LINK_UNBOOTED ||
-      device_info.state == dai::XLinkDeviceState::X_LINK_BOOTLOADER) {
+  try {
+    // For newer DepthAI API, device state check is simplified
     if (device_info.name.find("192.168") == 0 || 
         device_info.name.find("10.") == 0 || 
         device_info.name.find("172.") == 0) {
@@ -373,13 +375,10 @@ void OAKDDriver::connect_device(const dai::DeviceInfo& device_info, dai::UsbSpee
       // USB device
       device_ = std::make_shared<dai::Device>(device_info, usb_speed);
     }
-  } else if (device_info.state == dai::XLinkDeviceState::X_LINK_BOOTED) {
-    throw std::runtime_error("Device is already booted in different process");
-  } else {
-    throw std::runtime_error("Unknown device state: " + std::to_string(static_cast<int>(device_info.state)));
+  } catch (const std::exception& e) {
+    RCLCPP_ERROR(this->get_logger(), "Failed to connect to device: %s", e.what());
+    throw;
   }
-}
-
 }
 
 void OAKDDriver::setup_pipeline()
@@ -412,7 +411,7 @@ void OAKDDriver::create_camera_nodes()
 {
   // RGB camera
   cam_rgb_ = pipeline_->create<dai::node::ColorCamera>();
-  cam_rgb_->setBoardSocket(dai::CameraBoardSocket::RGB);
+  cam_rgb_->setBoardSocket(dai::CameraBoardSocket::CAM_A);  // Updated for newer API
   cam_rgb_->setResolution(get_rgb_resolution());
   cam_rgb_->setInterleaved(false);
   cam_rgb_->setColorOrder(dai::ColorCameraProperties::ColorOrder::RGB);
@@ -421,26 +420,19 @@ void OAKDDriver::create_camera_nodes()
   // Mono cameras for stereo
   mono_left_ = pipeline_->create<dai::node::MonoCamera>();
   mono_left_->setResolution(get_mono_resolution());
-  mono_left_->setBoardSocket(dai::CameraBoardSocket::LEFT);
+  mono_left_->setBoardSocket(dai::CameraBoardSocket::CAM_B);  // Updated for newer API
   
   mono_right_ = pipeline_->create<dai::node::MonoCamera>();
   mono_right_->setResolution(get_mono_resolution());
-  mono_right_->setBoardSocket(dai::CameraBoardSocket::RIGHT);
+  mono_right_->setBoardSocket(dai::CameraBoardSocket::CAM_C);  // Updated for newer API
 }
 
 void OAKDDriver::create_stereo_node()
 {
   stereo_ = pipeline_->create<dai::node::StereoDepth>();
   
-  // Set preset mode
-  std::map<std::string, dai::node::StereoDepth::PresetMode> preset_map = {
-    {"HIGH_ACCURACY", dai::node::StereoDepth::PresetMode::HIGH_ACCURACY},
-    {"HIGH_DENSITY", dai::node::StereoDepth::PresetMode::HIGH_DENSITY}
-  };
-  
-  auto preset = preset_map.count(depth_preset_mode_) ? 
-    preset_map[depth_preset_mode_] : dai::node::StereoDepth::PresetMode::HIGH_ACCURACY;
-  stereo_->setDefaultProfilePreset(preset);
+  // Use DEFAULT preset mode (HIGH_ACCURACY is deprecated)
+  stereo_->setDefaultProfilePreset(dai::node::StereoDepth::PresetMode::DEFAULT);
   
   // Configure stereo
   stereo_->initialConfig.setMedianFilter(dai::MedianFilter::KERNEL_7x7);
@@ -613,7 +605,7 @@ void OAKDDriver::publish_pointcloud(std::shared_ptr<dai::ImgFrame> frame)
     
     try {
       auto intrinsics = calibration_data_.getCameraIntrinsics(
-        dai::CameraBoardSocket::LEFT, dai::Size2f(width, height));
+        dai::CameraBoardSocket::CAM_B, dai::Size2f(width, height));  // Updated for newer API
       fx = intrinsics[0][0];
       fy = intrinsics[1][1];
       cx = intrinsics[0][2];
@@ -686,34 +678,41 @@ void OAKDDriver::publish_rgb_camera_info()
     try {
       // Get RGB camera intrinsics
       auto intrinsics = calibration_data_.getCameraIntrinsics(
-        dai::CameraBoardSocket::RGB, dai::Size2f(1920, 1080));
-      auto distortion = calibration_data_.getDistortionCoefficients(dai::CameraBoardSocket::RGB);
+        dai::CameraBoardSocket::CAM_A, dai::Size2f(1920, 1080));  // Updated for newer API
+      auto distortion = calibration_data_.getDistortionCoefficients(dai::CameraBoardSocket::CAM_A);
       
-      // Intrinsic matrix
-      info->k = {
-        intrinsics[0][0], intrinsics[0][1], intrinsics[0][2],
-        intrinsics[1][0], intrinsics[1][1], intrinsics[1][2],
-        intrinsics[2][0], intrinsics[2][1], intrinsics[2][2]
-      };
+      // Fill intrinsic matrix
+      info->k[0] = intrinsics[0][0]; info->k[1] = intrinsics[0][1]; info->k[2] = intrinsics[0][2];
+      info->k[3] = intrinsics[1][0]; info->k[4] = intrinsics[1][1]; info->k[5] = intrinsics[1][2];
+      info->k[6] = intrinsics[2][0]; info->k[7] = intrinsics[2][1]; info->k[8] = intrinsics[2][2];
       
       // Rectification matrix (identity for RGB)
-      info->r = {1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0};
+      info->r[0] = 1.0; info->r[1] = 0.0; info->r[2] = 0.0;
+      info->r[3] = 0.0; info->r[4] = 1.0; info->r[5] = 0.0;
+      info->r[6] = 0.0; info->r[7] = 0.0; info->r[8] = 1.0;
       
       // Projection matrix
-      info->p = {
-        intrinsics[0][0], 0.0, intrinsics[0][2], 0.0,
-        0.0, intrinsics[1][1], intrinsics[1][2], 0.0,
-        0.0, 0.0, 1.0, 0.0
-      };
+      info->p[0] = intrinsics[0][0]; info->p[1] = 0.0; info->p[2] = intrinsics[0][2]; info->p[3] = 0.0;
+      info->p[4] = 0.0; info->p[5] = intrinsics[1][1]; info->p[6] = intrinsics[1][2]; info->p[7] = 0.0;
+      info->p[8] = 0.0; info->p[9] = 0.0; info->p[10] = 1.0; info->p[11] = 0.0;
       
       // Distortion coefficients
       info->d = distortion;
       
     } catch (...) {
       // Use default values if calibration fails
-      info->k = {883.15, 0.0, 960.0, 0.0, 883.15, 540.0, 0.0, 0.0, 1.0};
-      info->r = {1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0};
-      info->p = {883.15, 0.0, 960.0, 0.0, 0.0, 883.15, 540.0, 0.0, 0.0, 0.0, 1.0, 0.0};
+      info->k[0] = 883.15; info->k[1] = 0.0; info->k[2] = 960.0;
+      info->k[3] = 0.0; info->k[4] = 883.15; info->k[5] = 540.0;
+      info->k[6] = 0.0; info->k[7] = 0.0; info->k[8] = 1.0;
+      
+      info->r[0] = 1.0; info->r[1] = 0.0; info->r[2] = 0.0;
+      info->r[3] = 0.0; info->r[4] = 1.0; info->r[5] = 0.0;
+      info->r[6] = 0.0; info->r[7] = 0.0; info->r[8] = 1.0;
+      
+      info->p[0] = 883.15; info->p[1] = 0.0; info->p[2] = 960.0; info->p[3] = 0.0;
+      info->p[4] = 0.0; info->p[5] = 883.15; info->p[6] = 540.0; info->p[7] = 0.0;
+      info->p[8] = 0.0; info->p[9] = 0.0; info->p[10] = 1.0; info->p[11] = 0.0;
+      
       info->d = {0.0, 0.0, 0.0, 0.0, 0.0};
     }
     
@@ -736,34 +735,41 @@ void OAKDDriver::publish_depth_camera_info()
     try {
       // Get left camera intrinsics (depth is based on left camera)
       auto intrinsics = calibration_data_.getCameraIntrinsics(
-        dai::CameraBoardSocket::LEFT, dai::Size2f(1280, 720));
-      auto distortion = calibration_data_.getDistortionCoefficients(dai::CameraBoardSocket::LEFT);
+        dai::CameraBoardSocket::CAM_B, dai::Size2f(1280, 720));  // Updated for newer API
+      auto distortion = calibration_data_.getDistortionCoefficients(dai::CameraBoardSocket::CAM_B);
       
-      // Intrinsic matrix
-      info->k = {
-        intrinsics[0][0], intrinsics[0][1], intrinsics[0][2],
-        intrinsics[1][0], intrinsics[1][1], intrinsics[1][2],
-        intrinsics[2][0], intrinsics[2][1], intrinsics[2][2]
-      };
+      // Fill intrinsic matrix
+      info->k[0] = intrinsics[0][0]; info->k[1] = intrinsics[0][1]; info->k[2] = intrinsics[0][2];
+      info->k[3] = intrinsics[1][0]; info->k[4] = intrinsics[1][1]; info->k[5] = intrinsics[1][2];
+      info->k[6] = intrinsics[2][0]; info->k[7] = intrinsics[2][1]; info->k[8] = intrinsics[2][2];
       
       // Rectification matrix (identity for depth)
-      info->r = {1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0};
+      info->r[0] = 1.0; info->r[1] = 0.0; info->r[2] = 0.0;
+      info->r[3] = 0.0; info->r[4] = 1.0; info->r[5] = 0.0;
+      info->r[6] = 0.0; info->r[7] = 0.0; info->r[8] = 1.0;
       
       // Projection matrix
-      info->p = {
-        intrinsics[0][0], 0.0, intrinsics[0][2], 0.0,
-        0.0, intrinsics[1][1], intrinsics[1][2], 0.0,
-        0.0, 0.0, 1.0, 0.0
-      };
+      info->p[0] = intrinsics[0][0]; info->p[1] = 0.0; info->p[2] = intrinsics[0][2]; info->p[3] = 0.0;
+      info->p[4] = 0.0; info->p[5] = intrinsics[1][1]; info->p[6] = intrinsics[1][2]; info->p[7] = 0.0;
+      info->p[8] = 0.0; info->p[9] = 0.0; info->p[10] = 1.0; info->p[11] = 0.0;
       
       // Distortion coefficients
       info->d = distortion;
       
     } catch (...) {
       // Use default values if calibration fails
-      info->k = {883.15, 0.0, 640.0, 0.0, 883.15, 360.0, 0.0, 0.0, 1.0};
-      info->r = {1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0};
-      info->p = {883.15, 0.0, 640.0, 0.0, 0.0, 883.15, 360.0, 0.0, 0.0, 0.0, 1.0, 0.0};
+      info->k[0] = 883.15; info->k[1] = 0.0; info->k[2] = 640.0;
+      info->k[3] = 0.0; info->k[4] = 883.15; info->k[5] = 360.0;
+      info->k[6] = 0.0; info->k[7] = 0.0; info->k[8] = 1.0;
+      
+      info->r[0] = 1.0; info->r[1] = 0.0; info->r[2] = 0.0;
+      info->r[3] = 0.0; info->r[4] = 1.0; info->r[5] = 0.0;
+      info->r[6] = 0.0; info->r[7] = 0.0; info->r[8] = 1.0;
+      
+      info->p[0] = 883.15; info->p[1] = 0.0; info->p[2] = 640.0; info->p[3] = 0.0;
+      info->p[4] = 0.0; info->p[5] = 883.15; info->p[6] = 360.0; info->p[7] = 0.0;
+      info->p[8] = 0.0; info->p[9] = 0.0; info->p[10] = 1.0; info->p[11] = 0.0;
+      
       info->d = {0.0, 0.0, 0.0, 0.0, 0.0};
     }
     
