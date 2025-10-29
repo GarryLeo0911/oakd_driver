@@ -6,17 +6,17 @@ oakd_node:
     i_usb_port_id: ""                    # USB port ID
     i_usb_speed: "SUPER_PLUS"           # USB speed: HIGH, SUPER, SUPER_PLUS
     
-    # Camera parameters optimized for OAK-D
-    i_fps: 30                            # Camera FPS
-    i_rgb_resolution: "1080p"            # RGB resolution: 720p, 1080p, 4K
-    i_depth_resolution: "720p"           # Depth resolution: 400p, 720p, 800p
+    # Camera parameters optimized for OAK-D mapping accuracy
+    i_fps: 30                            # Camera FPS (stable for mapping)
+    i_rgb_resolution: "720p"             # RGB resolution: optimal for rtabmap
+    i_depth_resolution: "720p"           # Depth resolution: 720p for best stereo quality
     
-    # Stereo depth parameters optimized for OAK-D performance
-    i_depth_confidence_threshold: 200    # Confidence threshold (0-255)
+    # Stereo depth parameters optimized for mapping accuracy
+    i_depth_confidence_threshold: 230    # Higher confidence for better mapping (0-255)
     i_depth_lr_check: true              # Enable left-right check for better quality
-    i_depth_subpixel: false             # Disable for better performance
-    i_depth_extended_disparity: false   # Enable for close-range detection
-    i_depth_preset_mode: "DEFAULT"      # Use DEFAULT preset (HIGH_ACCURACY deprecated)
+    i_depth_subpixel: true              # Enable for sub-pixel accuracy
+    i_depth_extended_disparity: true    # Enable for close-range detection
+    i_depth_preset_mode: "HIGH_ACCURACY" # Use HIGH_ACCURACY for mapping
     
     # Frame parameters following luxonis naming convention
     i_tf_camera_name: "oak"             # Camera name for topics and frames
@@ -27,14 +27,32 @@ oakd_node:
     
     # IR illumination parameters (OAK-D has IR capabilities)
     i_enable_ir: true                   # Enable IR illumination for better depth
-    i_laser_dot_brightness: 800         # Laser dot brightness (0-1200mA)
-    i_floodlight_brightness: 200        # Floodlight brightness (0-1500mA)
+    i_laser_dot_brightness: 1000        # Higher laser dot brightness for mapping (0-1200mA)
+    i_floodlight_brightness: 500        # Higher floodlight brightness for mapping (0-1500mA)
     
-    # Pipeline parameters
+    # Pipeline parameters optimized for mapping
     i_pipeline_type: "RGBD"             # RGB + Depth pipeline for OAK-D
     i_pipeline_dump: false              # Save pipeline schema to file
-    i_calibration_dump: false           # Save calibration data to file
+    i_calibration_dump: true            # Save calibration data for verification
     i_external_calibration_path: ""     # Path to external calibration file
+    
+    # Additional mapping-specific parameters
+    i_enable_imu: true                  # Enable IMU for better odometry
+    i_imu_mode: "COPY"                  # IMU mode for sensor fusion
+    i_enable_sync: true                 # Enable RGB-Depth synchronization
+    i_depth_filter_size: 5              # Depth median filter size
+    i_stereo_confidence_threshold: 230  # Stereo confidence threshold
+    
+    # Quality settings for mapping
+    i_depth_quality: "ULTRA"            # Use ULTRA quality for best depth
+    i_enable_depth_post_processing: true # Enable depth post-processing
+    i_spatial_filter_enable: true      # Enable spatial filter
+    i_temporal_filter_enable: true     # Enable temporal filter
+    i_speckle_filter_enable: true      # Enable speckle filter
+    
+    # Camera intrinsics optimization (OAK-D specific)
+    i_board_socket_id: -1               # Auto-detect camera socket
+    i_get_base_device_timestamp: false  # Use ROS timestamps
     
     # Error handling
     i_restart_on_diagnostics_error: false # Restart camera on diagnostics error
