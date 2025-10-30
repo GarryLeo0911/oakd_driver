@@ -457,7 +457,40 @@ ros2 launch map_builder enhanced_map_builder.launch.py
 ros2 launch map_builder oakd_enhanced_mapping.launch.py
 ```
 
-### 🔗 **Topic Connections for Mapping**
+### � **RTABmap SLAM Integration**
+This driver now includes optimized launch configurations for RTABmap SLAM integration:
+
+```bash
+# Step 1: Launch OAK-D with RTABmap-compatible topic mapping
+ros2 launch oakd_driver robot_side.launch.py
+
+# Step 2: Launch RTABmap mapping (in another terminal)
+ros2 launch map_builder rtabmap_laptop.launch.py
+```
+
+The `robot_side.launch.py` includes:
+- **OAK-D Camera Driver**: Publishes RGB, depth, and camera info
+- **Static Transform Publisher**: Provides base_link to camera transform
+- **RGBD Sync Node**: Synchronizes and republishes topics for RTABmap compatibility
+
+### 📡 **Topic Mapping for RTABmap**
+```python
+# OAK-D publishes:
+oak_topics = {
+    'rgb_image': '/oak/rgb/image_raw',
+    'depth_image': '/oak/depth/image_raw', 
+    'camera_info': '/oak/rgb/camera_info'
+}
+
+# RGBD Sync republishes for RTABmap:
+rtabmap_topics = {
+    'rgb_image': '/rgbd_sync/rgb/image',
+    'depth_image': '/rgbd_sync/depth/image',
+    'camera_info': '/rgbd_sync/rgb/camera_info'
+}
+```
+
+### �🔗 **Topic Connections for Mapping**
 ```python
 # Enhanced map_builder subscribes to these OAK-D topics:
 enhanced_visual_odometry_topics = {
