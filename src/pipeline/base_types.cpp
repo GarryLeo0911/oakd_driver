@@ -1,8 +1,6 @@
 #include "depthai_ros_driver/pipeline/base_types.hpp"
 
-#include "depthai/common/CameraBoardSocket.hpp"
-#include "depthai/device/Device.hpp"
-#include "depthai/pipeline/Pipeline.hpp"
+#include "depthai/depthai.hpp"
 #include "depthai_bridge/depthaiUtility.hpp"
 #include "depthai_ros_driver/dai_nodes/base_node.hpp"
 #include "depthai_ros_driver/dai_nodes/nn/nn_wrapper.hpp"

@@ -1,11 +1,7 @@
 #include "depthai_ros_driver/dai_nodes/sensors/sensor_helpers.hpp"
 
 #include "camera_info_manager/camera_info_manager.hpp"
-#include "depthai/capabilities/ImgFrameCapability.hpp"
-#include "depthai/common/CameraSensorType.hpp"
 #include "depthai/depthai.hpp"
-#include "depthai/pipeline/Pipeline.hpp"
-#include "depthai/pipeline/node/VideoEncoder.hpp"
 #include "depthai_bridge/ImageConverter.hpp"
 #include "image_transport/image_transport.hpp"
 #include "rclcpp/logger.hpp"

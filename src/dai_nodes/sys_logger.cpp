@@ -1,10 +1,6 @@
 #include "depthai_ros_driver/dai_nodes/sys_logger.hpp"
 
-#include "depthai/device/Device.hpp"
-#include "depthai/pipeline/MessageQueue.hpp"
-#include "depthai/pipeline/Pipeline.hpp"
-#include "depthai/pipeline/datatype/SystemInformation.hpp"
-#include "depthai/pipeline/node/SystemLogger.hpp"
+#include "depthai/depthai.hpp"
 #include "rclcpp/node.hpp"
 
 namespace depthai_ros_driver {

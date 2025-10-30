@@ -3,10 +3,7 @@
 #include <rclcpp/logging.hpp>
 
 #include "camera_info_manager/camera_info_manager.hpp"
-#include "depthai/device/Device.hpp"
-#include "depthai/pipeline/Pipeline.hpp"
-#include "depthai/pipeline/node/VideoEncoder.hpp"
-#include "depthai/properties/VideoEncoderProperties.hpp"
+#include "depthai/depthai.hpp"
 #include "depthai_bridge/ImageConverter.hpp"
 #include "depthai_ros_driver/dai_nodes/sensors/sensor_helpers.hpp"
 #include "depthai_ros_driver/utils.hpp"

@@ -1,9 +1,6 @@
 #include "depthai_ros_driver/dai_nodes/sensors/feature_tracker.hpp"
 
-#include "depthai/device/Device.hpp"
-#include "depthai/pipeline/MessageQueue.hpp"
-#include "depthai/pipeline/Pipeline.hpp"
-#include "depthai/pipeline/node/FeatureTracker.hpp"
+#include "depthai/depthai.hpp"
 #include "depthai_bridge/TrackedFeaturesConverter.hpp"
 #include "depthai_ros_driver/param_handlers/feature_tracker_param_handler.hpp"
 #include "depthai_ros_driver/utils.hpp"

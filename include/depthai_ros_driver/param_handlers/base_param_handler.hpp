@@ -1,6 +1,5 @@
 #pragma once
-#include "depthai/common/CameraBoardSocket.hpp"
-#include "depthai/pipeline/datatype/CameraControl.hpp"
+#include "depthai/depthai.hpp"
 #include "depthai_bridge/depthaiUtility.hpp"
 #include "rcl_interfaces/msg/parameter_descriptor.hpp"
 #include "rclcpp/node.hpp"
@@ -123,7 +122,20 @@ class BaseParamHandler {
         return baseNode;
     }
     std::string getSocketName(dai::CameraBoardSocket socket) {
-        return depthai_bridge::getSocketName(socket, deviceName, rsCompat);
+        // Fallback implementation if depthai_bridge::getSocketName is not available
+        try {
+            return depthai_bridge::getSocketName(socket, deviceName, rsCompat);
+        } catch (...) {
+            // Simple fallback socket name mapping
+            switch (socket) {
+                case dai::CameraBoardSocket::AUTO: return "auto";
+                case dai::CameraBoardSocket::CAM_A: return "cam_a";
+                case dai::CameraBoardSocket::CAM_B: return "cam_b";
+                case dai::CameraBoardSocket::CAM_C: return "cam_c";
+                case dai::CameraBoardSocket::CAM_D: return "cam_d";
+                default: return "unknown";
+            }
+        }
     }
     template <typename T>
     T declareAndLogParam(const std::string& paramName, const std::vector<T>& value, bool override = false) {

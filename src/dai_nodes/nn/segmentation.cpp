@@ -1,18 +1,10 @@
 #include "depthai_ros_driver/dai_nodes/nn/segmentation.hpp"
 
 #include <cstdint>
-#include <depthai/common/CameraBoardSocket.hpp>
-#include <depthai/modelzoo/Zoo.hpp>
-#include <depthai/nn_archive/NNArchive.hpp>
+#include "depthai/depthai.hpp"
 
 #include "camera_info_manager/camera_info_manager.hpp"
 #include "cv_bridge/cv_bridge.hpp"
-#include "depthai/device/Device.hpp"
-#include "depthai/pipeline/MessageQueue.hpp"
-#include "depthai/pipeline/Pipeline.hpp"
-#include "depthai/pipeline/datatype/NNData.hpp"
-#include "depthai/pipeline/node/ImageManip.hpp"
-#include "depthai/pipeline/node/NeuralNetwork.hpp"
 #include "depthai_bridge/ImageConverter.hpp"
 #include "depthai_ros_driver/dai_nodes/sensors/sensor_helpers.hpp"
 #include "depthai_ros_driver/dai_nodes/sensors/sensor_wrapper.hpp"

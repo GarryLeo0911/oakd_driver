@@ -6,6 +6,11 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_compile_options(-Wall -Wextra -Wpedantic -Wno-deprecated-declarations -Wno-maybe-uninitialized)
+    # Reduce memory usage during compilation to avoid "Killed" errors
+    add_compile_options(-g1)  # Reduced debug info
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        add_compile_options(-O1)  # Basic optimization in debug mode
+    endif()
 endif()
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
@@ -21,8 +26,9 @@ find_package(ament_cmake_auto REQUIRED)
 find_package(backward_ros REQUIRED)
 
 # Explicitly find critical packages to ensure proper linking order
-find_package(depthai REQUIRED)
+# Order matters - find depthai_bridge before depthai to ensure compatibility
 find_package(depthai_bridge REQUIRED)
+find_package(depthai REQUIRED)
 find_package(depthai_ros_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(rclcpp REQUIRED)
