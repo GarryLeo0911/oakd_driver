@@ -33,7 +33,7 @@ ament_auto_find_build_dependencies()
 set(COMMON_DEPS
 ${camera_info_manager_TARGETS}
 cv_bridge::cv_bridge
-depthai::depthai
+depthai::core
 ${depthai_bridge_TARGETS}
 image_transport::image_transport
 rclcpp::rclcpp
@@ -46,7 +46,7 @@ ${ffmpeg_image_transport_msgs_TARGETS}
 set(SENSOR_DEPS
 cv_bridge::cv_bridge
 ${camera_info_manager_TARGETS}
-depthai::depthai
+depthai::core
 ${depthai_bridge_TARGETS}
 rclcpp::rclcpp
 ${geometry_msgs_TARGETS}
@@ -60,14 +60,14 @@ image_transport::image_transport
 )
 
 set(NN_DEPS
-depthai::depthai
+depthai::core
 ${depthai_bridge_TARGETS}
 rclcpp::rclcpp
 ${vision_msgs_TARGETS}
 )
 
 set(CAM_DEPS
-depthai::depthai
+depthai::core
 rclcpp::rclcpp
 ${rclcpp_components_TARGETS}
 ${std_srvs_TARGETS}
