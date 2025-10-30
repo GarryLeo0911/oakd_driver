@@ -5,10 +5,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "depthai/common/CameraBoardSocket.hpp"
-#include "depthai/common/CameraExposureOffset.hpp"
-#include "depthai/pipeline/datatype/ImgFrame.hpp"
-#include "depthai/properties/VideoEncoderProperties.hpp"
+#include "depthai/depthai.hpp"
 
 namespace dai {
 class Pipeline;

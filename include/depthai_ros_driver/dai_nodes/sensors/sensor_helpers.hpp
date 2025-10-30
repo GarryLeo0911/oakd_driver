@@ -3,14 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "depthai/capabilities/ImgFrameCapability.hpp"
-#include "depthai/common/CameraSensorType.hpp"
 #include "depthai/depthai.hpp"
-#include "depthai/pipeline/Node.hpp"
-#include "depthai/pipeline/datatype/ADatatype.hpp"
-#include "depthai/pipeline/datatype/CameraControl.hpp"
-#include "depthai/properties/ColorCameraProperties.hpp"
-#include "depthai/properties/MonoCameraProperties.hpp"
 #include "image_transport/camera_publisher.hpp"
 #include "sensor_msgs/msg/camera_info.hpp"
 #include "sensor_msgs/msg/image.hpp"

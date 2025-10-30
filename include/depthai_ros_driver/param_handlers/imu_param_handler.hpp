@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "depthai/properties/IMUProperties.hpp"
+#include "depthai/depthai.hpp"
 #include "depthai_bridge/ImuConverter.hpp"
 #include "depthai_ros_driver/param_handlers/base_param_handler.hpp"
 

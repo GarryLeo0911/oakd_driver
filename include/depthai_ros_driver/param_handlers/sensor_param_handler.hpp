@@ -1,6 +1,6 @@
 #pragma once
 
-#include <depthai/capabilities/ImgFrameCapability.hpp>
+#include <depthai/depthai.hpp>
 #include <string>
 #include <unordered_map>
 #include <vector>
