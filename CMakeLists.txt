@@ -19,12 +19,21 @@ endif()
 # find dependencies
 find_package(ament_cmake_auto REQUIRED)
 find_package(backward_ros REQUIRED)
+
+# Explicitly find critical packages to ensure proper linking order
+find_package(depthai REQUIRED)
+find_package(depthai_bridge REQUIRED)
+find_package(depthai_ros_msgs REQUIRED)
+find_package(cv_bridge REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(sensor_msgs REQUIRED)
+
 ament_auto_find_build_dependencies()
 
 set(COMMON_DEPS
 ${camera_info_manager_TARGETS}
 cv_bridge::cv_bridge
-depthai::core
+depthai::depthai
 ${depthai_bridge_TARGETS}
 image_transport::image_transport
 rclcpp::rclcpp
@@ -37,7 +46,7 @@ ${ffmpeg_image_transport_msgs_TARGETS}
 set(SENSOR_DEPS
 cv_bridge::cv_bridge
 ${camera_info_manager_TARGETS}
-depthai::core
+depthai::depthai
 ${depthai_bridge_TARGETS}
 rclcpp::rclcpp
 ${geometry_msgs_TARGETS}
@@ -51,14 +60,14 @@ image_transport::image_transport
 )
 
 set(NN_DEPS
-depthai::core
+depthai::depthai
 ${depthai_bridge_TARGETS}
 rclcpp::rclcpp
 ${vision_msgs_TARGETS}
 )
 
 set(CAM_DEPS
-depthai::core
+depthai::depthai
 rclcpp::rclcpp
 ${rclcpp_components_TARGETS}
 ${std_srvs_TARGETS}
@@ -67,6 +76,14 @@ ${pluginlib_TARGETS}
 
 
 include_directories(include)
+
+# Ensure we use ROS2 DepthAI headers only
+include_directories(BEFORE SYSTEM /opt/ros/jazzy/include)
+
+# Explicitly exclude system-wide DepthAI if it exists
+if(EXISTS "/usr/local/include/depthai")
+    message(WARNING "System-wide DepthAI installation detected at /usr/local/include/depthai. This may cause conflicts. Consider removing it.")
+endif()
 
 set(COMMON_LIB_NAME ${PROJECT_NAME}_common)
 add_library(
