@@ -157,7 +157,7 @@ PUBLIC
   ${NN_LIB_NAME}
   ${COMMON_LIB_NAME})
 
-rclcpp_components_register_nodes(${PROJECT_NAME} "${PROJECT_NAME}::Driver")
+rclcpp_components_register_nodes(${PROJECT_NAME} "depthai_ros_driver::Driver")
 pluginlib_export_plugin_description_file(${PROJECT_NAME} plugins.xml)
 ament_export_include_directories(include)
 
@@ -180,7 +180,6 @@ EXPORT ${PROJECT_NAME}Targets
 install(EXPORT ${PROJECT_NAME}Targets
       DESTINATION share/${PROJECT_NAME}/cmake)
 install(TARGETS oakd_driver_node DESTINATION lib/${PROJECT_NAME})
-ament_python_install_package(${PROJECT_NAME})
 
 ament_export_include_directories(
   include

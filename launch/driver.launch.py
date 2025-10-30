@@ -199,7 +199,7 @@ def launch_setup(context, *args, **kwargs):
             composable_node_descriptions=[
                 ComposableNode(
                     package="oakd_driver",
-                    plugin="oakd_driver::Driver",
+                    plugin="depthai_ros_driver::Driver",
                     name=name,
                     namespace=namespace,
                     parameters=[
