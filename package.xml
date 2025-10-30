@@ -3,35 +3,38 @@
 <package format="3">
   <name>oakd_driver</name>
   <version>1.0.0</version>
-  <description>ROS2 driver for OAK-D camera providing point clouds, RGB images, and depth data</description>
-  <maintainer email="you@example.com">Your Name</maintainer>
+  <description>OAK-D camera driver for ROS2 - decoupled from rtabmap</description>
+  <maintainer email="your.email@example.com">Your Name</maintainer>
+
   <license>MIT</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
-
+  <depend>ament_cmake_auto</depend>
+  <depend>backward_ros</depend>
+  <depend>camera_calibration</depend>
+  <depend>camera_info_manager</depend>
   <depend>rclcpp</depend>
   <depend>rclcpp_components</depend>
+  <depend>sensor_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>tf2_ros</depend>
+  <depend>geometry_msgs</depend>
+  <depend>vision_msgs</depend>
   <depend>std_msgs</depend>
   <depend>std_srvs</depend>
-  <depend>sensor_msgs</depend>
-  <depend>geometry_msgs</depend>
-  <depend>diagnostic_msgs</depend>
-  <depend>tf2_ros</depend>
-  <depend>tf2_geometry_msgs</depend>
   <depend>cv_bridge</depend>
   <depend>image_transport</depend>
-  <depend>camera_info_manager</depend>
-  <depend>rtabmap_sync</depend>
-  <depend>OpenCV</depend>
+  <depend>image_transport_plugins</depend>
+  <depend>image_pipeline</depend>
   <depend>depthai</depend>
+  <depend>depthai_bridge</depend>
+  <depend>depthai_descriptions</depend>
+  <depend>depthai_ros_msgs</depend>
+  <depend>pluginlib</depend>
+  <depend>diagnostic_updater</depend>
+  <depend>diagnostic_msgs</depend>
+  <depend>ffmpeg_image_transport_msgs</depend>
   
-  <!-- System dependencies for DepthAI -->
-  <exec_depend>libopencv-dev</exec_depend>
-  <exec_depend>libusb-1.0-0-dev</exec_depend>
-
-  <test_depend>ament_lint_auto</test_depend>
-  <test_depend>ament_lint_common</test_depend>
-
   <export>
     <build_type>ament_cmake</build_type>
   </export>
