@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Robot-side launch: OAK-D driver optimized for RTABmap SLAM integration
+Robot-side launch: OAK-D driver for RTABmap SLAM integration
 """
 
 from launch import LaunchDescription
@@ -33,7 +33,7 @@ def generate_launch_description():
             'camera_name': 'oak',
             'publish_tf': 'true',
             'fps': '30',
-            'rgb_resolution': '720p',  # Lower resolution for better performance
+            'rgb_resolution': '720p',
             'depth_resolution': '720p',
             'confidence_threshold': '200',
             'lr_check': 'true'
@@ -41,7 +41,7 @@ def generate_launch_description():
     )
     
     # Static transform publisher for base_link to camera
-    # This is crucial for RTABmap to work properly
+    # This is required for RTABmap SLAM to work properly
     base_to_camera_tf = Node(
         package='tf2_ros',
         executable='static_transform_publisher',
@@ -55,30 +55,8 @@ def generate_launch_description():
         output='screen'
     )
     
-    # RGBD Synchronization node - this is what RTABmap expects
-    rgbd_sync = Node(
-        package='rtabmap_sync',
-        executable='rgbd_sync',
-        name='rgbd_sync',
-        parameters=[{
-            'use_sim_time': LaunchConfiguration('use_sim_time'),
-            'approx_sync': True,
-            'approx_sync_max_interval': 0.01,
-            'topic_queue_size': 10,
-            'sync_queue_size': 10
-        }],
-        remappings=[
-            # Map your OAK-D topics to what rgbd_sync expects
-            ('rgb/image', '/oak/rgb/image_raw'),
-            ('depth/image', '/oak/depth/image_raw'), 
-            ('rgb/camera_info', '/oak/rgb/camera_info')
-        ],
-        output='screen'
-    )
-    
     return LaunchDescription([
         use_sim_time_arg,
         oakd_driver,
-        base_to_camera_tf,
-        rgbd_sync
+        base_to_camera_tf
     ])
