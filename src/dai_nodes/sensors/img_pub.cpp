@@ -51,7 +51,7 @@ void ImagePublisher::setup(std::shared_ptr<dai::Device> device, const utils::Img
         imgPubIT = image_transport::create_camera_publisher(node.get(), pubConfig.topicName + pubConfig.topicSuffix);
     }
     if(!synced) {
-        dataQ = out->createOutputQueue(pubConf.maxQSize, pubConf.qBlocking);
+        dataQ = device->getOutputQueue(qName, pubConf.maxQSize, pubConf.qBlocking);
         addQueueCB();
     }
 }

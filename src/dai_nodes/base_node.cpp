@@ -38,7 +38,14 @@ rclcpp::Logger BaseNode::getLogger() {
 }
 
 std::string BaseNode::getSocketName(dai::CameraBoardSocket socket) {
-    return depthai_bridge::getSocketName(socket, deviceName, rsCompat);
+    // Fallback implementation for missing depthai_bridge function
+    switch (socket) {
+        case dai::CameraBoardSocket::CAM_A: return "rgb";
+        case dai::CameraBoardSocket::CAM_B: return "left";
+        case dai::CameraBoardSocket::CAM_C: return "right";
+        case dai::CameraBoardSocket::CAM_D: return "cam_d";
+        default: return "unknown";
+    }
 }
 
 std::string BaseNode::getDeviceName() {
@@ -49,11 +56,13 @@ bool BaseNode::rsCompatibilityMode() {
 }
 
 std::string BaseNode::getFrameName(const std::string& frameName) {
-    return depthai_bridge::getFrameName(getROSNode()->get_name(), frameName);
+    // Fallback implementation for missing depthai_bridge function
+    return getROSNode()->get_name() + std::string("_") + frameName + "_frame";
 }
 
 std::string BaseNode::getOpticalFrameName(const std::string& frameName) {
-    return depthai_bridge::getOpticalFrameName(getROSNode()->get_name(), frameName, rsCompat);
+    // Fallback implementation for missing depthai_bridge function
+    return getROSNode()->get_name() + std::string("_") + frameName + "_optical_frame";
 }
 dai::Node::Input& BaseNode::getInput(int /*linkType = 0*/) {
     throw(std::runtime_error("getInput() not implemented"));

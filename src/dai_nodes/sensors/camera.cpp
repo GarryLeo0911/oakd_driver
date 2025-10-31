@@ -46,7 +46,6 @@ void Camera::setInOut(std::shared_ptr<dai::Pipeline> pipeline) {
         } else {
             defaultOut = camNode->requestOutput(std::pair<int, int>(width, height),
                                                 type,
-                                                utils::getValFromMap(ph->getParam<std::string>(ParamNames::RESIZE_MODE), sensor_helpers::resizeModeMap),
                                                 fps,
                                                 ph->getParam<bool>(ParamNames::UNDISTORTED));
         }

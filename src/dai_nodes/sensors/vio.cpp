@@ -40,8 +40,8 @@ Vio::Vio(const std::string& daiNodeName,
     socket = ph->getSocketID();
     imu.link(vioNode->imu);
 
-    left.getUnderlyingNode()->requestOutput(std::make_pair(width, height), std::nullopt, dai::ImgResizeMode::CROP, fps)->link(vioNode->left);
-    right.getUnderlyingNode()->requestOutput(std::make_pair(width, height), std::nullopt, dai::ImgResizeMode::CROP, fps)->link(vioNode->right);
+    left.getUnderlyingNode()->requestOutput(std::make_pair(width, height), std::nullopt, fps)->link(vioNode->left);
+    right.getUnderlyingNode()->requestOutput(std::make_pair(width, height), std::nullopt, fps)->link(vioNode->right);
     vioNode->setImuUpdateRate(ph->getParam<int>("i_imu_update_rate"));
     publishTf = ph->getParam<bool>("i_publish_tf");
     if(publishTf) {
@@ -71,10 +71,10 @@ Vio::Vio(const std::string& daiNodeName,
     auto height = ph->getParam<int>(ParamNames::HEIGHT);
     auto fps = ph->getParam<double>(ParamNames::FPS);
     socket = ph->getSocketID();
-    stereo.getLeftSensor()->getUnderlyingNode()->requestOutput(std::make_pair(width, height), std::nullopt, dai::ImgResizeMode::CROP, fps)->link(vioNode->left);
+    stereo.getLeftSensor()->getUnderlyingNode()->requestOutput(std::make_pair(width, height), std::nullopt, fps)->link(vioNode->left);
     stereo.getRightSensor()
         ->getUnderlyingNode()
-        ->requestOutput(std::make_pair(width, height), std::nullopt, dai::ImgResizeMode::CROP, fps)
+        ->requestOutput(std::make_pair(width, height), std::nullopt, fps)
         ->link(vioNode->right);
     vioNode->setImuUpdateRate(ph->getParam<int>("i_imu_update_rate"));
     publishTf = ph->getParam<bool>("i_publish_tf");

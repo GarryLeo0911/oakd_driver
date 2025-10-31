@@ -61,7 +61,7 @@ Slam::Slam(const std::string& daiNodeName,
     int height = ph->getOtherNodeParam<int>(stereo.getName(), ParamNames::HEIGHT);
     float fps = ph->getOtherNodeParam<float>(sens.getName(), ParamNames::FPS);
     slamNode->setFreq(ph->getParam<float>("i_frequency"));
-    sens.getUnderlyingNode()->requestOutput({width, height}, std::nullopt, dai::ImgResizeMode::CROP, fps, true)->link(slamNode->rect);
+    sens.getUnderlyingNode()->requestOutput({width, height}, std::nullopt, fps, true)->link(slamNode->rect);
     if(ph->getParam<bool>("i_use_external_odometry")) {
         tfBuffer = std::make_shared<tf2_ros::Buffer>(node->get_clock());
         tfListener = std::make_shared<tf2_ros::TransformListener>(*tfBuffer);

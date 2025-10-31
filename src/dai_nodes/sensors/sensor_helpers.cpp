@@ -43,12 +43,6 @@ std::string getNodeName(std::shared_ptr<rclcpp::Node> node, NodeNameEnum name) {
     return NodeNameMap.at(name);
 }
 
-const std::unordered_map<std::string, dai::ImgResizeMode> resizeModeMap = {
-    {"CROP", dai::ImgResizeMode::CROP},
-    {"LETTERBOX", dai::ImgResizeMode::LETTERBOX},
-    {"STRETCH", dai::ImgResizeMode::STRETCH},
-};
-
 const std::unordered_map<std::string, dai::CameraControl::FrameSyncMode> fSyncModeMap = {
     {"OFF", dai::CameraControl::FrameSyncMode::OFF},
     {"OUTPUT", dai::CameraControl::FrameSyncMode::OUTPUT},

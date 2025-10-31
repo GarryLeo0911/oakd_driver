@@ -41,10 +41,9 @@ RGBD::RGBD(const std::string& daiNodeName,
     rgbdNode->runSyncOnHost(ph->getParam<bool>("i_run_sync_on_host"));
     auto fps = ph->getOtherNodeParam<float>(camNode.getName(), ParamNames::FPS);
 
-    auto* out = color->requestOutput(std::pair<int, int>(ph->getOtherNodeParam<int>(camNode.getName(), ParamNames::WIDTH),
+    out = colorCam->requestOutput(std::make_pair(ph->getOtherNodeParam<int>(camNode.getName(), ParamNames::WIDTH),
                                                          ph->getOtherNodeParam<int>(camNode.getName(), ParamNames::HEIGHT)),
                                      dai::ImgFrame::Type::RGB888i,
-                                     dai::ImgResizeMode::CROP,
                                      fps,
                                      true);
     out->link(rgbdNode->inColor);
@@ -91,7 +90,6 @@ RGBD::RGBD(const std::string& daiNodeName,
     auto* out = color->requestOutput(std::pair<int, int>(ph->getOtherNodeParam<int>(camNode.getName(), ParamNames::WIDTH),
                                                          ph->getOtherNodeParam<int>(camNode.getName(), ParamNames::HEIGHT)),
                                      dai::ImgFrame::Type::RGB888i,
-                                     dai::ImgResizeMode::CROP,
                                      fps,
                                      true);
     out->link(rgbdNode->inColor);

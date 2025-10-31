@@ -62,11 +62,9 @@ Stereo::Stereo(const std::string& daiNodeName,
     ph->declareParams(stereoCamNode);
     leftOut = left->getUnderlyingNode()->requestOutput(std::make_pair<int, int>(ph->getParam<int>(ParamNames::WIDTH), ph->getParam<int>(ParamNames::HEIGHT)),
                                                        std::nullopt,
-                                                       dai::ImgResizeMode::CROP,
                                                        ph->getParam<float>(ParamNames::FPS));
     rightOut = right->getUnderlyingNode()->requestOutput(std::make_pair<int, int>(ph->getParam<int>(ParamNames::WIDTH), ph->getParam<int>(ParamNames::HEIGHT)),
                                                          std::nullopt,
-                                                         dai::ImgResizeMode::CROP,
                                                          ph->getParam<float>(ParamNames::FPS));
     leftOut->link(stereoCamNode->left);
     rightOut->link(stereoCamNode->right);

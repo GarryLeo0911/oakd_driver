@@ -14,7 +14,7 @@
 namespace dai {
 class Device;
 class Pipeline;
-class MessageQueue;
+class DataOutputQueue;
 namespace node {
 class VideoEncoder;
 class XLinkOut;
@@ -80,7 +80,7 @@ class ImagePublisher {
     void addQueueCB();
     void closeQueue();
     bool isSynced();
-    std::shared_ptr<dai::MessageQueue> getQueue();
+    std::shared_ptr<dai::DataOutputQueue> getQueue();
     void link(dai::Node::Input& in);
     std::string getQueueName();
     void publish(const std::shared_ptr<dai::ADatatype>& data);
@@ -106,7 +106,7 @@ class ImagePublisher {
     rclcpp::Publisher<ffmpeg_image_transport_msgs::msg::FFMPEGPacket>::SharedPtr ffmpegPub;
     rclcpp::Publisher<sensor_msgs::msg::CompressedImage>::SharedPtr compressedImgPub;
     image_transport::CameraPublisher imgPubIT;
-    std::shared_ptr<dai::MessageQueue> dataQ;
+    std::shared_ptr<dai::DataOutputQueue> dataQ;
     int cbID;
     std::string qName;
     bool ipcEnabled;

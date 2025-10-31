@@ -37,7 +37,6 @@ extern const std::unordered_map<NodeNameEnum, std::string> rsNodeNameMap;
 extern const std::unordered_map<NodeNameEnum, std::string> NodeNameMap;
 extern const std::unordered_map<std::string, dai::CameraControl::FrameSyncMode> fSyncModeMap;
 extern const std::unordered_map<std::string, dai::CameraImageOrientation> cameraImageOrientationMap;
-extern const std::unordered_map<std::string, dai::ImgResizeMode> resizeModeMap;
 bool rsCompabilityMode(std::shared_ptr<rclcpp::Node> node);
 std::string getNodeName(std::shared_ptr<rclcpp::Node> node, NodeNameEnum name);
 void basicCameraPub(const std::string& /*name*/,
