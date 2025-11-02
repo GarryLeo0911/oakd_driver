@@ -15,11 +15,11 @@
     vio:
       i_fps: 30.0
     stereo:
-      i_synced: true
+      i_synced: false
       i_depth_preset: DEFAULT
       i_publish_topic: true
     rgb:
-      i_synced: true
+      i_synced: false
       i_publish_topic: true
       i_fps: 30.0
     imu:
