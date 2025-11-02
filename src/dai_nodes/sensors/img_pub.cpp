@@ -58,6 +58,7 @@ void ImagePublisher::setup(std::shared_ptr<dai::Device> device, const utils::Img
 
 void ImagePublisher::createImageConverter(std::shared_ptr<dai::Device> device) {
     // TODO: Temporarily commenting out ImageConverter until depthai_bridge issues are resolved
+    (void)device;  // Suppress unused parameter warning
     RCLCPP_WARN(node->get_logger(), "ImageConverter creation temporarily disabled - depthai_bridge not available");
     /*
     converter = std::make_shared<depthai_bridge::ImageConverter>(convConfig.tfPrefix, convConfig.interleaved, convConfig.getBaseDeviceTimestamp);
