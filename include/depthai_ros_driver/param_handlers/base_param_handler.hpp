@@ -125,13 +125,10 @@ class BaseParamHandler {
         // Simple socket name mapping since depthai_bridge::getSocketName may not be available
         switch (socket) {
             case dai::CameraBoardSocket::AUTO: return "auto";
-            case dai::CameraBoardSocket::RGB: return "rgb";
-            case dai::CameraBoardSocket::LEFT: return "left";
-            case dai::CameraBoardSocket::RIGHT: return "right";
-            case dai::CameraBoardSocket::CENTER: return "center";
-            case dai::CameraBoardSocket::CAM_A: return "cam_a";
-            case dai::CameraBoardSocket::CAM_B: return "cam_b";
-            case dai::CameraBoardSocket::CAM_C: return "cam_c";
+            case dai::CameraBoardSocket::RGB: return "rgb";  // This might be same as CAM_A
+            case dai::CameraBoardSocket::LEFT: return "left"; // This might be same as CAM_B  
+            case dai::CameraBoardSocket::RIGHT: return "right"; // This might be same as CAM_C
+            // Only include CAM_D onwards to avoid duplicates
             case dai::CameraBoardSocket::CAM_D: return "cam_d";
             case dai::CameraBoardSocket::CAM_E: return "cam_e";
             case dai::CameraBoardSocket::CAM_F: return "cam_f";

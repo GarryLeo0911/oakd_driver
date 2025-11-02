@@ -58,27 +58,30 @@ const std::unordered_map<std::string, dai::CameraImageOrientation> cameraImageOr
 
 void basicCameraPub(const std::string& /*name*/,
                     const std::shared_ptr<dai::ADatatype>& data,
-                    depthai_bridge::ImageConverter& converter,
+                    // depthai_bridge::ImageConverter& converter,
                     image_transport::CameraPublisher& pub,
                     std::shared_ptr<camera_info_manager::CameraInfoManager> infoManager) {
     if(rclcpp::ok() && (pub.getNumSubscribers() > 0)) {
         auto img = std::dynamic_pointer_cast<dai::ImgFrame>(data);
         auto info = infoManager->getCameraInfo();
-        auto rawMsg = converter.toRosMsgRawPtr(img);
-        info.header = rawMsg.header;
-        pub.publish(rawMsg, info);
+        // TODO: Need to implement image conversion without depthai_bridge
+        // auto rawMsg = converter.toRosMsgRawPtr(img);
+        // info.header = rawMsg.header;
+        // pub.publish(rawMsg, info);
     }
 }
 
 sensor_msgs::msg::CameraInfo getCalibInfo(const rclcpp::Logger& logger,
-                                          std::shared_ptr<depthai_bridge::ImageConverter> converter,
+                                          // std::shared_ptr<depthai_bridge::ImageConverter> converter,
                                           dai::CalibrationHandler calHandler,
                                           dai::CameraBoardSocket socket,
                                           int width,
                                           int height) {
     sensor_msgs::msg::CameraInfo info;
     try {
-        info = converter->calibrationToCameraInfo(calHandler, socket, width, height);
+        // TODO: Need to implement calibration info extraction without depthai_bridge
+        // info = converter->calibrationToCameraInfo(calHandler, socket, width, height);
+        RCLCPP_WARN(logger, "Calibration info extraction not implemented yet");
     } catch(std::runtime_error& e) {
         RCLCPP_ERROR(logger, "No calibration for socket %d! Publishing empty camera_info.", static_cast<int>(socket));
     }

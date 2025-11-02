@@ -4,10 +4,14 @@
 #include <vector>
 
 #include "depthai/depthai.hpp"
-#include "depthai_bridge/ImageConverter.hpp"
 #include "image_transport/camera_publisher.hpp"
 #include "sensor_msgs/msg/camera_info.hpp"
 #include "sensor_msgs/msg/image.hpp"
+
+// Forward declaration to avoid include issues
+namespace depthai_bridge {
+    class ImageConverter;
+}
 
 namespace dai {
 class Device;
@@ -39,12 +43,12 @@ bool rsCompabilityMode(std::shared_ptr<rclcpp::Node> node);
 std::string getNodeName(std::shared_ptr<rclcpp::Node> node, NodeNameEnum name);
 void basicCameraPub(const std::string& /*name*/,
                     const std::shared_ptr<dai::ADatatype>& data,
-                    depthai_bridge::ImageConverter& converter,
+                    // depthai_bridge::ImageConverter& converter,
                     image_transport::CameraPublisher& pub,
                     std::shared_ptr<camera_info_manager::CameraInfoManager> infoManager);
 
 sensor_msgs::msg::CameraInfo getCalibInfo(const rclcpp::Logger& logger,
-                                          std::shared_ptr<depthai_bridge::ImageConverter> converter,
+                                          // std::shared_ptr<depthai_bridge::ImageConverter> converter,
                                           dai::CalibrationHandler calHandler,
                                           dai::CameraBoardSocket socket,
                                           int width = 0,

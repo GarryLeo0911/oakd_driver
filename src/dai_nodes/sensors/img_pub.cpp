@@ -57,6 +57,9 @@ void ImagePublisher::setup(std::shared_ptr<dai::Device> device, const utils::Img
 }
 
 void ImagePublisher::createImageConverter(std::shared_ptr<dai::Device> device) {
+    // TODO: Temporarily commenting out ImageConverter until depthai_bridge issues are resolved
+    RCLCPP_WARN(getROSNode()->get_logger(), "ImageConverter creation temporarily disabled - depthai_bridge not available");
+    /*
     converter = std::make_shared<depthai_bridge::ImageConverter>(convConfig.tfPrefix, convConfig.interleaved, convConfig.getBaseDeviceTimestamp);
     converter->setUpdateRosBaseTimeOnToRosMsg(convConfig.updateROSBaseTimeOnRosMsg);
     if(convConfig.lowBandwidth) {
@@ -92,6 +95,7 @@ void ImagePublisher::createImageConverter(std::shared_ptr<dai::Device> device) {
         converter->convertDispToDepth(baseline);
     }
     converter->setFFMPEGEncoding(convConfig.ffmpegEncoder);
+    */
 }
 
 std::shared_ptr<dai::node::VideoEncoder> ImagePublisher::createEncoder(std::shared_ptr<dai::Pipeline> pipeline,
@@ -144,34 +148,38 @@ std::string ImagePublisher::getQueueName() {
     return qName;
 }
 std::shared_ptr<Image> ImagePublisher::convertData(const std::shared_ptr<dai::ADatatype>& data) {
-    auto daiImg = std::dynamic_pointer_cast<dai::ImgFrame>(data);
-    auto info = converter->generateCameraInfo(daiImg);
-    if(pubConfig.rectified) {
-        info.r[0] = info.r[4] = info.r[8] = 1.0;
-    }
-    if(pubConfig.undistorted) {
-        std::fill(info.d.begin(), info.d.end(), 0.0);
-    }
+    // TODO: Temporarily create a minimal implementation without depthai_bridge
     auto img = std::make_shared<Image>();
-    if(pubConfig.publishCompressed) {
-        if(encConfig.profile == dai::VideoEncoderProperties::Profile::MJPEG) {
-            auto daiImg = std::dynamic_pointer_cast<dai::EncodedFrame>(data);
-            std::deque<sensor_msgs::msg::CompressedImage> deq;
-            converter->toRosCompressedMsg(daiImg, deq);
-            img->compressedImg = std::make_unique<sensor_msgs::msg::CompressedImage>(deq.front());
-        } else {
-            auto daiImg = std::dynamic_pointer_cast<dai::EncodedFrame>(data);
-            std::deque<ffmpeg_image_transport_msgs::msg::FFMPEGPacket> deq;
-            converter->toRosFFMPEGPacket(daiImg, deq);
-            img->ffmpegPacket = std::make_unique<ffmpeg_image_transport_msgs::msg::FFMPEGPacket>(deq.front());
-        }
-    } else {
-        auto daiImg = std::dynamic_pointer_cast<dai::ImgFrame>(data);
-        auto rawMsg = converter->toRosMsgRawPtr(daiImg, info);
-        info.header = rawMsg.header;
+    
+    // Create basic camera info without converter
+    sensor_msgs::msg::CameraInfo info;
+    auto daiImg = std::dynamic_pointer_cast<dai::ImgFrame>(data);
+    if(daiImg) {
+        info.width = daiImg->getWidth();
+        info.height = daiImg->getHeight();
+        // Add basic frame ID
+        info.header.frame_id = convConfig.tfPrefix;
+        info.header.stamp = rclcpp::Clock().now();
+    }
+    
+    // Create basic ROS message without converter
+    if(daiImg) {
+        auto rawMsg = sensor_msgs::msg::Image();
+        rawMsg.header = info.header;
+        rawMsg.width = daiImg->getWidth();
+        rawMsg.height = daiImg->getHeight();
+        rawMsg.encoding = "bgr8";  // Default encoding
+        rawMsg.is_bigendian = false;
+        rawMsg.step = daiImg->getWidth() * 3;  // Assuming BGR8
+        
+        // TODO: Implement proper image data conversion
+        RCLCPP_WARN_THROTTLE(getROSNode()->get_logger(), *getROSNode()->get_clock(), 5000,
+                             "Image conversion temporarily disabled - using placeholder");
+        
         sensor_msgs::msg::Image::UniquePtr msg = std::make_unique<sensor_msgs::msg::Image>(rawMsg);
         img->image = std::move(msg);
     }
+    
     sensor_msgs::msg::CameraInfo::UniquePtr infoMsg = std::make_unique<sensor_msgs::msg::CameraInfo>(info);
     img->info = std::move(infoMsg);
     return img;

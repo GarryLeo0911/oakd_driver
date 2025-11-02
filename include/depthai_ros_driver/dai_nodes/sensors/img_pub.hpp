@@ -4,13 +4,17 @@
 
 #include "depthai/pipeline/Node.hpp"
 #include "depthai/pipeline/datatype/ADatatype.hpp"
-#include "depthai_bridge/ImageConverter.hpp"
 #include "depthai_ros_driver/utils.hpp"
 #include "ffmpeg_image_transport_msgs/msg/ffmpeg_packet.hpp"
 #include "image_transport/camera_publisher.hpp"
 #include "sensor_msgs/msg/camera_info.hpp"
 #include "sensor_msgs/msg/compressed_image.hpp"
 #include "sensor_msgs/msg/image.hpp"
+
+// Forward declaration to avoid include issues
+namespace depthai_bridge {
+    class ImageConverter;
+}
 
 namespace dai {
 class Device;
