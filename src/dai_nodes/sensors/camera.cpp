@@ -40,7 +40,10 @@ void Camera::setInOut(std::shared_ptr<dai::Pipeline> pipeline) {
     auto width = ph->getParam<int>(ParamNames::WIDTH);
     auto height = ph->getParam<int>(ParamNames::HEIGHT);
     auto fps = ph->getParam<float>(ParamNames::FPS);
+    // Note: width, height, and type variables kept for potential future use
+    (void)width; (void)height; // Suppress unused variable warnings
     dai::ImgFrame::Type type = dai::ImgFrame::Type::NV12;
+    (void)type; // Suppress unused variable warning
     if(ph->getParam<bool>(ParamNames::PUBLISH_TOPIC)) {
         if(ph->getParam<bool>("i_publish_full_resolution")) {
             // Configure camera for full resolution output
@@ -68,13 +71,12 @@ void Camera::setInOut(std::shared_ptr<dai::Pipeline> pipeline) {
     controlIn->setStreamName(controlQName);
     controlIn->out.link(camNode->inputControl);
 }
-}
 
 void Camera::setupQueues(std::shared_ptr<dai::Device> device) {
     using ParamNames = param_handlers::ParamNames;
     controlQ = device->getInputQueue(controlQName, 8, false);
     if(ph->getParam<bool>(ParamNames::PUBLISH_TOPIC)) {
-        auto tfPrefix = getOpticalFrameName(getSocketName(static_cast<dai::CameraBoardSocket>(ph->getParam<int>(ParamNames::BOARD_SOCKET_ID))));
+        auto tfPrefix = getOpticalFrameName(sensor_helpers::getSocketName(getROSNode(), static_cast<dai::CameraBoardSocket>(ph->getParam<int>(ParamNames::BOARD_SOCKET_ID))));
         utils::ImgConverterConfig convConfig;
         convConfig.tfPrefix = tfPrefix;
         convConfig.getBaseDeviceTimestamp = ph->getParam<bool>(ParamNames::GET_BASE_DEVICE_TIMESTAMP);

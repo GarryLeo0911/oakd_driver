@@ -38,7 +38,7 @@ class Detection : public BaseNode {
               std::shared_ptr<dai::Pipeline> pipeline,
               const std::string& deviceName,
               bool rsCompat,
-              dai_nodes::SensorWrapper& camNode,
+              dai_nodes::SensorWrapper& /* camNode */,
               const dai::CameraBoardSocket& socket = dai::CameraBoardSocket::CAM_A)
         : BaseNode(daiNodeName, node, pipeline, deviceName, rsCompat) {
         RCLCPP_DEBUG(getLogger(), "Creating node %s", daiNodeName.c_str());

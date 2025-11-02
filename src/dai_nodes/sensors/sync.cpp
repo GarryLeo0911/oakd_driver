@@ -14,7 +14,7 @@ Sync::Sync(
     const std::string& daiNodeName, std::shared_ptr<rclcpp::Node> node, std::shared_ptr<dai::Pipeline> pipeline, const std::string& deviceName, bool rsCompat)
     : BaseNode(daiNodeName, node, pipeline, deviceName, rsCompat) {
     syncNode = pipeline->create<dai::node::Sync>();
-    paramHandler = std::make_unique<param_handlers::SyncParamHandler>(node, daiNodeName, deviceName, rsCompat);
+    paramHandler = std::make_unique<param_handlers::SyncParamHandler>(node, daiNodeName);
     paramHandler->declareParams(syncNode);
     setNames();
     setInOut(pipeline);

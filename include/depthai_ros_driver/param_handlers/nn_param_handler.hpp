@@ -47,7 +47,7 @@ class NNParamHandler : public BaseParamHandler {
 
     void setNNParams(std::shared_ptr<dai::node::NeuralNetwork> nn);
 
-    void setSpatialParams(std::shared_ptr<dai::node::NeuralNetwork> nn) {
+    void setSpatialParams(std::shared_ptr<dai::node::NeuralNetwork> /* nn */) {
         // Spatial parameters are handled directly in the neural network
         // These parameters may need to be set differently in newer API
     }

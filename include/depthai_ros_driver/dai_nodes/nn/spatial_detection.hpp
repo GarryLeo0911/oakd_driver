@@ -32,8 +32,8 @@ class SpatialDetection : public BaseNode {
                      std::shared_ptr<dai::Pipeline> pipeline,
                      const std::string& deviceName,
                      bool rsCompat,
-                     SensorWrapper& camNode,
-                     Stereo& stereoNode,
+                     SensorWrapper& /* camNode */,
+                     Stereo& /* stereoNode */,
                      const dai::CameraBoardSocket& socket = dai::CameraBoardSocket::CAM_A)
         : BaseNode(daiNodeName, node, pipeline, deviceName, rsCompat) {
         RCLCPP_DEBUG(getLogger(), "Creating node %s", daiNodeName.c_str());
@@ -77,31 +77,15 @@ class SpatialDetection : public BaseNode {
             ptQ = device->getOutputQueue(ptQName, ph->getParam<int>("i_max_q_size"), false);
         }
 
-        if(ph->getParam<bool>("i_enable_passthrough_depth")) {
-            dai::CameraBoardSocket socket = static_cast<dai::CameraBoardSocket>(ph->getOtherNodeParam<int>("stereo", "i_board_socket_id"));
-            tfPrefix = getOpticalFrameName(
-                ph->getOtherNodeParam<std::string>(sensor_helpers::getNodeName(getROSNode(), sensor_helpers::NodeNameEnum::Stereo), "i_socket_name"));
-            utils::ImgConverterConfig convConf;
-            convConf.tfPrefix = tfPrefix;
-            convConf.getBaseDeviceTimestamp = ph->getParam<bool>("i_get_base_device_timestamp");
-            convConf.updateROSBaseTimeOnRosMsg = ph->getParam<bool>("i_update_ros_base_time_on_ros_msg");
-
-            utils::ImgPublisherConfig pubConf;
-            pubConf.width = ph->getOtherNodeParam<int>(sensor_helpers::getNodeName(getROSNode(), sensor_helpers::NodeNameEnum::Stereo), "i_width");
-            pubConf.height = ph->getOtherNodeParam<int>(sensor_helpers::getNodeName(getROSNode(), sensor_helpers::NodeNameEnum::Stereo), "i_height");
-            pubConf.daiNodeName = getName();
-            pubConf.topicName = "~/" + getName() + "/passthrough_depth";
-            pubConf.infoSuffix = "/passthrough_depth";
-            pubConf.socket = socket;
-
-            ptDepthPub->setup(device, convConf, pubConf);
-            ptDepthQ = device->getOutputQueue(ptDepthQName, ph->getParam<int>("i_max_q_size"), false);
-        }
+        // Note: passthroughDepth not available in NeuralNetwork
+        // if(ph->getParam<bool>("i_enable_passthrough_depth")) {
+        //     // Depth passthrough setup would go here
+        // }
     };
     void link(dai::Node::Input& in, int /*linkType = 0*/) override {
         spatialNode->out.link(in);
     };
-    dai::Node::Input& getInput(int linkType = 0) override {
+    dai::Node::Input& getInput(int /* linkType */ = 0) override {
         return spatialNode->input;
     };
     void setNames() override {
@@ -118,18 +102,20 @@ class SpatialDetection : public BaseNode {
         if(ph->getParam<bool>("i_enable_passthrough")) {
             ptPub = setupOutput(pipeline, ptQName, &spatialNode->passthrough);
         }
-        if(ph->getParam<bool>("i_enable_passthrough_depth")) {
-            ptDepthPub = setupOutput(pipeline, ptDepthQName, &spatialNode->passthroughDepth);
-        }
+        // Note: passthroughDepth not available in NeuralNetwork, only in SpatialDetectionNetwork
+        // if(ph->getParam<bool>("i_enable_passthrough_depth")) {
+        //     ptDepthPub = setupOutput(pipeline, ptDepthQName, &spatialNode->passthroughDepth);
+        // }
     };
     void closeQueues() override {
         nnQ->close();
         if(ph->getParam<bool>("i_enable_passthrough")) {
             ptQ->close();
         }
-        if(ph->getParam<bool>("i_enable_passthrough_depth")) {
-            ptDepthQ->close();
-        }
+        // Note: passthroughDepth not available in NeuralNetwork
+        // if(ph->getParam<bool>("i_enable_passthrough_depth")) {
+        //     ptDepthQ->close();
+        // }
     };
 
    private:

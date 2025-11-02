@@ -25,7 +25,7 @@ Segmentation::Segmentation(const std::string& daiNodeName,
                            std::shared_ptr<dai::Pipeline> pipeline,
                            const std::string& deviceName,
                            bool rsCompat,
-                           dai_nodes::SensorWrapper& camNode,
+                           dai_nodes::SensorWrapper& /* camNode */,
                            const dai::CameraBoardSocket& socket)
     : BaseNode(daiNodeName, node, pipeline, deviceName, rsCompat) {
     RCLCPP_DEBUG(getLogger(), "Creating node %s", daiNodeName.c_str());
@@ -77,7 +77,9 @@ void Segmentation::setupQueues(std::shared_ptr<dai::Device> device) {
         infoManager->setCameraInfo(sensor_helpers::getCalibInfo(getROSNode()->get_logger(), imageConverter, device, ph->getSocketID()));
 
         ptPub = image_transport::create_camera_publisher(getROSNode().get(), "~/" + getName() + "/passthrough/image_raw");
-        ptQ->addCallback(std::bind(sensor_helpers::basicCameraPub, std::placeholders::_1, std::placeholders::_2, *imageConverter, ptPub));
+        ptQ->addCallback([this, imageConverter, ptPub, infoManager](const std::string& name, const std::shared_ptr<dai::ADatatype>& data) {
+            sensor_helpers::basicCameraPub(name, data, *imageConverter, ptPub, infoManager);
+        });
     }
 }
 
