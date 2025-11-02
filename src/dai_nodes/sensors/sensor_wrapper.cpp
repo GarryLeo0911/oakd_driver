@@ -67,6 +67,7 @@ void SensorWrapper::setNames() {
 }
 
 void SensorWrapper::setInOut(std::shared_ptr<dai::Pipeline> pipeline) {
+    (void)pipeline;  // Suppress unused parameter warning
     // xIn = pipeline->create<dai::node::XLinkIn>();
     // xIn->setStreamName(inQName);
 }

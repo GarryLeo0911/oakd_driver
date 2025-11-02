@@ -7,6 +7,10 @@ namespace depthai_ros_driver {
 namespace param_handlers {
 PipelineGenParamHandler::PipelineGenParamHandler(std::shared_ptr<rclcpp::Node> node, const std::string& name)
     : BaseParamHandler(node, name) {}
+
+PipelineGenParamHandler::PipelineGenParamHandler(std::shared_ptr<rclcpp::Node> node, const std::string& name, const std::string& /*deviceName*/, bool /*rsCompat*/)
+    : BaseParamHandler(node, name) {}
+
 PipelineGenParamHandler::~PipelineGenParamHandler() = default;
 
 void PipelineGenParamHandler::declareParams() {
@@ -20,6 +24,7 @@ void PipelineGenParamHandler::declareParams() {
 }
 
 dai::CameraControl PipelineGenParamHandler::setRuntimeParams(const std::vector<rclcpp::Parameter>& params) {
+    (void)params;  // Suppress unused parameter warning
     dai::CameraControl ctrl;
     // PipelineGenParamHandler doesn't have runtime parameters to set
     // Return empty control object
