@@ -71,11 +71,14 @@ std::vector<std::unique_ptr<dai_nodes::BaseNode>> PipelineGenerator::createPipel
     }
 
     if(ph->getParam<bool>("i_enable_diagnostics")) {
-        if(device->getPlatform() == dai::Platform::RVC2) {
+        auto deviceInfo = device->getDeviceInfo();
+        // Check device name instead of deprecated platform enum
+        if(deviceInfo.name.find("OAK-D") != std::string::npos || 
+           deviceInfo.name.find("BW1098") != std::string::npos) {
             auto sysLogger = std::make_unique<dai_nodes::SysLogger>("sys_logger", node, pipeline, deviceName, rsCompat);
             daiNodes.push_back(std::move(sysLogger));
         } else {
-            RCLCPP_WARN(node->get_logger(), "Diagnostics not yet available on RVC4.");
+            RCLCPP_WARN(node->get_logger(), "Diagnostics not yet available on OAK-4.");
         }
     }
     bool enableSync = false;

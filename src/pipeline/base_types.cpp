@@ -182,7 +182,7 @@ std::vector<std::unique_ptr<dai_nodes::BaseNode>> CamArray::createPipeline(std::
     std::vector<std::unique_ptr<dai_nodes::BaseNode>> daiNodes;
 
     for(auto& feature : device->getConnectedCameraFeatures()) {
-        auto name = depthai_bridge::getSocketName(feature.socket, deviceName, rsCompat, true);
+        auto name = getSocketName(node, feature.socket);
         auto daiNode = std::make_unique<dai_nodes::SensorWrapper>(name, node, pipeline, deviceName, rsCompat, feature.socket);
         daiNodes.push_back(std::move(daiNode));
     };

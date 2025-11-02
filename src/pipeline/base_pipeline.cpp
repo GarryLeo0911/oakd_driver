@@ -33,7 +33,9 @@ void BasePipeline::addRgbdNode(std::vector<std::unique_ptr<dai_nodes::BaseNode>>
                                dai_nodes::Stereo& stereo) {
     if(ph->getParam<bool>("i_enable_rgbd")) {
         auto rgbd = std::make_unique<dai_nodes::RGBD>("rgbd", node, pipeline, device, rsCompat, rgb, stereo.getUnderlyingNode(), stereo.isAligned());
-        if(device->getPlatform() == dai::Platform::RVC4) {
+        auto deviceInfo = device->getDeviceInfo();
+        // Check device name instead of deprecated platform enum
+        if(deviceInfo.name.find("OAK") != std::string::npos && deviceInfo.name.find("4") != std::string::npos) {
             stereo.link(rgbd->getInput(static_cast<int>(dai_nodes::link_types::RGBDLinkType::depth)),
                         static_cast<int>(dai_nodes::link_types::StereoLinkType::stereo));
         }

@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "depthai_bridge/TFPublisher.hpp"
+//#include "depthai_bridge/TFPublisher.hpp"
 #include "depthai_ros_driver/dai_nodes/base_node.hpp"
 #include "depthai_ros_driver/param_handlers/driver_param_handler.hpp"
 #include "diagnostic_msgs/msg/diagnostic_array.hpp"
@@ -15,7 +15,7 @@
 namespace dai {
 class Pipeline;
 class Device;
-enum class Platform;
+// enum class Platform;  // Deprecated in DepthAI v2.x
 }  // namespace dai
 
 namespace depthai_ros_driver {
@@ -91,10 +91,10 @@ class Driver : public rclcpp::Node {
     std::shared_ptr<dai::Device> device;
     std::vector<std::unique_ptr<dai_nodes::BaseNode>> daiNodes;
     std::string deviceName;
-    dai::Platform platform;
+    // dai::Platform platform;  // Deprecated in DepthAI v2.x
     std::atomic<bool> camRunning = false;
     bool initialized = false;
-    std::unique_ptr<depthai_bridge::TFPublisher> tfPub;
+    //std::unique_ptr<depthai_bridge::TFPublisher> tfPub;
     rclcpp::TimerBase::SharedPtr startTimer;
     rclcpp::CallbackGroup::SharedPtr srvGroup;
 };

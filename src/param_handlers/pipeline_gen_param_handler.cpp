@@ -18,5 +18,12 @@ void PipelineGenParamHandler::declareParams() {
     declareAndLogParam<bool>("i_enable_vio", false);
     // declareAndLogParam<bool>("i_enable_slam", false);
 }
+
+dai::CameraControl PipelineGenParamHandler::setRuntimeParams(const std::vector<rclcpp::Parameter>& params) {
+    dai::CameraControl ctrl;
+    // PipelineGenParamHandler doesn't have runtime parameters to set
+    // Return empty control object
+    return ctrl;
+}
 }  // namespace param_handlers
 }  // namespace depthai_ros_driver

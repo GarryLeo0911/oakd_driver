@@ -3,6 +3,10 @@
         "unordered_map": "cpp",
         "memory": "cpp",
         "filesystem": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "chrono": "cpp",
+        "system_error": "cpp",
+        "xlocale": "cpp",
+        "xstring": "cpp"
     }
 }

@@ -33,6 +33,7 @@ void Driver::onConfigure() {
     }
 
     if(ph->getParam<bool>("i_publish_tf_from_calibration")) {
+        /*
         tfPub = std::make_unique<depthai_bridge::TFPublisher>(shared_from_this(),
                                                               device->readCalibration(),
                                                               device->getConnectedCameraFeatures(),
@@ -50,6 +51,8 @@ void Driver::onConfigure() {
                                                               ph->getParam<std::string>("i_tf_custom_urdf_location"),
                                                               ph->getParam<std::string>("i_tf_custom_xacro_args"),
                                                               ph->getParam<bool>("i_rs_compat"));
+        */
+        RCLCPP_WARN(get_logger(), "TF publishing is temporarily disabled - depthai_bridge not available");
     }
     srvGroup = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
 
@@ -63,7 +66,7 @@ void Driver::onConfigure() {
         "~/save_calibration", std::bind(&Driver::saveCalibCB, this, std::placeholders::_1, std::placeholders::_2), rclcpp::ServicesQoS(), srvGroup);
 
     diagSub = this->create_subscription<diagnostic_msgs::msg::DiagnosticArray>("/diagnostics", 10, std::bind(&Driver::diagCB, this, std::placeholders::_1));
-    pipeline->start();
+    device->startPipeline(*pipeline);
     RCLCPP_WARN(get_logger(),
                 "If you detect any issues with Kilted release, please report "
                 "issues to GH: https://github.com/luxonis/depthai-ros/issues/719");
@@ -126,7 +129,7 @@ void Driver::restart() {
 void Driver::saveCalib() {
     auto calibHandler = device->readCalibration();
     std::stringstream savePath;
-    savePath << "/tmp/" << device->getDeviceId().c_str() << "_calibration.json";
+    savePath << "/tmp/" << device->getDeviceInfo().name.c_str() << "_calibration.json";
     RCLCPP_INFO(get_logger(), "Saving calibration to: %s", savePath.str().c_str());
     calibHandler.eepromToJsonFile(savePath.str());
 }
@@ -144,7 +147,7 @@ void Driver::saveCalibCB(const Trigger::Request::SharedPtr /*req*/, Trigger::Res
 
 void Driver::savePipeline() {
     std::stringstream savePath;
-    savePath << "/tmp/" << device->getDeviceId().c_str() << "_pipeline.json";
+    savePath << "/tmp/" << device->getDeviceInfo().name.c_str() << "_pipeline.json";
     RCLCPP_INFO(get_logger(), "Saving pipeline schema to: %s", savePath.str().c_str());
     std::ofstream file(savePath.str());
     file << pipeline->serializeToJson()["pipeline"];
@@ -166,17 +169,19 @@ void Driver::stopCB(const Trigger::Request::SharedPtr /*req*/, Trigger::Response
 }
 void Driver::getDeviceType() {
     startDevice();
-    platform = device->getPlatform();
+    // Use getDeviceInfo().name instead of deprecated getPlatform()
+    auto deviceInfo = device->getDeviceInfo();
     auto boardID = device->readCalibration2().getEepromData().boardName;
     RCLCPP_DEBUG(get_logger(), "Board ID: %s", boardID.c_str());
-    pipeline = std::make_shared<dai::Pipeline>(device);
+    pipeline = std::make_shared<dai::Pipeline>();
     deviceName = device->getDeviceName();
     RCLCPP_INFO(get_logger(), "Device type: %s", deviceName.c_str());
     for(auto& sensor : device->getCameraSensorNames()) {
         RCLCPP_DEBUG(get_logger(), "Socket %d - %s", static_cast<int>(sensor.first), sensor.second.c_str());
     }
-    // not working on OAK4 right now
-    if(platform == dai::Platform::RVC2) {
+    // not working on OAK4 right now - check device name instead of platform
+    if(deviceInfo.name.find("OAK-D") != std::string::npos || 
+       deviceInfo.name.find("BW1098") != std::string::npos) {
         auto ir_drivers = device->getIrDrivers();
         if(ir_drivers.empty()) {
             RCLCPP_DEBUG(get_logger(), "Device has no IR drivers");
@@ -233,7 +238,7 @@ void Driver::startDevice() {
                 }
                 dai::UsbSpeed speed = ph->getUSBSpeed();
                 for(const auto& info : availableDevices) {
-                    if(!deviceId.empty() && info.getDeviceId() == deviceId) {
+                    if(!deviceId.empty() && info.mxid == deviceId) {
                         RCLCPP_INFO(get_logger(), "Connecting to the device using ID: %s", deviceId.c_str());
                         if(info.state == X_LINK_UNBOOTED || info.state == X_LINK_BOOTLOADER) {
                             device = std::make_shared<dai::Device>(info, speed);
@@ -258,7 +263,7 @@ void Driver::startDevice() {
                             throw std::runtime_error("Device is already booted in different process.");
                         }
                     } else {
-                        RCLCPP_INFO(get_logger(), "Ignoring device info: ID: %s, Name: %s", info.getDeviceId().c_str(), info.name.c_str());
+                        RCLCPP_INFO(get_logger(), "Ignoring device info: ID: %s, Name: %s", info.mxid.c_str(), info.name.c_str());
                     }
                 }
             }
@@ -268,7 +273,7 @@ void Driver::startDevice() {
         r.sleep();
     }
 
-    RCLCPP_INFO(get_logger(), "Driver with ID: %s and Name: %s connected!", device->getDeviceId().c_str(), device->getDeviceInfo().name.c_str());
+    RCLCPP_INFO(get_logger(), "Driver with ID: %s and Name: %s connected!", device->getDeviceInfo().name.c_str(), device->getDeviceInfo().name.c_str());
     auto protocol = device->getDeviceInfo().getXLinkDeviceDesc().protocol;
 
     if(protocol != XLinkProtocol_t::X_LINK_TCP_IP) {
@@ -283,7 +288,10 @@ void Driver::startDevice() {
 
 void Driver::setIR() {
     bool hasIR = true;
-    if(platform == dai::Platform::RVC2) {
+    auto deviceInfo = device->getDeviceInfo();
+    // Check device name instead of deprecated platform enum
+    if(deviceInfo.name.find("OAK-D") != std::string::npos || 
+       deviceInfo.name.find("BW1098") != std::string::npos) {
         hasIR = !device->getIrDrivers().empty();
     }
     if(ph->getParam<bool>("i_enable_ir") && hasIR) {
@@ -297,7 +305,10 @@ void Driver::setIR() {
 rcl_interfaces::msg::SetParametersResult Driver::parameterCB(const std::vector<rclcpp::Parameter>& params) {
     for(const auto& p : params) {
         bool hasIR = true;
-        if(platform == dai::Platform::RVC2) {
+        auto deviceInfo = device->getDeviceInfo();
+        // Check device name instead of deprecated platform enum
+        if(deviceInfo.name.find("OAK-D") != std::string::npos || 
+           deviceInfo.name.find("BW1098") != std::string::npos) {
             hasIR = !device->getIrDrivers().empty();
         }
         if(ph->getParam<bool>("i_enable_ir") && hasIR) {
