@@ -6,7 +6,6 @@
 
 #include "depthai/common/CameraBoardSocket.hpp"
 #include "depthai/common/CameraFeatures.hpp"
-#include "depthai/device/DeviceInfo.hpp"
 #include "depthai_ros_driver/dai_nodes/sensors/sensor_wrapper.hpp"
 
 namespace dai {

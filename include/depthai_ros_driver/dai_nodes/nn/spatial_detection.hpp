@@ -147,7 +147,7 @@ class SpatialDetection : public BaseNode {
     std::shared_ptr<dai::node::SpatialDetectionNetwork> spatialNode;
     std::shared_ptr<dai::node::ImageManip> imageManip;
     std::unique_ptr<param_handlers::NNParamHandler> ph;
-    std::shared_ptr<dai::MessageQueue> nnQ, ptQ, ptDepthQ;
+    std::shared_ptr<dai::DataOutputQueue> nnQ, ptQ, ptDepthQ;
     std::shared_ptr<dai::node::XLinkOut> xoutNN, xoutPT, xoutPTDepth;
     std::string nnQName, ptQName, ptDepthQName;
 };

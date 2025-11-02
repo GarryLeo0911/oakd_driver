@@ -158,7 +158,7 @@ class Detection : public BaseNode {
     std::shared_ptr<dai::node::DetectionNetwork> detectionNode;
     std::shared_ptr<dai::node::ImageManip> imageManip;
     std::unique_ptr<param_handlers::NNParamHandler> ph;
-    std::shared_ptr<dai::MessageQueue> nnQ, ptQ;
+    std::shared_ptr<dai::DataOutputQueue> nnQ, ptQ;
     std::string nnQName, ptQName;
 };
 

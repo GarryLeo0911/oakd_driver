@@ -34,7 +34,7 @@ void FeatureTracker::setNames() {
 void FeatureTracker::setInOut(std::shared_ptr<dai::Pipeline> /* pipeline */) {}
 
 void FeatureTracker::setupQueues(std::shared_ptr<dai::Device> device) {
-    featureQ = device->getOutputQueue(featureNode->outputFeatures, ph->getParam<int>("i_max_q_size"), false);
+    featureQ = device->getOutputQueue(featureQName, ph->getParam<int>("i_max_q_size"), false);
     auto tfPrefix = getFrameName(parentName);
     rclcpp::PublisherOptions options;
     options.qos_overriding_options = rclcpp::QosOverridingOptions();

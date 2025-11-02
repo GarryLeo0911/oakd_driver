@@ -32,8 +32,8 @@ void Imu::setNames() {
 
 void Imu::setInOut(std::shared_ptr<dai::Pipeline> /* pipeline */) {}
 
-void Imu::setupQueues(std::shared_ptr<dai::Device> /* device */) {
-    imuQ = device->getOutputQueue(imuNode->out, ph->getParam<int>("i_max_q_size"), false);
+void Imu::setupQueues(std::shared_ptr<dai::Device> device) {
+    imuQ = device->getOutputQueue(imuQName, ph->getParam<int>("i_max_q_size"), false);
     auto tfPrefix = std::string(getROSNode()->get_name()) + "_" + getName();
     auto imuMode = ph->getSyncMethod();
     rclcpp::PublisherOptions options;
@@ -41,11 +41,11 @@ void Imu::setupQueues(std::shared_ptr<dai::Device> /* device */) {
     param_handlers::imu::ImuMsgType msgType = ph->getMsgType();
     bool enableMagn = msgType == param_handlers::imu::ImuMsgType::IMU_WITH_MAG || msgType == param_handlers::imu::ImuMsgType::IMU_WITH_MAG_SPLIT;
     imuConverter = std::make_unique<dai::ros::ImuConverter>(tfPrefix + "_frame",
-                                                                  imuMode,
-                                                                  ph->getParam<float>("i_acc_cov"),
-                                                                  ph->getParam<float>("i_gyro_cov"),
-                                                                  ph->getParam<float>("i_rot_cov"),
-                                                                  ph->getParam<float>("i_mag_cov"),
+                                                                  static_cast<dai::ros::ImuSyncMethod>(imuMode),
+                                                                  ph->getParam<double>("i_acc_cov"),
+                                                                  ph->getParam<double>("i_gyro_cov"),
+                                                                  ph->getParam<double>("i_rot_cov"),
+                                                                  ph->getParam<double>("i_mag_cov"),
                                                                   ph->getParam<bool>("i_enable_rotation"),
                                                                   enableMagn,
                                                                   ph->getParam<bool>("i_get_base_device_timestamp"));

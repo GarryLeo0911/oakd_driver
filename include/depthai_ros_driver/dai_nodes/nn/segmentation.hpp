@@ -21,7 +21,7 @@ class NeuralNetwork;
 class ImageManip;
 }  // namespace node
 }  // namespace dai
-namespace depthai_bridge {
+namespace dai::ros {
 class ImageConverter;
 }
 namespace camera_info_manager {
@@ -60,7 +60,7 @@ class Segmentation : public BaseNode {
     cv::Mat decodeDeeplab(cv::Mat mat, int classNum);
     void segmentationCB(const std::string& name, const std::shared_ptr<dai::ADatatype>& data);
     std::vector<std::string> labelNames;
-    std::shared_ptr<depthai_bridge::ImageConverter> imageConverter;
+    std::shared_ptr<dai::ros::ImageConverter> imageConverter;
     std::shared_ptr<camera_info_manager::CameraInfoManager> infoManager;
     image_transport::CameraPublisher nnPub, ptPub;
     sensor_msgs::msg::CameraInfo nnInfo;
