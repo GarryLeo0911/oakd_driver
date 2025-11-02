@@ -26,6 +26,17 @@ ImagePublisher::ImagePublisher(std::shared_ptr<rclcpp::Node> node,
         encoder = createEncoder(pipeline, encoderConfig);
         this->out->link(encoder->input);
     }
+    
+    // Create XLinkOut node for data output if not synced
+    if(!synced) {
+        xout = pipeline->create<dai::node::XLinkOut>();
+        xout->setStreamName(qName);
+        if(encoderConfig.enabled) {
+            encoder->bitstream.link(xout->input);
+        } else {
+            out->link(xout->input);
+        }
+    }
 }
 void ImagePublisher::setup(std::shared_ptr<dai::Device> device, const utils::ImgConverterConfig& convConf, const utils::ImgPublisherConfig& pubConf) {
     convConfig = convConf;
