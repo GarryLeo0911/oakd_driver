@@ -3,4 +3,5 @@
     driver:
       i_enable_ir: true
     pipeline_gen:
-      i_pipeline_type: RGBStereo
+      i_pipeline_type: RGB
+      i_nn_type: "none"
