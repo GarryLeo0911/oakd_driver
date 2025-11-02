@@ -46,7 +46,7 @@ std::string getNodeName(std::shared_ptr<rclcpp::Node> node, NodeNameEnum name);
 std::string getSocketName(std::shared_ptr<rclcpp::Node> node, dai::CameraBoardSocket socket);
 void basicCameraPub(const std::string& /*name*/,
                     const std::shared_ptr<dai::ADatatype>& data,
-                    // depthai_bridge::ImageConverter& converter,
+                    dai::ros::ImageConverter& converter,
                     image_transport::CameraPublisher& pub,
                     std::shared_ptr<camera_info_manager::CameraInfoManager> infoManager);
 

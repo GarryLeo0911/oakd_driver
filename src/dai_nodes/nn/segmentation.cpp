@@ -69,7 +69,7 @@ void Segmentation::setupQueues(std::shared_ptr<dai::Device> device) {
     nnPub = image_transport::create_camera_publisher(getROSNode().get(), "~/" + getName() + "/image_raw");
     nnQ->addCallback(std::bind(&Segmentation::segmentationCB, this, std::placeholders::_1, std::placeholders::_2));
     if(ph->getParam<bool>("i_enable_passthrough")) {
-        auto tfPrefix = getOpticalFrameName(getSocketName(ph->getSocketID()));
+        auto tfPrefix = getOpticalFrameName(sensor_helpers::getSocketName(getROSNode(), static_cast<dai::CameraBoardSocket>(ph->getParam<int>("i_board_socket_id"))));
         ptQ = device->getOutputQueue(ptQName, ph->getParam<int>("i_max_q_size"), false);
         imageConverter = std::make_shared<dai::ros::ImageConverter>(tfPrefix, false);
         infoManager = std::make_shared<camera_info_manager::CameraInfoManager>(
@@ -77,9 +77,7 @@ void Segmentation::setupQueues(std::shared_ptr<dai::Device> device) {
         infoManager->setCameraInfo(sensor_helpers::getCalibInfo(getROSNode()->get_logger(), imageConverter, device, ph->getSocketID()));
 
         ptPub = image_transport::create_camera_publisher(getROSNode().get(), "~/" + getName() + "/passthrough/image_raw");
-        ptQ->addCallback([this, imageConverter, ptPub, infoManager](const std::string& name, const std::shared_ptr<dai::ADatatype>& data) {
-            sensor_helpers::basicCameraPub(name, data, *imageConverter, ptPub, infoManager);
-        });
+        ptQ->addCallback(std::bind(sensor_helpers::basicCameraPub, std::placeholders::_1, std::placeholders::_2, *imageConverter, ptPub, infoManager));
     }
 }
 
@@ -90,28 +88,26 @@ void Segmentation::closeQueues() {
     }
 }
 void Segmentation::segmentationCB(const std::string& /* name */, const std::shared_ptr<dai::ADatatype>& data) {
-    auto seg = std::dynamic_pointer_cast<dai::NNData>(data);
-    auto layers = seg->getAllLayerNames();
-    if(layers.empty()) return;
-    
-    auto outputName = layers[0];
-    // Simplified segmentation processing without getTensor
-    cv::Mat cv_frame(480, 640, CV_8UC3, cv::Scalar(0, 0, 0)); // Default frame
+    auto in_det = std::dynamic_pointer_cast<dai::NNData>(data);
+    std::vector<std::int32_t> nn_frame = in_det->getFirstLayerInt32();
+    cv::Mat nn_mat = cv::Mat(nn_frame);
+    nn_mat = nn_mat.reshape(0, 256);
+    cv::Mat cv_frame = decodeDeeplab(nn_mat);
     
     auto currTime = getROSNode()->get_clock()->now();
     cv_bridge::CvImage imgBridge;
     sensor_msgs::msg::Image img_msg;
     std_msgs::msg::Header header;
     header.stamp = getROSNode()->get_clock()->now();
-    auto tfPrefix = getOpticalFrameName(getSocketName(static_cast<dai::CameraBoardSocket>(ph->getParam<int>("i_board_socket_id"))));
+    auto tfPrefix = getOpticalFrameName(sensor_helpers::getSocketName(getROSNode(), static_cast<dai::CameraBoardSocket>(ph->getParam<int>("i_board_socket_id"))));
     header.frame_id = tfPrefix;
     nnInfo.header = header;
     imgBridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::BGR8, cv_frame);
     imgBridge.toImageMsg(img_msg);
     nnPub.publish(img_msg, nnInfo);
 }
-cv::Mat Segmentation::decodeDeeplab(cv::Mat mat, int classNum) {
-    cv::Mat out = mat.mul(255 / classNum);
+cv::Mat Segmentation::decodeDeeplab(cv::Mat mat) {
+    cv::Mat out = mat.mul(255 / 21);
     out.convertTo(out, CV_8UC1);
     cv::Mat colors = cv::Mat(256, 1, CV_8UC3);
     cv::applyColorMap(out, colors, cv::COLORMAP_JET);
