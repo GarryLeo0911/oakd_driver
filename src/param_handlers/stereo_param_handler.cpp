@@ -15,6 +15,8 @@ StereoParamHandler::StereoParamHandler(std::shared_ptr<rclcpp::Node> node, const
     depthPresetMap = {{"HIGH_ACCURACY", dai::node::StereoDepth::PresetMode::HIGH_ACCURACY},
                       {"HIGH_DENSITY", dai::node::StereoDepth::PresetMode::HIGH_DENSITY},
                       {"DEFAULT", dai::node::StereoDepth::PresetMode::DEFAULT},
+                      // Backwards-compatible alias used in some configs
+                      {"FAST_ACCURACY", dai::node::StereoDepth::PresetMode::DEFAULT},
                       {"FACE", dai::node::StereoDepth::PresetMode::FACE},
                       {"HIGH_DETAIL", dai::node::StereoDepth::PresetMode::HIGH_DETAIL},
                       {"ROBOTICS", dai::node::StereoDepth::PresetMode::ROBOTICS}};
