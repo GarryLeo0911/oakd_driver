@@ -1,14 +1,5 @@
-<library path="oakd_driver">
+<library path="oakd_driver_pipelines">
     <class type="depthai_ros_driver::pipeline_gen::RGB" base_class_type="depthai_ros_driver::pipeline_gen::BasePipeline">
         <description>RGB Pipeline for OAK-D Camera.</description>
-    </class>
-    <class type="depthai_ros_driver::pipeline_gen::RGBStereo" base_class_type="depthai_ros_driver::pipeline_gen::BasePipeline">
-        <description>RGBStereo Pipeline for OAK-D Camera.</description>
-    </class>
-    <class type="depthai_ros_driver::pipeline_gen::Stereo" base_class_type="depthai_ros_driver::pipeline_gen::BasePipeline">
-        <description>Stereo Pipeline for OAK-D Camera.</description>
-    </class>
-    <class type="depthai_ros_driver::pipeline_gen::Depth" base_class_type="depthai_ros_driver::pipeline_gen::BasePipeline">
-        <description>Depth Pipeline for OAK-D Camera.</description>
     </class>
 </library>

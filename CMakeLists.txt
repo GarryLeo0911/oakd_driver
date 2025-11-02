@@ -178,12 +178,25 @@ PUBLIC
   ${COMMON_LIB_NAME}
 )
 
+# Create separate pipeline library to avoid plugin collisions
+set(PIPELINE_LIB_NAME ${PROJECT_NAME}_pipelines)
 add_library(
-  ${PROJECT_NAME} SHARED
-  src/driver.cpp
+  ${PIPELINE_LIB_NAME} SHARED
   src/pipeline/pipeline_generator.cpp
   src/pipeline/base_pipeline.cpp
   src/pipeline/base_types.cpp
+)
+
+# Set memory optimization properties for pipeline library
+set_target_properties(${PIPELINE_LIB_NAME} PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
+    LINK_WHAT_YOU_USE ON
+)
+
+# Main driver library (without pipeline implementations)
+add_library(
+  ${PROJECT_NAME} SHARED
+  src/driver.cpp
 )
 
 # Set memory optimization properties
@@ -192,10 +205,17 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     LINK_WHAT_YOU_USE ON
 )
 
+target_link_libraries(${PIPELINE_LIB_NAME}
+PUBLIC
+  ${CAM_DEPS}
+  ${COMMON_LIB_NAME}
+)
+
 target_link_libraries(
   ${PROJECT_NAME}
 PUBLIC
   ${CAM_DEPS}
+  ${PIPELINE_LIB_NAME}
   ${SENSOR_LIB_NAME}
   ${NN_LIB_NAME}
   ${COMMON_LIB_NAME}
@@ -207,12 +227,13 @@ add_executable(
 target_link_libraries(oakd_driver_node
 PUBLIC
   ${PROJECT_NAME}
+  ${PIPELINE_LIB_NAME}
   ${SENSOR_LIB_NAME}
   ${NN_LIB_NAME}
   ${COMMON_LIB_NAME})
 
 rclcpp_components_register_nodes(${PROJECT_NAME} "depthai_ros_driver::Driver")
-pluginlib_export_plugin_description_file(${PROJECT_NAME} plugins.xml)
+pluginlib_export_plugin_description_file(${PIPELINE_LIB_NAME} plugins.xml)
 ament_export_include_directories(include)
 
 ament_export_targets(${PROJECT_NAME}Targets HAS_LIBRARY_TARGET)
@@ -221,7 +242,7 @@ ament_export_dependencies(${COMMON_DEPS} ${SENSOR_DEPS} ${NN_DEPS} ${CAM_DEPS})
 
 install(DIRECTORY launch config DESTINATION share/${PROJECT_NAME})
 
-install(TARGETS ${PROJECT_NAME} ${SENSOR_LIB_NAME}
+install(TARGETS ${PROJECT_NAME} ${PIPELINE_LIB_NAME} ${SENSOR_LIB_NAME}
 ${NN_LIB_NAME}
 ${COMMON_LIB_NAME}
 EXPORT ${PROJECT_NAME}Targets
