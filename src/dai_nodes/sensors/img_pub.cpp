@@ -58,7 +58,7 @@ void ImagePublisher::setup(std::shared_ptr<dai::Device> device, const utils::Img
 
 void ImagePublisher::createImageConverter(std::shared_ptr<dai::Device> device) {
     // TODO: Temporarily commenting out ImageConverter until depthai_bridge issues are resolved
-    RCLCPP_WARN(getROSNode()->get_logger(), "ImageConverter creation temporarily disabled - depthai_bridge not available");
+    RCLCPP_WARN(node->get_logger(), "ImageConverter creation temporarily disabled - depthai_bridge not available");
     /*
     converter = std::make_shared<depthai_bridge::ImageConverter>(convConfig.tfPrefix, convConfig.interleaved, convConfig.getBaseDeviceTimestamp);
     converter->setUpdateRosBaseTimeOnToRosMsg(convConfig.updateROSBaseTimeOnRosMsg);
@@ -114,7 +114,7 @@ void ImagePublisher::createInfoManager(std::shared_ptr<dai::Device> device) {
         node->create_sub_node(std::string(node->get_name()) + "/" + pubConfig.daiNodeName).get(), "/" + pubConfig.daiNodeName + pubConfig.infoMgrSuffix);
     if(pubConfig.calibrationFile.empty()) {
         auto calHandler = device->readCalibration();
-        auto info = sensor_helpers::getCalibInfo(node->get_logger(), converter, calHandler, pubConfig.socket, pubConfig.width, pubConfig.height);
+        auto info = sensor_helpers::getCalibInfo(node->get_logger(), converter, device, pubConfig.socket, pubConfig.width, pubConfig.height);
         if(pubConfig.rectified) {
             std::fill(info.d.begin(), info.d.end(), 0.0);
             info.r[0] = info.r[4] = info.r[8] = 1.0;
@@ -173,7 +173,7 @@ std::shared_ptr<Image> ImagePublisher::convertData(const std::shared_ptr<dai::AD
         rawMsg.step = daiImg->getWidth() * 3;  // Assuming BGR8
         
         // TODO: Implement proper image data conversion
-        RCLCPP_WARN_THROTTLE(getROSNode()->get_logger(), *getROSNode()->get_clock(), 5000,
+        RCLCPP_WARN_THROTTLE(node->get_logger(), *node->get_clock(), 5000,
                              "Image conversion temporarily disabled - using placeholder");
         
         sensor_msgs::msg::Image::UniquePtr msg = std::make_unique<sensor_msgs::msg::Image>(rawMsg);

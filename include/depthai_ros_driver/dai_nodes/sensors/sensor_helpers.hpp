@@ -9,8 +9,10 @@
 #include "sensor_msgs/msg/image.hpp"
 
 // Forward declaration to avoid include issues
-namespace depthai_bridge {
+namespace dai {
+namespace ros {
     class ImageConverter;
+}
 }
 
 namespace dai {
@@ -48,8 +50,8 @@ void basicCameraPub(const std::string& /*name*/,
                     std::shared_ptr<camera_info_manager::CameraInfoManager> infoManager);
 
 sensor_msgs::msg::CameraInfo getCalibInfo(const rclcpp::Logger& logger,
-                                          // std::shared_ptr<depthai_bridge::ImageConverter> converter,
-                                          dai::CalibrationHandler calHandler,
+                                          std::shared_ptr<dai::ros::ImageConverter> converter,
+                                          std::shared_ptr<dai::Device> device,
                                           dai::CameraBoardSocket socket,
                                           int width = 0,
                                           int height = 0);

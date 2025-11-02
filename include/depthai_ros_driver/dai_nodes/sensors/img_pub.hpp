@@ -12,8 +12,10 @@
 #include "sensor_msgs/msg/image.hpp"
 
 // Forward declaration to avoid include issues
-namespace depthai_bridge {
+namespace dai {
+namespace ros {
     class ImageConverter;
+}
 }
 
 namespace dai {
@@ -99,7 +101,7 @@ class ImagePublisher {
     utils::ImgPublisherConfig pubConfig;
     utils::ImgConverterConfig convConfig;
     std::shared_ptr<camera_info_manager::CameraInfoManager> infoManager;
-    std::shared_ptr<depthai_bridge::ImageConverter> converter;
+    std::shared_ptr<dai::ros::ImageConverter> converter;
     std::shared_ptr<dai::node::XLinkOut> xout;
     std::shared_ptr<dai::node::VideoEncoder> encoder;
     dai::Node::Output* out;

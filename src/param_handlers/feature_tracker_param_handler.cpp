@@ -24,7 +24,7 @@ void FeatureTrackerParamHandler::declareParams(std::shared_ptr<dai::node::Featur
     // Get a copy of the initial config and modify it
     auto config = featureTracker->initialConfig.get();
     config.motionEstimator.type = (motionEstMap.at(declareAndLogParam<std::string>("i_motion_estimator", "LUCAS_KANADE_OPTICAL_FLOW")));
-    featureTracker->setInitialConfig(config);
+    featureTracker->initialConfig.set(config);
 }
 
 }  // namespace param_handlers

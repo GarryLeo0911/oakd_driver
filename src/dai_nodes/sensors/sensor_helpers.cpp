@@ -72,16 +72,15 @@ void basicCameraPub(const std::string& /*name*/,
 }
 
 sensor_msgs::msg::CameraInfo getCalibInfo(const rclcpp::Logger& logger,
-                                          // std::shared_ptr<depthai_bridge::ImageConverter> converter,
-                                          dai::CalibrationHandler calHandler,
+                                          std::shared_ptr<dai::ros::ImageConverter> converter,
+                                          std::shared_ptr<dai::Device> device,
                                           dai::CameraBoardSocket socket,
                                           int width,
                                           int height) {
     sensor_msgs::msg::CameraInfo info;
+    auto calibHandler = device->readCalibration();
     try {
-        // TODO: Need to implement calibration info extraction without depthai_bridge
-        // info = converter->calibrationToCameraInfo(calHandler, socket, width, height);
-        RCLCPP_WARN(logger, "Calibration info extraction not implemented yet");
+        info = converter->calibrationToCameraInfo(calibHandler, socket, width, height);
     } catch(std::runtime_error& e) {
         RCLCPP_ERROR(logger, "No calibration for socket %d! Publishing empty camera_info.", static_cast<int>(socket));
     }

@@ -104,10 +104,10 @@ add_library(
   src/param_handlers/nn_param_handler.cpp
   src/param_handlers/sensor_param_handler.cpp
   src/param_handlers/feature_tracker_param_handler.cpp
-  src/param_handlers/rgbd_param_handler.cpp
-  src/param_handlers/vio_param_handler.cpp
+  # src/param_handlers/rgbd_param_handler.cpp  # Missing RGBD.hpp
+  # src/param_handlers/vio_param_handler.cpp   # Missing BasaltVIO.hpp
   src/param_handlers/stereo_param_handler.cpp
-  src/param_handlers/thermal_param_handler.cpp
+  # src/param_handlers/thermal_param_handler.cpp  # Missing ThermalConfig.hpp
   src/param_handlers/tof_param_handler.cpp
   src/param_handlers/pipeline_gen_param_handler.cpp
   src/param_handlers/sync_param_handler.cpp
@@ -126,9 +126,9 @@ add_library(
   src/dai_nodes/sensors/feature_tracker.cpp
   src/dai_nodes/sensors/sensor_wrapper.cpp
   src/dai_nodes/sensors/stereo.cpp
-  src/dai_nodes/sensors/thermal.cpp
-  src/dai_nodes/sensors/rgbd.cpp
-  src/dai_nodes/sensors/vio.cpp
+  # src/dai_nodes/sensors/thermal.cpp  # Missing ThermalConfig.hpp
+  # src/dai_nodes/sensors/rgbd.cpp     # Missing RGBD.hpp
+  # src/dai_nodes/sensors/vio.cpp      # Missing BasaltVIO.hpp
   src/dai_nodes/sensors/tof.cpp
   src/dai_nodes/sensors/sync.cpp
 )
