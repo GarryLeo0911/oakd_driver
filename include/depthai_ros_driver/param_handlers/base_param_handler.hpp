@@ -81,9 +81,10 @@ inline rcl_interfaces::msg::ParameterDescriptor getRangedFloatDescriptor(float m
 }
 class BaseParamHandler {
    public:
-    BaseParamHandler(std::shared_ptr<rclcpp::Node> node, const std::string& name, const std::string& deviceName, bool rsCompat)
-        : baseName(name), deviceName(deviceName), rsCompat(rsCompat), baseNode(node){};
+    BaseParamHandler(std::shared_ptr<rclcpp::Node> node, const std::string& name)
+        : baseName(name), baseNode(node){};
     virtual ~BaseParamHandler() = default;
+    virtual dai::CameraControl setRuntimeParams(const std::vector<rclcpp::Parameter>& params) = 0;
     std::string getName() {
         return baseName;
     }
@@ -122,20 +123,7 @@ class BaseParamHandler {
         return baseNode;
     }
     std::string getSocketName(dai::CameraBoardSocket socket) {
-        // Simple socket name mapping since depthai_bridge::getSocketName may not be available
-        switch (socket) {
-            case dai::CameraBoardSocket::AUTO: return "auto";
-            case dai::CameraBoardSocket::RGB: return "rgb";  // This might be same as CAM_A
-            case dai::CameraBoardSocket::LEFT: return "left"; // This might be same as CAM_B  
-            case dai::CameraBoardSocket::RIGHT: return "right"; // This might be same as CAM_C
-            // Only include CAM_D onwards to avoid duplicates
-            case dai::CameraBoardSocket::CAM_D: return "cam_d";
-            case dai::CameraBoardSocket::CAM_E: return "cam_e";
-            case dai::CameraBoardSocket::CAM_F: return "cam_f";
-            case dai::CameraBoardSocket::CAM_G: return "cam_g";
-            case dai::CameraBoardSocket::CAM_H: return "cam_h";
-            default: return "unknown";
-        }
+        return dai_nodes::sensor_helpers::getSocketName(getROSNode(), socket);
     }
     template <typename T>
     T declareAndLogParam(const std::string& paramName, const std::vector<T>& value, bool override = false) {
@@ -216,8 +204,6 @@ class BaseParamHandler {
         RCLCPP_DEBUG(baseNode->get_logger(), "Setting param %s with value %s", name.c_str(), ss.str().c_str());
     }
     std::string baseName;
-    std::string deviceName;
-    bool rsCompat;
     std::shared_ptr<rclcpp::Node> baseNode;
 };
 }  // namespace param_handlers

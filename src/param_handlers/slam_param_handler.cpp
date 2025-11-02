@@ -9,8 +9,8 @@
 
 namespace depthai_ros_driver {
 namespace param_handlers {
-SlamParamHandler::SlamParamHandler(std::shared_ptr<rclcpp::Node> node, const std::string& name, const std::string& deviceName, bool rsCompat)
-    : BaseParamHandler(node, name, deviceName, rsCompat) {}
+SlamParamHandler::SlamParamHandler(std::shared_ptr<rclcpp::Node> node, const std::string& name)
+    : BaseParamHandler(node, name) {}
 SlamParamHandler::~SlamParamHandler() = default;
 void SlamParamHandler::declareParams(std::shared_ptr<dai::node::RTABMapSLAM> slam) {
     declareAndLogParam<bool>(ParamNames::PUBLISH_TOPIC, true);

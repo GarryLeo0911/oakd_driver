@@ -34,8 +34,6 @@ class NNParamHandler : public BaseParamHandler {
    public:
     explicit NNParamHandler(std::shared_ptr<rclcpp::Node> node,
                             const std::string& name,
-                            const std::string& deviceName,
-                            bool rsCompat,
                             const dai::CameraBoardSocket& socket = dai::CameraBoardSocket::CAM_A);
     ~NNParamHandler();
     nn::NNFamily getNNFamily();

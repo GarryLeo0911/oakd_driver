@@ -20,7 +20,7 @@ namespace param_handlers {
 
 class PipelineGenParamHandler : public BaseParamHandler {
    public:
-    explicit PipelineGenParamHandler(std::shared_ptr<rclcpp::Node> node, const std::string& name, const std::string& deviceName, bool rsCompat);
+    explicit PipelineGenParamHandler(std::shared_ptr<rclcpp::Node> node, const std::string& name);
     ~PipelineGenParamHandler();
     void declareParams();
 };

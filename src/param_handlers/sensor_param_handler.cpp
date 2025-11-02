@@ -11,8 +11,8 @@
 namespace depthai_ros_driver {
 namespace param_handlers {
 SensorParamHandler::SensorParamHandler(
-    std::shared_ptr<rclcpp::Node> node, const std::string& name, const std::string& deviceName, bool rsCompat, dai::CameraBoardSocket socket)
-    : BaseParamHandler(node, name, deviceName, rsCompat) {
+    std::shared_ptr<rclcpp::Node> node, const std::string& name, dai::CameraBoardSocket socket)
+    : BaseParamHandler(node, name) {
     declareCommonParams(socket);
 };
 SensorParamHandler::~SensorParamHandler() = default;
@@ -101,99 +101,99 @@ void SensorParamHandler::declareParams(std::shared_ptr<dai::node::Camera> cam, b
         cam->initialControl.setAutoExposureRegion(autoExpStartX, autoExpStartY, autoExpWidth, autoExpHeight);
     }
 }
-std::shared_ptr<dai::CameraControl> SensorParamHandler::setRuntimeParams(const std::vector<rclcpp::Parameter>& params) {
-    auto ctrl = std::make_shared<dai::CameraControl>();
+dai::CameraControl SensorParamHandler::setRuntimeParams(const std::vector<rclcpp::Parameter>& params) {
+    dai::CameraControl ctrl;
     for(const auto& p : params) {
         if(p.get_name() == getFullParamName(ParamNames::SET_MAN_EXPOSURE)) {
             if(p.get_value<bool>()) {
-                ctrl->setManualExposure(getParam<int>(ParamNames::EXPOSURE), getParam<int>(ParamNames::ISO));
+                ctrl.setManualExposure(getParam<int>(ParamNames::EXPOSURE), getParam<int>(ParamNames::ISO));
             } else {
-                ctrl->setAutoExposureEnable();
+                ctrl.setAutoExposureEnable();
             }
         } else if(p.get_name() == getFullParamName(ParamNames::EXPOSURE)) {
             if(getParam<bool>(ParamNames::SET_MAN_EXPOSURE)) {
-                ctrl->setManualExposure(p.get_value<int>(), getParam<int>(ParamNames::ISO));
+                ctrl.setManualExposure(p.get_value<int>(), getParam<int>(ParamNames::ISO));
             }
         } else if(p.get_name() == getFullParamName(ParamNames::ISO)) {
             if(getParam<bool>(ParamNames::SET_MAN_EXPOSURE)) {
-                ctrl->setManualExposure(getParam<int>(ParamNames::EXPOSURE), p.get_value<int>());
+                ctrl.setManualExposure(getParam<int>(ParamNames::EXPOSURE), p.get_value<int>());
             }
         } else if(p.get_name() == getFullParamName(ParamNames::SET_MAN_FOCUS)) {
             if(p.get_value<bool>()) {
-                ctrl->setManualFocus(getParam<int>(ParamNames::FOCUS));
+                ctrl.setManualFocus(getParam<int>(ParamNames::FOCUS));
             } else {
-                ctrl->setAutoFocusMode(dai::CameraControl::AutoFocusMode::CONTINUOUS_PICTURE);
+                ctrl.setAutoFocusMode(dai::CameraControl::AutoFocusMode::CONTINUOUS_PICTURE);
             }
         } else if(p.get_name() == getFullParamName(ParamNames::FOCUS)) {
             if(getParam<bool>(ParamNames::SET_MAN_FOCUS)) {
-                ctrl->setManualFocus(p.get_value<int>());
+                ctrl.setManualFocus(p.get_value<int>());
             }
         } else if(p.get_name() == getFullParamName(ParamNames::SET_MAN_WHITEBALANCE)) {
             if(p.get_value<bool>()) {
-                ctrl->setManualWhiteBalance(getParam<int>(ParamNames::WHITEBALANCE));
+                ctrl.setManualWhiteBalance(getParam<int>(ParamNames::WHITEBALANCE));
             } else {
-                ctrl->setAutoWhiteBalanceMode(dai::CameraControl::AutoWhiteBalanceMode::AUTO);
+                ctrl.setAutoWhiteBalanceMode(dai::CameraControl::AutoWhiteBalanceMode::AUTO);
             }
         } else if(p.get_name() == getFullParamName(ParamNames::WHITEBALANCE)) {
             if(getParam<bool>(ParamNames::SET_MAN_WHITEBALANCE)) {
-                ctrl->setManualWhiteBalance(p.get_value<int>());
+                ctrl.setManualWhiteBalance(p.get_value<int>());
             }
         } else if(p.get_name() == getFullParamName(ParamNames::SET_AUTO_EXPOSURE_LIMIT)) {
             if(p.get_value<bool>()) {
-                ctrl->setAutoExposureLimit(getParam<int>(ParamNames::AUTO_EXPOSURE_LIMIT));
+                ctrl.setAutoExposureLimit(getParam<int>(ParamNames::AUTO_EXPOSURE_LIMIT));
             }
         } else if(p.get_name() == getFullParamName(ParamNames::AUTO_EXPOSURE_LIMIT)) {
             if(getParam<bool>(ParamNames::SET_AUTO_EXPOSURE_LIMIT)) {
-                ctrl->setAutoExposureLimit(p.get_value<int>());
+                ctrl.setAutoExposureLimit(p.get_value<int>());
             }
         } else if(p.get_name() == getFullParamName(ParamNames::SET_SHARPNESS)) {
             if(p.get_value<bool>()) {
-                ctrl->setSharpness(getParam<int>(ParamNames::SHARPNESS));
+                ctrl.setSharpness(getParam<int>(ParamNames::SHARPNESS));
             }
         } else if(p.get_name() == getFullParamName(ParamNames::SHARPNESS)) {
             if(getParam<bool>(ParamNames::SET_SHARPNESS)) {
-                ctrl->setSharpness(p.get_value<int>());
+                ctrl.setSharpness(p.get_value<int>());
             }
         } else if(p.get_name() == getFullParamName(ParamNames::SET_CHROMA_DENOISE)) {
             if(p.get_value<bool>()) {
-                ctrl->setChromaDenoise(getParam<int>(ParamNames::CHROMA_DENOISE));
+                ctrl.setChromaDenoise(getParam<int>(ParamNames::CHROMA_DENOISE));
             }
         } else if(p.get_name() == getFullParamName(ParamNames::CHROMA_DENOISE)) {
             if(getParam<bool>(ParamNames::SET_CHROMA_DENOISE)) {
-                ctrl->setChromaDenoise(p.get_value<int>());
+                ctrl.setChromaDenoise(p.get_value<int>());
             }
         } else if(p.get_name() == getFullParamName(ParamNames::SET_LUMA_DENOISE)) {
             if(p.get_value<bool>()) {
-                ctrl->setLumaDenoise(getParam<int>(ParamNames::LUMA_DENOISE));
+                ctrl.setLumaDenoise(getParam<int>(ParamNames::LUMA_DENOISE));
             }
         } else if(p.get_name() == getFullParamName(ParamNames::LUMA_DENOISE)) {
             if(getParam<bool>(ParamNames::SET_LUMA_DENOISE)) {
-                ctrl->setLumaDenoise(p.get_value<int>());
+                ctrl.setLumaDenoise(p.get_value<int>());
             }
         } else if(p.get_name() == getFullParamName(ParamNames::AUTO_EXP_REGION_START_X)) {
             if(getParam<bool>(ParamNames::SET_AUTO_EXP_REGION)) {
-                ctrl->setAutoExposureRegion(p.get_value<int>(),
+                ctrl.setAutoExposureRegion(p.get_value<int>(),
                                             getParam<int>(ParamNames::AUTO_EXP_REGION_START_Y),
                                             getParam<int>(ParamNames::AUTO_EXP_REGION_WIDTH),
                                             getParam<int>(ParamNames::AUTO_EXP_REGION_HEIGHT));
             }
         } else if(p.get_name() == getFullParamName(ParamNames::AUTO_EXP_REGION_START_Y)) {
             if(getParam<bool>(ParamNames::SET_AUTO_EXP_REGION)) {
-                ctrl->setAutoExposureRegion(getParam<int>(ParamNames::AUTO_EXP_REGION_START_X),
+                ctrl.setAutoExposureRegion(getParam<int>(ParamNames::AUTO_EXP_REGION_START_X),
                                             p.get_value<int>(),
                                             getParam<int>(ParamNames::AUTO_EXP_REGION_WIDTH),
                                             getParam<int>(ParamNames::AUTO_EXP_REGION_HEIGHT));
             }
         } else if(p.get_name() == getFullParamName(ParamNames::AUTO_EXP_REGION_WIDTH)) {
             if(getParam<bool>(ParamNames::SET_AUTO_EXP_REGION)) {
-                ctrl->setAutoExposureRegion(getParam<int>(ParamNames::AUTO_EXP_REGION_START_X),
+                ctrl.setAutoExposureRegion(getParam<int>(ParamNames::AUTO_EXP_REGION_START_X),
                                             getParam<int>(ParamNames::AUTO_EXP_REGION_START_Y),
                                             p.get_value<int>(),
                                             getParam<int>(ParamNames::AUTO_EXP_REGION_HEIGHT));
             }
         } else if(p.get_name() == getFullParamName(ParamNames::AUTO_EXP_REGION_HEIGHT)) {
             if(getParam<bool>(ParamNames::SET_AUTO_EXP_REGION)) {
-                ctrl->setAutoExposureRegion(getParam<int>(ParamNames::AUTO_EXP_REGION_START_X),
+                ctrl.setAutoExposureRegion(getParam<int>(ParamNames::AUTO_EXP_REGION_START_X),
                                             getParam<int>(ParamNames::AUTO_EXP_REGION_START_Y),
                                             getParam<int>(ParamNames::AUTO_EXP_REGION_WIDTH),
                                             p.get_value<int>());

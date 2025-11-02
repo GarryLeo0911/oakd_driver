@@ -43,6 +43,7 @@ extern const std::unordered_map<std::string, dai::CameraControl::FrameSyncMode> 
 extern const std::unordered_map<std::string, dai::CameraImageOrientation> cameraImageOrientationMap;
 bool rsCompabilityMode(std::shared_ptr<rclcpp::Node> node);
 std::string getNodeName(std::shared_ptr<rclcpp::Node> node, NodeNameEnum name);
+std::string getSocketName(std::shared_ptr<rclcpp::Node> node, dai::CameraBoardSocket socket);
 void basicCameraPub(const std::string& /*name*/,
                     const std::shared_ptr<dai::ADatatype>& data,
                     // depthai_bridge::ImageConverter& converter,

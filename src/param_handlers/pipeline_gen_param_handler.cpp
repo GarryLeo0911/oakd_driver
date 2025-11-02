@@ -5,8 +5,8 @@
 
 namespace depthai_ros_driver {
 namespace param_handlers {
-PipelineGenParamHandler::PipelineGenParamHandler(std::shared_ptr<rclcpp::Node> node, const std::string& name, const std::string& deviceName, bool rsCompat)
-    : BaseParamHandler(node, name, deviceName, rsCompat) {}
+PipelineGenParamHandler::PipelineGenParamHandler(std::shared_ptr<rclcpp::Node> node, const std::string& name)
+    : BaseParamHandler(node, name) {}
 PipelineGenParamHandler::~PipelineGenParamHandler() = default;
 
 void PipelineGenParamHandler::declareParams() {

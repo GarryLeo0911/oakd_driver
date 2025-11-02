@@ -8,10 +8,8 @@
 namespace depthai_ros_driver {
 namespace param_handlers {
 FeatureTrackerParamHandler::FeatureTrackerParamHandler(std::shared_ptr<rclcpp::Node> node,
-                                                       const std::string& name,
-                                                       const std::string& deviceName,
-                                                       bool rsCompat)
-    : BaseParamHandler(node, name, deviceName, rsCompat) {}
+                                                       const std::string& name)
+    : BaseParamHandler(node, name) {}
 FeatureTrackerParamHandler::~FeatureTrackerParamHandler() = default;
 void FeatureTrackerParamHandler::declareParams(std::shared_ptr<dai::node::FeatureTracker> featureTracker) {
     declareAndLogParam<bool>("i_get_base_device_timestamp", false);
@@ -25,6 +23,12 @@ void FeatureTrackerParamHandler::declareParams(std::shared_ptr<dai::node::Featur
     auto config = featureTracker->initialConfig.get();
     config.motionEstimator.type = (motionEstMap.at(declareAndLogParam<std::string>("i_motion_estimator", "LUCAS_KANADE_OPTICAL_FLOW")));
     featureTracker->initialConfig.set(config);
+}
+
+dai::CameraControl FeatureTrackerParamHandler::setRuntimeParams(const std::vector<rclcpp::Parameter>& /*params*/) {
+    // Feature tracker parameter handler doesn't use camera control
+    dai::CameraControl ctrl;
+    return ctrl;
 }
 
 }  // namespace param_handlers

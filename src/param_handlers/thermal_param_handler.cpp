@@ -11,8 +11,8 @@
 
 namespace depthai_ros_driver {
 namespace param_handlers {
-ThermalParamHandler::ThermalParamHandler(std::shared_ptr<rclcpp::Node> node, const std::string& name, const std::string& deviceName, bool rsCompat)
-    : BaseParamHandler(node, name, deviceName, rsCompat) {}
+ThermalParamHandler::ThermalParamHandler(std::shared_ptr<rclcpp::Node> node, const std::string& name)
+    : BaseParamHandler(node, name) {}
 ThermalParamHandler::~ThermalParamHandler() = default;
 void ThermalParamHandler::declareParams(std::shared_ptr<dai::node::Thermal> thermal) {
     thermalOrientMap = {{"NORMAL", dai::ThermalConfig::ThermalImageOrientation::Normal},
@@ -50,7 +50,13 @@ void ThermalParamHandler::declareParams(std::shared_ptr<dai::node::Thermal> ther
     thermalConfig->imageParams.timeNoiseFilterLevel = declareAndLogParam<int>("r_time_noise_filter_level", 0, getRangedIntDescriptor(0, 3));
     declareAndLogParam<int>(ParamNames::FPS, 30);
 }
-std::shared_ptr<dai::ThermalConfig> ThermalParamHandler::setRuntimeParams(const std::vector<rclcpp::Parameter>& params) {
+dai::CameraControl ThermalParamHandler::setRuntimeParams(const std::vector<rclcpp::Parameter>& /*params*/) {
+    // Thermal parameter handler doesn't use camera control
+    dai::CameraControl ctrl;
+    return ctrl;
+}
+
+std::shared_ptr<dai::ThermalConfig> ThermalParamHandler::setThermalRuntimeParams(const std::vector<rclcpp::Parameter>& params) {
     auto conf = std::make_shared<dai::ThermalConfig>();
     for(const auto& p : params) {
         if(p.get_name() == getFullParamName("r_auto_ffc")) {

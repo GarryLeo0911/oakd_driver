@@ -8,8 +8,8 @@
 
 namespace depthai_ros_driver {
 namespace param_handlers {
-ImuParamHandler::ImuParamHandler(std::shared_ptr<rclcpp::Node> node, const std::string& name, const std::string& deviceName, bool rsCompat)
-    : BaseParamHandler(node, name, deviceName, rsCompat) {
+ImuParamHandler::ImuParamHandler(std::shared_ptr<rclcpp::Node> node, const std::string& name)
+    : BaseParamHandler(node, name) {
     syncMethodMap = {
         {"COPY", imu::ImuSyncMethod::COPY},
         {"LINEAR_INTERPOLATE_GYRO", imu::ImuSyncMethod::LINEAR_INTERPOLATE_GYRO},

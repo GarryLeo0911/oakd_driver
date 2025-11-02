@@ -28,6 +28,24 @@ const std::unordered_map<NodeNameEnum, std::string> NodeNameMap = {
     {NodeNameEnum::NN, "nn"},
 };
 
+const std::unordered_map<dai::CameraBoardSocket, std::string> socketNameMap = {
+    {dai::CameraBoardSocket::AUTO, "rgb"},
+    {dai::CameraBoardSocket::CAM_A, "rgb"},
+    {dai::CameraBoardSocket::CAM_B, "left"},
+    {dai::CameraBoardSocket::CAM_C, "right"},
+    {dai::CameraBoardSocket::CAM_D, "cam_d"},
+    {dai::CameraBoardSocket::CAM_E, "cam_e"},
+};
+
+const std::unordered_map<dai::CameraBoardSocket, std::string> rsSocketNameMap = {
+    {dai::CameraBoardSocket::AUTO, "color"},
+    {dai::CameraBoardSocket::CAM_A, "color"},
+    {dai::CameraBoardSocket::CAM_B, "infra2"},
+    {dai::CameraBoardSocket::CAM_C, "infra1"},
+    {dai::CameraBoardSocket::CAM_D, "infra4"},
+    {dai::CameraBoardSocket::CAM_E, "infra3"},
+};
+
 const std::unordered_map<std::string, dai::ColorCameraProperties::ColorOrder> colorOrderMap = {
     {"BGR", dai::ColorCameraProperties::ColorOrder::BGR},
     {"RGB", dai::ColorCameraProperties::ColorOrder::RGB},
@@ -41,6 +59,13 @@ std::string getNodeName(std::shared_ptr<rclcpp::Node> node, NodeNameEnum name) {
         return rsNodeNameMap.at(name);
     }
     return NodeNameMap.at(name);
+}
+
+std::string getSocketName(std::shared_ptr<rclcpp::Node> node, dai::CameraBoardSocket socket) {
+    if(rsCompabilityMode(node)) {
+        return rsSocketNameMap.at(socket);
+    }
+    return socketNameMap.at(socket);
 }
 
 const std::unordered_map<std::string, dai::CameraControl::FrameSyncMode> fSyncModeMap = {

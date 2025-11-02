@@ -20,7 +20,7 @@ namespace depthai_ros_driver {
 namespace param_handlers {
 class VioParamHandler : public BaseParamHandler {
    public:
-    explicit VioParamHandler(std::shared_ptr<rclcpp::Node> node, const std::string& name, const std::string& deviceName, bool rsCompat);
+    explicit VioParamHandler(std::shared_ptr<rclcpp::Node> node, const std::string& name);
     ~VioParamHandler();
     void declareParams(std::shared_ptr<dai::node::BasaltVIO> vio);
 };

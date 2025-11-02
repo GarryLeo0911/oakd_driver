@@ -21,10 +21,11 @@ namespace depthai_ros_driver {
 namespace param_handlers {
 class ThermalParamHandler : public BaseParamHandler {
    public:
-    explicit ThermalParamHandler(std::shared_ptr<rclcpp::Node> node, const std::string& name, const std::string& deviceName, bool rsCompat);
+    explicit ThermalParamHandler(std::shared_ptr<rclcpp::Node> node, const std::string& name);
     ~ThermalParamHandler();
     void declareParams(std::shared_ptr<dai::node::Thermal> thermal);
-    std::shared_ptr<dai::ThermalConfig> setRuntimeParams(const std::vector<rclcpp::Parameter>& params);
+    dai::CameraControl setRuntimeParams(const std::vector<rclcpp::Parameter>& params) override;
+    std::shared_ptr<dai::ThermalConfig> setThermalRuntimeParams(const std::vector<rclcpp::Parameter>& params);
 
    private:
     std::unordered_map<std::string, dai::ThermalConfig::ThermalImageOrientation> thermalOrientMap;

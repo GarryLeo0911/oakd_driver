@@ -7,8 +7,8 @@
 
 namespace depthai_ros_driver {
 namespace param_handlers {
-DriverParamHandler::DriverParamHandler(std::shared_ptr<rclcpp::Node> node, const std::string& name, const std::string& deviceName, bool rsCompat)
-    : BaseParamHandler(node, name, deviceName, rsCompat) {
+DriverParamHandler::DriverParamHandler(std::shared_ptr<rclcpp::Node> node, const std::string& name)
+    : BaseParamHandler(node, name) {
     usbSpeedMap = {
         {"LOW", dai::UsbSpeed::LOW},
         {"FULL", dai::UsbSpeed::FULL},
@@ -50,6 +50,12 @@ void DriverParamHandler::declareParams() {
     declareAndLogParam<std::string>("i_tf_imu_from_descr", "false");
     declareAndLogParam<std::string>("i_tf_custom_urdf_location", "");
     declareAndLogParam<std::string>("i_tf_custom_xacro_args", "");
+}
+
+dai::CameraControl DriverParamHandler::setRuntimeParams(const std::vector<rclcpp::Parameter>& /*params*/) {
+    // Driver parameter handler doesn't use camera control
+    dai::CameraControl ctrl;
+    return ctrl;
 }
 }  // namespace param_handlers
 }  // namespace depthai_ros_driver

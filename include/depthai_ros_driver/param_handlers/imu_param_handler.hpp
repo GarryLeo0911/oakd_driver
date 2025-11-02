@@ -27,7 +27,7 @@ enum class ImuSyncMethod { COPY, LINEAR_INTERPOLATE_GYRO, LINEAR_INTERPOLATE_ACC
 }
 class ImuParamHandler : public BaseParamHandler {
    public:
-    explicit ImuParamHandler(std::shared_ptr<rclcpp::Node> node, const std::string& name, const std::string& deviceName, bool rsCompat);
+    explicit ImuParamHandler(std::shared_ptr<rclcpp::Node> node, const std::string& name);
     ~ImuParamHandler();
     void declareParams(std::shared_ptr<dai::node::IMU> imu, const std::string& imuType);
     std::unordered_map<std::string, imu::ImuSyncMethod> syncMethodMap;

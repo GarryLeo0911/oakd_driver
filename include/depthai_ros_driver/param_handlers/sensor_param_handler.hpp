@@ -26,11 +26,11 @@ namespace param_handlers {
 class SensorParamHandler : public BaseParamHandler {
    public:
     explicit SensorParamHandler(
-        std::shared_ptr<rclcpp::Node> node, const std::string& name, const std::string& deviceName, bool rsCompat, dai::CameraBoardSocket socket);
+        std::shared_ptr<rclcpp::Node> node, const std::string& name, dai::CameraBoardSocket socket);
     ~SensorParamHandler();
     void declareCommonParams(dai::CameraBoardSocket socket);
     void declareParams(std::shared_ptr<dai::node::Camera> cam, bool publish);
-    std::shared_ptr<dai::CameraControl> setRuntimeParams(const std::vector<rclcpp::Parameter>& params);
+    dai::CameraControl setRuntimeParams(const std::vector<rclcpp::Parameter>& params) override;
 
    private:
     dai::CameraBoardSocket socketID;

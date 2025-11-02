@@ -20,7 +20,7 @@ namespace depthai_ros_driver {
 namespace param_handlers {
 class SlamParamHandler : public BaseParamHandler {
    public:
-    explicit SlamParamHandler(std::shared_ptr<rclcpp::Node> node, const std::string& name, const std::string& deviceName, bool rsCompat);
+    explicit SlamParamHandler(std::shared_ptr<rclcpp::Node> node, const std::string& name);
     ~SlamParamHandler();
     void declareParams(std::shared_ptr<dai::node::RTABMapSLAM> slam);
 };

@@ -7,8 +7,8 @@
 
 namespace depthai_ros_driver {
 namespace param_handlers {
-RGBDParamHandler::RGBDParamHandler(std::shared_ptr<rclcpp::Node> node, const std::string& name, const std::string& deviceName, bool rsCompat)
-    : BaseParamHandler(node, name, deviceName, rsCompat) {}
+RGBDParamHandler::RGBDParamHandler(std::shared_ptr<rclcpp::Node> node, const std::string& name)
+    : BaseParamHandler(node, name) {}
 RGBDParamHandler::~RGBDParamHandler() = default;
 void RGBDParamHandler::declareParams(std::shared_ptr<dai::node::RGBD> rgbd, dai::CameraBoardSocket socket) {
     declareAndLogParam<bool>(ParamNames::PUBLISH_TOPIC, true);
