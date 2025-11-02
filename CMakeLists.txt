@@ -182,7 +182,7 @@ PUBLIC
 set(PIPELINE_LIB_NAME ${PROJECT_NAME}_pipelines)
 add_library(
   ${PIPELINE_LIB_NAME} SHARED
-  src/pipeline/pipeline_generator.cpp
+  src/pipeline/simple_pipeline_generator.cpp
   src/pipeline/base_pipeline.cpp
   src/pipeline/base_types.cpp
 )
@@ -232,8 +232,18 @@ PUBLIC
   ${NN_LIB_NAME}
   ${COMMON_LIB_NAME})
 
+# Add minimal test node
+add_executable(
+  minimal_camera_test
+  src/minimal_camera_test.cpp)
+target_link_libraries(minimal_camera_test
+PUBLIC
+  rclcpp::rclcpp
+  ${sensor_msgs_TARGETS})
+
 rclcpp_components_register_nodes(${PROJECT_NAME} "depthai_ros_driver::Driver")
-pluginlib_export_plugin_description_file(${PIPELINE_LIB_NAME} plugins.xml)
+# Plugin system disabled for memory optimization
+# pluginlib_export_plugin_description_file(${PIPELINE_LIB_NAME} plugins.xml)
 ament_export_include_directories(include)
 
 ament_export_targets(${PROJECT_NAME}Targets HAS_LIBRARY_TARGET)
@@ -254,7 +264,7 @@ EXPORT ${PROJECT_NAME}Targets
 
 install(EXPORT ${PROJECT_NAME}Targets
       DESTINATION share/${PROJECT_NAME}/cmake)
-install(TARGETS oakd_driver_node DESTINATION lib/${PROJECT_NAME})
+install(TARGETS oakd_driver_node minimal_camera_test DESTINATION lib/${PROJECT_NAME})
 
 ament_export_include_directories(
   include
