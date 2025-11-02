@@ -1,6 +1,7 @@
 #pragma once
 #include "depthai/depthai.hpp"
 #include "depthai_bridge/depthaiUtility.hpp"
+#include "depthai_ros_driver/dai_nodes/sensors/sensor_helpers.hpp"
 #include "rcl_interfaces/msg/parameter_descriptor.hpp"
 #include "rclcpp/node.hpp"
 namespace depthai_ros_driver {
