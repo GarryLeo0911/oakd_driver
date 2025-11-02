@@ -20,10 +20,12 @@ void SysLogger::setNames() {
     loggerQName = getName() + "_queue";
 }
 
-void SysLogger::setInOut(std::shared_ptr<dai::Pipeline> /* pipeline */) {}
+void SysLogger::setInOut(std::shared_ptr<dai::Pipeline> /* pipeline */) {
+    sysNode->out.setStreamName(loggerQName);
+}
 
 void SysLogger::setupQueues(std::shared_ptr<dai::Device> device) {
-    loggerQ = device->getOutputQueue(sysNode->out, 8, false);
+    loggerQ = device->getOutputQueue(loggerQName, 8, false);
     updater = std::make_shared<diagnostic_updater::Updater>(getROSNode());
     // Use getDeviceInfo().name instead of getDeviceId() and getDeviceName()
     auto deviceInfo = device->getDeviceInfo();
@@ -59,8 +61,9 @@ std::string SysLogger::sysInfoToString(const dai::SystemInformation& sysInfo) {
 
 void SysLogger::produceDiagnostics(diagnostic_updater::DiagnosticStatusWrapper& stat) {
     try {
-        auto logData = loggerQ->get<dai::SystemInformation>(std::chrono::milliseconds(100));
-        if(logData) {
+        bool hasTimedout = false;
+        auto logData = loggerQ->get<dai::SystemInformation>(std::chrono::milliseconds(100), hasTimedout);
+        if(logData && !hasTimedout) {
             stat.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "System Information");
             const dai::SystemInformation& sysInfo = *logData;
             stat.add("Leon CSS CPU Usage", sysInfo.leonCssCpuUsage.average * 100);

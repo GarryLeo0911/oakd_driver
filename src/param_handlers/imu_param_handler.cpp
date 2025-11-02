@@ -11,9 +11,9 @@ namespace param_handlers {
 ImuParamHandler::ImuParamHandler(std::shared_ptr<rclcpp::Node> node, const std::string& name, const std::string& deviceName, bool rsCompat)
     : BaseParamHandler(node, name, deviceName, rsCompat) {
     syncMethodMap = {
-        {"COPY", depthai_bridge::ImuSyncMethod::COPY},
-        {"LINEAR_INTERPOLATE_GYRO", depthai_bridge::ImuSyncMethod::LINEAR_INTERPOLATE_GYRO},
-        {"LINEAR_INTERPOLATE_ACCEL", depthai_bridge::ImuSyncMethod::LINEAR_INTERPOLATE_ACCEL},
+        {"COPY", imu::ImuSyncMethod::COPY},
+        {"LINEAR_INTERPOLATE_GYRO", imu::ImuSyncMethod::LINEAR_INTERPOLATE_GYRO},
+        {"LINEAR_INTERPOLATE_ACCEL", imu::ImuSyncMethod::LINEAR_INTERPOLATE_ACCEL},
     };
     messagetTypeMap = {
         {"IMU", imu::ImuMsgType::IMU}, {"IMU_WITH_MAG", imu::ImuMsgType::IMU_WITH_MAG}, {"IMU_WITH_MAG_SPLIT", imu::ImuMsgType::IMU_WITH_MAG_SPLIT}};
@@ -91,7 +91,7 @@ void ImuParamHandler::declareParams(std::shared_ptr<dai::node::IMU> imu, const s
     imu->setMaxBatchReports(declareAndLogParam<int>("i_max_batch_reports", 10));
 }
 
-depthai_bridge::ImuSyncMethod ImuParamHandler::getSyncMethod() {
+imu::ImuSyncMethod ImuParamHandler::getSyncMethod() {
     return utils::getValFromMap(utils::getUpperCaseStr(getParam<std::string>("i_sync_method")), syncMethodMap);
 }
 

@@ -122,19 +122,22 @@ class BaseParamHandler {
         return baseNode;
     }
     std::string getSocketName(dai::CameraBoardSocket socket) {
-        // Fallback implementation if depthai_bridge::getSocketName is not available
-        try {
-            return depthai_bridge::getSocketName(socket, deviceName, rsCompat);
-        } catch (...) {
-            // Simple fallback socket name mapping
-            switch (socket) {
-                case dai::CameraBoardSocket::AUTO: return "auto";
-                case dai::CameraBoardSocket::CAM_A: return "cam_a";
-                case dai::CameraBoardSocket::CAM_B: return "cam_b";
-                case dai::CameraBoardSocket::CAM_C: return "cam_c";
-                case dai::CameraBoardSocket::CAM_D: return "cam_d";
-                default: return "unknown";
-            }
+        // Simple socket name mapping since depthai_bridge::getSocketName may not be available
+        switch (socket) {
+            case dai::CameraBoardSocket::AUTO: return "auto";
+            case dai::CameraBoardSocket::RGB: return "rgb";
+            case dai::CameraBoardSocket::LEFT: return "left";
+            case dai::CameraBoardSocket::RIGHT: return "right";
+            case dai::CameraBoardSocket::CENTER: return "center";
+            case dai::CameraBoardSocket::CAM_A: return "cam_a";
+            case dai::CameraBoardSocket::CAM_B: return "cam_b";
+            case dai::CameraBoardSocket::CAM_C: return "cam_c";
+            case dai::CameraBoardSocket::CAM_D: return "cam_d";
+            case dai::CameraBoardSocket::CAM_E: return "cam_e";
+            case dai::CameraBoardSocket::CAM_F: return "cam_f";
+            case dai::CameraBoardSocket::CAM_G: return "cam_g";
+            case dai::CameraBoardSocket::CAM_H: return "cam_h";
+            default: return "unknown";
         }
     }
     template <typename T>

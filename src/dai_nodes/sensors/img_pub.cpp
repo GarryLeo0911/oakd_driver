@@ -130,7 +130,7 @@ void ImagePublisher::closeQueue() {
 void ImagePublisher::link(dai::Node::Input& in) {
     out->link(in);
 }
-std::shared_ptr<dai::MessageQueue> ImagePublisher::getQueue() {
+std::shared_ptr<dai::DataOutputQueue> ImagePublisher::getQueue() {
     return dataQ;
 }
 bool ImagePublisher::isSynced() {

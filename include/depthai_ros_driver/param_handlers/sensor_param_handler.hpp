@@ -35,7 +35,8 @@ class SensorParamHandler : public BaseParamHandler {
    private:
     dai::CameraBoardSocket socketID;
     std::unordered_map<dai::ImgFrame::Type, std::string> frameTypeMap;
-    std::unordered_map<dai::ImgResizeMode, std::string> resizeTypeMap;
+    // Commenting out until we find the correct resize enum in newer DepthAI API
+    // std::unordered_map<dai::ImgResizeMode, std::string> resizeTypeMap;
 };
 }  // namespace param_handlers
 }  // namespace depthai_ros_driver

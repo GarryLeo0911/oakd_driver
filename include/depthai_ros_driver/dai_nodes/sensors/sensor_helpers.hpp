@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "depthai/depthai.hpp"
+#include "depthai_bridge/ImageConverter.hpp"
 #include "image_transport/camera_publisher.hpp"
 #include "sensor_msgs/msg/camera_info.hpp"
 #include "sensor_msgs/msg/image.hpp"
@@ -18,9 +19,6 @@ class VideoEncoder;
 }  // namespace node
 }  // namespace dai
 
-namespace depthai_bridge {
-class ImageConverter;
-}
 namespace rclcpp {
 class Logger;
 }

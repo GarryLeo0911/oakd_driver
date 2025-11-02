@@ -4,6 +4,7 @@
 
 #include "depthai/pipeline/Node.hpp"
 #include "depthai/pipeline/datatype/ADatatype.hpp"
+#include "depthai_bridge/ImageConverter.hpp"
 #include "depthai_ros_driver/utils.hpp"
 #include "ffmpeg_image_transport_msgs/msg/ffmpeg_packet.hpp"
 #include "image_transport/camera_publisher.hpp"
@@ -21,9 +22,6 @@ class XLinkOut;
 }  // namespace node
 }  // namespace dai
 
-namespace depthai_bridge {
-class ImageConverter;
-}
 namespace rclcpp {
 class Logger;
 class Node;

@@ -1,7 +1,7 @@
 #include "depthai_ros_driver/dai_nodes/sensors/imu.hpp"
 
 #include "depthai/device/Device.hpp"
-#include "depthai/pipeline/MessageQueue.hpp"
+#include "depthai/device/DataQueue.hpp"
 #include "depthai/pipeline/Pipeline.hpp"
 #include "depthai/pipeline/node/IMU.hpp"
 #include "depthai_bridge/ImuConverter.hpp"

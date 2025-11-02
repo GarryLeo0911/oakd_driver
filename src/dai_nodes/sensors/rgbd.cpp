@@ -1,7 +1,7 @@
 #include "depthai_ros_driver/dai_nodes/sensors/rgbd.hpp"
 
 #include "depthai/device/Device.hpp"
-#include "depthai/pipeline/MessageQueue.hpp"
+#include "depthai/device/DataQueue.hpp"
 #include "depthai/pipeline/Pipeline.hpp"
 #include "depthai/pipeline/node/Camera.hpp"
 #include "depthai/pipeline/node/ImageAlign.hpp"
