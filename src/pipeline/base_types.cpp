@@ -57,7 +57,8 @@ std::vector<std::unique_ptr<dai_nodes::BaseNode>> RGBD::createPipeline(std::shar
     }
 
     addNnNode(daiNodes, node, pipeline, deviceName, rsCompat, *rgb, *stereo, nnType);
-    addRgbdNode(daiNodes, node, device, pipeline, ph, rsCompat, *rgb, *stereo);
+    // addRgbdNode(daiNodes, node, device, pipeline, ph, rsCompat, *rgb, *stereo);
+    RCLCPP_WARN(node->get_logger(), "RGBD functionality disabled - missing DepthAI RGBD support");
     if(checkForImu(ph, device, node->get_logger())) {
         auto imu = std::make_unique<dai_nodes::Imu>("imu", node, pipeline, device, rsCompat);
         if(ph->getParam<bool>("i_enable_vio")) {
@@ -76,7 +77,7 @@ std::vector<std::unique_ptr<dai_nodes::BaseNode>> RGBD::createPipeline(std::shar
             //     }
             //     daiNodes.push_back(std::move(slam));
             // }
-            daiNodes.push_back(std::move(vio));
+            // daiNodes.push_back(std::move(vio));  // VIO disabled
         }
         daiNodes.push_back(std::move(imu));
     }
@@ -104,8 +105,9 @@ std::vector<std::unique_ptr<dai_nodes::BaseNode>> RGBStereo::createPipeline(std:
     if(checkForImu(ph, device, node->get_logger())) {
         auto imu = std::make_unique<dai_nodes::Imu>("imu", node, pipeline, device, rsCompat);
         if(ph->getParam<bool>("i_enable_vio")) {
-            auto vio = std::make_unique<dai_nodes::Vio>("vio", node, pipeline, device, rsCompat, *left, *right, *imu);
-            daiNodes.push_back(std::move(vio));
+            // auto vio = std::make_unique<dai_nodes::Vio>("vio", node, pipeline, device, rsCompat, *left, *right, *imu);
+            // daiNodes.push_back(std::move(vio));
+            RCLCPP_WARN(node->get_logger(), "VIO functionality disabled - missing DepthAI BasaltVIO support");
         }
         daiNodes.push_back(std::move(imu));
     }
@@ -130,8 +132,9 @@ std::vector<std::unique_ptr<dai_nodes::BaseNode>> Stereo::createPipeline(std::sh
     if(checkForImu(ph, device, node->get_logger())) {
         auto imu = std::make_unique<dai_nodes::Imu>("imu", node, pipeline, device, rsCompat);
         if(ph->getParam<bool>("i_enable_vio")) {
-            auto vio = std::make_unique<dai_nodes::Vio>("vio", node, pipeline, device, rsCompat, *left, *right, *imu);
-            daiNodes.push_back(std::move(vio));
+            // auto vio = std::make_unique<dai_nodes::Vio>("vio", node, pipeline, device, rsCompat, *left, *right, *imu);
+            // daiNodes.push_back(std::move(vio));
+            RCLCPP_WARN(node->get_logger(), "VIO functionality disabled - missing DepthAI BasaltVIO support");
         }
         daiNodes.push_back(std::move(imu));
     }
@@ -152,20 +155,21 @@ std::vector<std::unique_ptr<dai_nodes::BaseNode>> Depth::createPipeline(std::sha
     if(checkForImu(ph, device, node->get_logger())) {
         auto imu = std::make_unique<dai_nodes::Imu>("imu", node, pipeline, device, rsCompat);
         if(ph->getParam<bool>("i_enable_vio")) {
-            auto vio = std::make_unique<dai_nodes::Vio>("vio", node, pipeline, device, rsCompat, *stereo, *imu);
-            // if(ph->getParam<bool>("i_enable_slam")) {
-            //     std::unique_ptr<dai_nodes::Slam> slam;
-            //     if(stereo->getSocketID() == stereo->getLeftSensor()->getSocketID()) {
-            //         slam = std::make_unique<dai_nodes::Slam>("slam", node, pipeline, device, rsCompat, *stereo->getLeftSensor(), *vio, *stereo);
-            //     } else if(stereo->getSocketID() == stereo->getRightSensor()->getSocketID()) {
-            //         slam = std::make_unique<dai_nodes::Slam>("slam", node, pipeline, device, rsCompat, *stereo->getRightSensor(), *vio, *stereo);
-            //     } else {
-            //         throw std::runtime_error("Stereo socket is not left or right. Cannot create SLAM node.");
-            //     }
-            //
-            //     daiNodes.push_back(std::move(slam));
-            // }
-            daiNodes.push_back(std::move(vio));
+            // auto vio = std::make_unique<dai_nodes::Vio>("vio", node, pipeline, device, rsCompat, *stereo, *imu);
+            // // if(ph->getParam<bool>("i_enable_slam")) {
+            // //     std::unique_ptr<dai_nodes::Slam> slam;
+            // //     if(stereo->getSocketID() == stereo->getLeftSensor()->getSocketID()) {
+            // //         slam = std::make_unique<dai_nodes::Slam>("slam", node, pipeline, device, rsCompat, *stereo->getLeftSensor(), *vio, *stereo);
+            // //     } else if(stereo->getSocketID() == stereo->getRightSensor()->getSocketID()) {
+            // //         slam = std::make_unique<dai_nodes::Slam>("slam", node, pipeline, device, rsCompat, *stereo->getRightSensor(), *vio, *stereo);
+            // //     } else {
+            // //         throw std::runtime_error("Stereo socket is not left or right. Cannot create SLAM node.");
+            // //     }
+            // //
+            // //     daiNodes.push_back(std::move(slam));
+            // // }
+            // daiNodes.push_back(std::move(vio));
+            RCLCPP_WARN(node->get_logger(), "VIO functionality disabled - missing DepthAI BasaltVIO support");
         }
         daiNodes.push_back(std::move(imu));
     }
@@ -215,13 +219,15 @@ std::vector<std::unique_ptr<dai_nodes::BaseNode>> DepthToF::createPipeline(std::
     } else if(tof->isAligned() && tof->getAlignedSocketID() == stereo->getSocketID()) {
         stereo->link(tof->getInput(), static_cast<int>(dai_nodes::link_types::StereoLinkType::stereo));
     }
-    addRgbdNode(daiNodes, node, device, pipeline, ph, rsCompat, *stereo->getLeftSensor(), *tof);
+    // addRgbdNode(daiNodes, node, device, pipeline, ph, rsCompat, *stereo->getLeftSensor(), *tof);
+    RCLCPP_WARN(node->get_logger(), "RGBD functionality disabled - missing DepthAI RGBD support");
 
     if(checkForImu(ph, device, node->get_logger())) {
         auto imu = std::make_unique<dai_nodes::Imu>("imu", node, pipeline, device, rsCompat);
         if(ph->getParam<bool>("i_enable_vio")) {
-            auto vio = std::make_unique<dai_nodes::Vio>("vio", node, pipeline, device, rsCompat, *stereo, *imu);
-            daiNodes.push_back(std::move(vio));
+            // auto vio = std::make_unique<dai_nodes::Vio>("vio", node, pipeline, device, rsCompat, *stereo, *imu);
+            // daiNodes.push_back(std::move(vio));
+            RCLCPP_WARN(node->get_logger(), "VIO functionality disabled - missing DepthAI BasaltVIO support");
         }
         daiNodes.push_back(std::move(imu));
     }
@@ -248,8 +254,9 @@ std::vector<std::unique_ptr<dai_nodes::BaseNode>> StereoToF::createPipeline(std:
     if(checkForImu(ph, device, node->get_logger())) {
         auto imu = std::make_unique<dai_nodes::Imu>("imu", node, pipeline, device, rsCompat);
         if(ph->getParam<bool>("i_enable_vio")) {
-            auto vio = std::make_unique<dai_nodes::Vio>("vio", node, pipeline, device, rsCompat, *left, *right, *imu);
-            daiNodes.push_back(std::move(vio));
+            // auto vio = std::make_unique<dai_nodes::Vio>("vio", node, pipeline, device, rsCompat, *left, *right, *imu);
+            // daiNodes.push_back(std::move(vio));
+            RCLCPP_WARN(node->get_logger(), "VIO functionality disabled - missing DepthAI BasaltVIO support");
         }
         daiNodes.push_back(std::move(imu));
     }
@@ -289,7 +296,8 @@ std::vector<std::unique_ptr<dai_nodes::BaseNode>> RGBToF::createPipeline(std::sh
     if(tof->isAligned() && tof->getAlignedSocketID() == rgb->getSocketID()) {
         rgb->getDefaultOut()->link(tof->getInput());
     }
-    addRgbdNode(daiNodes, node, device, pipeline, ph, rsCompat, *rgb, *tof);
+    // addRgbdNode(daiNodes, node, device, pipeline, ph, rsCompat, *rgb, *tof);
+    RCLCPP_WARN(node->get_logger(), "RGBD functionality disabled - missing DepthAI RGBD support");
     daiNodes.push_back(std::move(rgb));
     daiNodes.push_back(std::move(tof));
     if(checkForImu(ph, device, node->get_logger())) {
@@ -309,9 +317,10 @@ std::vector<std::unique_ptr<dai_nodes::BaseNode>> Thermal::createPipeline(std::s
     std::vector<std::unique_ptr<dai_nodes::BaseNode>> daiNodes;
     auto rgb = std::make_unique<dai_nodes::SensorWrapper>("rgb", node, pipeline, deviceName, rsCompat, dai::CameraBoardSocket::CAM_A);
     addNnNode(daiNodes, node, pipeline, deviceName, rsCompat, *rgb, nnType);
-    auto thermal = std::make_unique<dai_nodes::Thermal>("thermal", node, pipeline, deviceName, rsCompat);
+    // auto thermal = std::make_unique<dai_nodes::Thermal>("thermal", node, pipeline, deviceName, rsCompat);
     daiNodes.push_back(std::move(rgb));
-    daiNodes.push_back(std::move(thermal));
+    // daiNodes.push_back(std::move(thermal));
+    RCLCPP_WARN(node->get_logger(), "Thermal functionality disabled - missing DepthAI thermal support");
     if(checkForImu(ph, device, node->get_logger())) {
         auto imu = std::make_unique<dai_nodes::Imu>("imu", node, pipeline, device, rsCompat);
         daiNodes.push_back(std::move(imu));
