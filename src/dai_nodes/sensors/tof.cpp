@@ -58,7 +58,7 @@ void ToF::setInOut(std::shared_ptr<dai::Pipeline> pipeline) {
         encConfig.quality = ph->getParam<int>(ParamNames::LOW_BANDWIDTH_QUALITY);
         encConfig.enabled = ph->getParam<bool>(ParamNames::LOW_BANDWIDTH);
 
-        tofPub = setupOutput(pipeline, tofQName, &tofNode->depth, ph->getParam<bool>(ParamNames::SYNCED), encConfig);
+        tofPub = setupOutput(pipeline, tofQName, [&](auto input) { tofNode->depth.link(input); }, ph->getParam<bool>(ParamNames::SYNCED), encConfig);
     }
 }
 

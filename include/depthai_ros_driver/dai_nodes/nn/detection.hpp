@@ -129,7 +129,7 @@ class Detection : public BaseNode {
         detectionNode->out.link(detOut->input);
         
         if(ph->getParam<bool>("i_enable_passthrough")) {
-            ptPub = setupOutput(pipeline, ptQName, &detectionNode->passthrough);
+            ptPub = setupOutput(pipeline, ptQName, [&](auto input) { detectionNode->passthrough.link(input); });
         }
     };
     /**

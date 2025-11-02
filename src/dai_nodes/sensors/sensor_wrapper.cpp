@@ -114,7 +114,8 @@ std::shared_ptr<dai::node::Camera> SensorWrapper::getUnderlyingNode() {
 }
 
 dai::Node::Output* SensorWrapper::getDefaultOut() {
-    return sensorNode->getDefaultOut();
+    // Return the underlying camera node's ISP output
+    return &sensorNode->getUnderlyingNode()->isp;
 }
 
 dai::CameraBoardSocket SensorWrapper::getSocketID() {

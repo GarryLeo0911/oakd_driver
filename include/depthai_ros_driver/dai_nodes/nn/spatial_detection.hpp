@@ -100,7 +100,7 @@ class SpatialDetection : public BaseNode {
         spatialNode->out.link(spatialOut->input);
         
         if(ph->getParam<bool>("i_enable_passthrough")) {
-            ptPub = setupOutput(pipeline, ptQName, &spatialNode->passthrough);
+            ptPub = setupOutput(pipeline, ptQName, [&](auto input) { spatialNode->passthrough.link(input); });
         }
         // Note: passthroughDepth not available in NeuralNetwork, only in SpatialDetectionNetwork
         // if(ph->getParam<bool>("i_enable_passthrough_depth")) {
