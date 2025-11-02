@@ -5,7 +5,7 @@
 namespace dai {
 class Pipeline;
 class Device;
-class MessageQueue;
+class DataOutputQueue;
 enum class CameraBoardSocket;
 class ADatatype;
 class InputQueue;

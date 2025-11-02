@@ -67,7 +67,7 @@ class Segmentation : public BaseNode {
     std::shared_ptr<dai::node::NeuralNetwork> segNode;
     std::shared_ptr<dai::node::ImageManip> imageManip;
     std::unique_ptr<param_handlers::NNParamHandler> ph;
-    std::shared_ptr<dai::MessageQueue> nnQ, ptQ;
+    std::shared_ptr<dai::DataOutputQueue> nnQ, ptQ;
     std::shared_ptr<dai::NNModelDescription> description;
     std::string nnQName, ptQName;
 };

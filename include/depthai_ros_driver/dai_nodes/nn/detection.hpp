@@ -6,7 +6,7 @@
 
 #include "depthai/common/CameraBoardSocket.hpp"
 #include "depthai/device/Device.hpp"
-#include "depthai/pipeline/MessageQueue.hpp"
+#include "depthai/device/DataQueue.hpp"
 #include "depthai/pipeline/Pipeline.hpp"
 #include "depthai/pipeline/node/DetectionNetwork.hpp"
 #include "depthai/pipeline/node/ImageManip.hpp"

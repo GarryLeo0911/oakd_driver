@@ -9,7 +9,7 @@
 namespace dai {
 class Pipeline;
 class Device;
-class MessageQueue;
+class DataOutputQueue;
 class ADatatype;
 namespace node {
 class IMU;
@@ -54,7 +54,7 @@ class Imu : public BaseNode {
     rclcpp::Publisher<depthai_ros_msgs::msg::ImuWithMagneticField>::SharedPtr daiImuPub;
     std::shared_ptr<dai::node::IMU> imuNode;
     std::unique_ptr<param_handlers::ImuParamHandler> ph;
-    std::shared_ptr<dai::MessageQueue> imuQ;
+    std::shared_ptr<dai::DataOutputQueue> imuQ;
     std::string imuQName;
 };
 

@@ -19,7 +19,7 @@ namespace dai {
 class Device;
 class CalibrationHandler;
 class Pipeline;
-class MessageQueue;
+class DataOutputQueue;
 namespace node {
 class VideoEncoder;
 }  // namespace node

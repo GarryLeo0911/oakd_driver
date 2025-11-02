@@ -11,7 +11,7 @@
 namespace dai {
 class Pipeline;
 class Device;
-class MessageQueue;
+class DataOutputQueue;
 class ADatatype;
 class ImgFrame;
 namespace node {
@@ -77,7 +77,7 @@ class Stereo : public BaseNode {
     std::shared_ptr<SensorWrapper> left, right;
     std::unique_ptr<BaseNode> featureTrackerLeftR, featureTrackerRightR, nnNodeLeft, nnNodeRight;
     std::unique_ptr<param_handlers::StereoParamHandler> ph;
-    std::shared_ptr<dai::MessageQueue> leftRectQ, rightRectQ;
+    std::shared_ptr<dai::DataOutputQueue> leftRectQ, rightRectQ;
     std::string stereoQName, leftRectQName, rightRectQName;
     dai::CameraFeatures leftSensInfo, rightSensInfo;
     bool aligned;

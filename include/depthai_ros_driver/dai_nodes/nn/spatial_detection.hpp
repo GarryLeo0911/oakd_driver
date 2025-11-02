@@ -7,7 +7,7 @@
 #include "camera_info_manager/camera_info_manager.hpp"
 #include "depthai/common/CameraBoardSocket.hpp"
 #include "depthai/device/Device.hpp"
-#include "depthai/pipeline/MessageQueue.hpp"
+#include "depthai/device/DataQueue.hpp"
 #include "depthai/pipeline/Pipeline.hpp"
 #include "depthai/pipeline/node/SpatialDetectionNetwork.hpp"
 #include "depthai_bridge/ImageConverter.hpp"

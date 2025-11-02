@@ -68,7 +68,7 @@ class RGBD : public BaseNode {
     std::shared_ptr<dai::node::RGBD> rgbdNode;
     std::shared_ptr<dai::node::ImageAlign> align;
     std::unique_ptr<param_handlers::RGBDParamHandler> ph;
-    std::shared_ptr<dai::MessageQueue> pclQ;
+    std::shared_ptr<dai::DataOutputQueue> pclQ;
 };
 
 }  // namespace dai_nodes

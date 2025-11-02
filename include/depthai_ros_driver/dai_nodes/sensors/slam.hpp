@@ -14,7 +14,7 @@ namespace dai {
 class Pipeline;
 class Device;
 class ADatatype;
-class MessageQueue;
+class DataOutputQueue;
 class InputQueue;
 namespace node {
 class RTABMapSLAM;
@@ -94,7 +94,7 @@ class Slam : public BaseNode {
     rclcpp::Service<depthai_ros_msgs::srv::SetLocalTransform>::SharedPtr setLocalTransformSrv;
     std::shared_ptr<dai::node::RTABMapSLAM> slamNode;
     std::unique_ptr<param_handlers::SlamParamHandler> ph;
-    std::shared_ptr<dai::MessageQueue> mapToOdomQ, absolutePoseQ, mapQ, groundPclQ, obstaclePclQ;
+    std::shared_ptr<dai::DataOutputQueue> mapToOdomQ, absolutePoseQ, mapQ, groundPclQ, obstaclePclQ;
     std::shared_ptr<dai::InputQueue> externalOdomQ;
     std::shared_ptr<tf2_ros::TransformBroadcaster> tfBr;
     std::shared_ptr<tf2_ros::TransformListener> tfListener;

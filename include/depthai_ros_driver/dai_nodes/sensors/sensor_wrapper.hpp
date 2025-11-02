@@ -14,7 +14,7 @@
 namespace dai {
 class Pipeline;
 class Device;
-class MessageQueue;
+class DataOutputQueue;
 namespace node {
 class Camera;
 }
@@ -64,7 +64,7 @@ class SensorWrapper : public BaseNode {
     std::unique_ptr<param_handlers::SensorParamHandler> ph;
     std::unique_ptr<depthai_bridge::ImageConverter> converter;
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr sub;
-    std::shared_ptr<dai::MessageQueue> inQ;
+    std::shared_ptr<dai::DataOutputQueue> inQ;
     std::string inQName;
     dai::CameraBoardSocket socketID;
 };

@@ -7,7 +7,7 @@
 namespace dai {
 class Pipeline;
 class Device;
-class MessageQueue;
+class DataOutputQueue;
 class ADatatype;
 namespace node {
 class FeatureTracker;
@@ -50,7 +50,7 @@ class FeatureTracker : public BaseNode {
     rclcpp::Publisher<depthai_ros_msgs::msg::TrackedFeatures>::SharedPtr featurePub;
     std::shared_ptr<dai::node::FeatureTracker> featureNode;
     std::unique_ptr<param_handlers::FeatureTrackerParamHandler> ph;
-    std::shared_ptr<dai::MessageQueue> featureQ;
+    std::shared_ptr<dai::DataOutputQueue> featureQ;
     std::string featureQName;
     std::string parentName;
 };

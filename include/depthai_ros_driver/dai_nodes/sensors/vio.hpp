@@ -68,7 +68,7 @@ class Vio : public BaseNode {
     rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odomPub;
     std::shared_ptr<dai::node::BasaltVIO> vioNode;
     std::unique_ptr<param_handlers::VioParamHandler> ph;
-    std::shared_ptr<dai::MessageQueue> transQ;
+    std::shared_ptr<dai::DataOutputQueue> transQ;
     std::shared_ptr<tf2_ros::TransformBroadcaster> tfBr;
     std::string frameId, childFrameId;
     bool publishTf;

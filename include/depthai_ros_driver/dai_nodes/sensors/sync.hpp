@@ -10,7 +10,7 @@
 namespace dai {
 class Pipeline;
 class Device;
-class MessageQueue;
+class DataOutputQueue;
 class ADatatype;
 class ImgFrame;
 namespace node {
@@ -48,7 +48,7 @@ class Sync : public BaseNode {
     std::unique_ptr<param_handlers::SyncParamHandler> paramHandler;
     std::shared_ptr<dai::node::Sync> syncNode;
     std::string syncOutputName;
-    std::shared_ptr<dai::MessageQueue> outQueue;
+    std::shared_ptr<dai::DataOutputQueue> outQueue;
     void publishOutputs();
     std::vector<std::shared_ptr<sensor_helpers::ImagePublisher>> publishers;
     std::vector<std::string> syncNames;
