@@ -4,7 +4,7 @@
 #include "depthai_ros_driver/dai_nodes/nn/nn_wrapper.hpp"
 #include "depthai_ros_driver/dai_nodes/nn/spatial_nn_wrapper.hpp"
 #include "depthai_ros_driver/dai_nodes/sensors/imu.hpp"
-#include "depthai_ros_driver/dai_nodes/sensors/rgbd.hpp"
+// #include "depthai_ros_driver/dai_nodes/sensors/rgbd.hpp"
 #include "depthai_ros_driver/dai_nodes/sensors/sensor_wrapper.hpp"
 #include "depthai_ros_driver/dai_nodes/sensors/stereo.hpp"
 #include "depthai_ros_driver/dai_nodes/sensors/tof.hpp"
@@ -32,14 +32,15 @@ void BasePipeline::addRgbdNode(std::vector<std::unique_ptr<dai_nodes::BaseNode>>
                                dai_nodes::SensorWrapper& rgb,
                                dai_nodes::Stereo& stereo) {
     if(ph->getParam<bool>("i_enable_rgbd")) {
-        auto rgbd = std::make_unique<dai_nodes::RGBD>("rgbd", node, pipeline, device, rsCompat, rgb, stereo.getUnderlyingNode(), stereo.isAligned());
-        auto deviceInfo = device->getDeviceInfo();
-        // Check device name instead of deprecated platform enum
-        if(deviceInfo.name.find("OAK") != std::string::npos && deviceInfo.name.find("4") != std::string::npos) {
-            stereo.link(rgbd->getInput(static_cast<int>(dai_nodes::link_types::RGBDLinkType::depth)),
-                        static_cast<int>(dai_nodes::link_types::StereoLinkType::stereo));
-        }
-        daiNodes.push_back(std::move(rgbd));
+        // auto rgbd = std::make_unique<dai_nodes::RGBD>("rgbd", node, pipeline, device, rsCompat, rgb, stereo.getUnderlyingNode(), stereo.isAligned());
+        // auto deviceInfo = device->getDeviceInfo();
+        // // Check device name instead of deprecated platform enum
+        // if(deviceInfo.name.find("OAK") != std::string::npos && deviceInfo.name.find("4") != std::string::npos) {
+        //     stereo.link(rgbd->getInput(static_cast<int>(dai_nodes::link_types::RGBDLinkType::depth)),
+        //                 static_cast<int>(dai_nodes::link_types::StereoLinkType::stereo));
+        // }
+        // daiNodes.push_back(std::move(rgbd));
+        RCLCPP_WARN(node->get_logger(), "RGBD functionality disabled - missing DepthAI RGBD support");
     }
 }
 void BasePipeline::addRgbdNode(std::vector<std::unique_ptr<dai_nodes::BaseNode>>& daiNodes,
@@ -51,11 +52,12 @@ void BasePipeline::addRgbdNode(std::vector<std::unique_ptr<dai_nodes::BaseNode>>
                                dai_nodes::SensorWrapper& rgb,
                                dai_nodes::ToF& tof) {
     if(ph->getParam<bool>("i_enable_rgbd")) {
-        auto rgbd = std::make_unique<dai_nodes::RGBD>("rgbd", node, pipeline, device, rsCompat, rgb, tof, tof.isAligned());
-        if(tof.isAligned()) {
-            tof.link(rgbd->getInput(static_cast<int>(dai_nodes::link_types::RGBDLinkType::depth)));
-        }
-        daiNodes.push_back(std::move(rgbd));
+        // auto rgbd = std::make_unique<dai_nodes::RGBD>("rgbd", node, pipeline, device, rsCompat, rgb, tof, tof.isAligned());
+        // if(tof.isAligned()) {
+        //     tof.link(rgbd->getInput(static_cast<int>(dai_nodes::link_types::RGBDLinkType::depth)));
+        // }
+        // daiNodes.push_back(std::move(rgbd));
+        RCLCPP_WARN(node->get_logger(), "RGBD functionality disabled - missing DepthAI RGBD support");
     }
 }
 void BasePipeline::addNnNode(std::vector<std::unique_ptr<dai_nodes::BaseNode>>& daiNodes,
