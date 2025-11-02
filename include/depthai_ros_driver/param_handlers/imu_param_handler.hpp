@@ -30,6 +30,7 @@ class ImuParamHandler : public BaseParamHandler {
     explicit ImuParamHandler(std::shared_ptr<rclcpp::Node> node, const std::string& name);
     ~ImuParamHandler();
     void declareParams(std::shared_ptr<dai::node::IMU> imu, const std::string& imuType);
+    dai::CameraControl setRuntimeParams(const std::vector<rclcpp::Parameter>& params) override;
     std::unordered_map<std::string, imu::ImuSyncMethod> syncMethodMap;
     std::unordered_map<std::string, imu::ImuMsgType> messagetTypeMap;
     std::unordered_map<std::string, dai::IMUSensor> rotationVectorTypeMap;

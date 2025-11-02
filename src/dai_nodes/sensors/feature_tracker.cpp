@@ -16,7 +16,7 @@ FeatureTracker::FeatureTracker(
     getParentName(daiNodeName);
     setNames();
     featureNode = pipeline->create<dai::node::FeatureTracker>();
-    ph = std::make_unique<param_handlers::FeatureTrackerParamHandler>(node, daiNodeName, deviceName, rsCompat);
+    ph = std::make_unique<param_handlers::FeatureTrackerParamHandler>(node, daiNodeName);
     ph->declareParams(featureNode);
     RCLCPP_DEBUG(getLogger(), "Node %s created", daiNodeName.c_str());
 }

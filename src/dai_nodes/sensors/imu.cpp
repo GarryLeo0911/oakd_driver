@@ -21,7 +21,7 @@ Imu::Imu(const std::string& daiNodeName,
     RCLCPP_DEBUG(getLogger(), "Creating node %s", daiNodeName.c_str());
     setNames();
     imuNode = pipeline->create<dai::node::IMU>();
-    ph = std::make_unique<param_handlers::ImuParamHandler>(node, daiNodeName, device->getDeviceName(), rsCompat);
+    ph = std::make_unique<param_handlers::ImuParamHandler>(node, daiNodeName);
     ph->declareParams(imuNode, device->getConnectedIMU());
     RCLCPP_DEBUG(getLogger(), "Node %s created", daiNodeName.c_str());
 }

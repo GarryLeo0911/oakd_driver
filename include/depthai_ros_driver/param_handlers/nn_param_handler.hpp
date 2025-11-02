@@ -37,6 +37,7 @@ class NNParamHandler : public BaseParamHandler {
                             const dai::CameraBoardSocket& socket = dai::CameraBoardSocket::CAM_A);
     ~NNParamHandler();
     nn::NNFamily getNNFamily();
+    dai::CameraControl setRuntimeParams(const std::vector<rclcpp::Parameter>& params) override;
     template <typename T>
     void declareParams(std::shared_ptr<T> nn) {
         declareAndLogParam<bool>("i_enable_passthrough", false);

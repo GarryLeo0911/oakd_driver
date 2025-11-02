@@ -30,7 +30,7 @@ Segmentation::Segmentation(const std::string& daiNodeName,
     : BaseNode(daiNodeName, node, pipeline, deviceName, rsCompat) {
     RCLCPP_DEBUG(getLogger(), "Creating node %s", daiNodeName.c_str());
     setNames();
-    ph = std::make_unique<param_handlers::NNParamHandler>(node, daiNodeName, deviceName, rsCompat, socket);
+    ph = std::make_unique<param_handlers::NNParamHandler>(node, daiNodeName, socket);
     ph->declareParams(segNode);
     description = std::make_shared<dai::NNModelDescription>();
     description->model = ph->getParam<std::string>("i_nn_model");

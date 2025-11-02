@@ -39,5 +39,11 @@ void NNParamHandler::setNNParams(std::shared_ptr<dai::node::SpatialDetectionNetw
     setSpatialParams(nn);
 }
 
+dai::CameraControl NNParamHandler::setRuntimeParams(const std::vector<rclcpp::Parameter>& /*params*/) {
+    // NN parameter handler doesn't use camera control
+    dai::CameraControl ctrl;
+    return ctrl;
+}
+
 }  // namespace param_handlers
 }  // namespace depthai_ros_driver

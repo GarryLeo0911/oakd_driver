@@ -99,5 +99,11 @@ imu::ImuMsgType ImuParamHandler::getMsgType() {
     return utils::getValFromMap(utils::getUpperCaseStr(getParam<std::string>("i_message_type")), messagetTypeMap);
 }
 
+dai::CameraControl ImuParamHandler::setRuntimeParams(const std::vector<rclcpp::Parameter>& /*params*/) {
+    // IMU parameter handler doesn't use camera control
+    dai::CameraControl ctrl;
+    return ctrl;
+}
+
 }  // namespace param_handlers
 }  // namespace depthai_ros_driver

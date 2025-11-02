@@ -19,7 +19,7 @@ Camera::Camera(const std::string& daiNodeName,
     RCLCPP_DEBUG(getLogger(), "Creating node %s", daiNodeName.c_str());
     setNames();
     camNode = pipeline->create<dai::node::Camera>()->build(socket);
-    ph = std::make_unique<param_handlers::SensorParamHandler>(node, daiNodeName, deviceName, rsCompat, socket);
+    ph = std::make_unique<param_handlers::SensorParamHandler>(node, daiNodeName, socket);
     ph->declareParams(camNode, publish);
     setInOut(pipeline);
     RCLCPP_DEBUG(getLogger(), "Node %s created", daiNodeName.c_str());

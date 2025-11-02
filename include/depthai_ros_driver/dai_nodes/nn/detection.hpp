@@ -1,7 +1,5 @@
 #pragma once
 
-#include <depthai/modelzoo/Zoo.hpp>
-#include <depthai/nn_archive/NNArchive.hpp>
 #include <memory>
 #include <string>
 #include <vector>

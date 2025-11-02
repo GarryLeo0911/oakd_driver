@@ -1,6 +1,5 @@
 #include "depthai_ros_driver/dai_nodes/sensors/stereo.hpp"
 
-#include <depthai/capabilities/ImgFrameCapability.hpp>
 #include <optional>
 
 #include "depthai/device/DeviceBase.hpp"
