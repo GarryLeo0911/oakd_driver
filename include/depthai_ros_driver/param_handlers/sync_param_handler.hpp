@@ -23,6 +23,7 @@ class SyncParamHandler : public BaseParamHandler {
     explicit SyncParamHandler(std::shared_ptr<rclcpp::Node> node, const std::string& name);
     ~SyncParamHandler();
     void declareParams(std::shared_ptr<dai::node::Sync> sync);
+    dai::CameraControl setRuntimeParams(const std::vector<rclcpp::Parameter>& params) override;
 };
 }  // namespace param_handlers
 }  // namespace depthai_ros_driver

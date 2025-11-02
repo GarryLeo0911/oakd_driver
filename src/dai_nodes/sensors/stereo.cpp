@@ -369,11 +369,8 @@ dai::Node::Input& Stereo::getInput(int linkType) {
     } else if(linkType == static_cast<int>(link_types::StereoLinkType::right)) {
         return stereoCamNode->right;
     } else if(linkType == static_cast<int>(link_types::StereoLinkType::align)) {
-        if(platform == dai::Platform::RVC2) {
-            return stereoCamNode->inputAlignTo;
-        } else {
-            return alignNode->inputAlignTo;
-        }
+        // Use alignNode since platform-specific logic is deprecated
+        return alignNode->inputAlignTo;
     } else {
         throw std::runtime_error("Wrong link type specified!");
     }

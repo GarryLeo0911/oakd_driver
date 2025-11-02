@@ -44,11 +44,7 @@ void Camera::setInOut(std::shared_ptr<dai::Pipeline> pipeline) {
     if(ph->getParam<bool>(ParamNames::PUBLISH_TOPIC)) {
         if(ph->getParam<bool>("i_publish_full_resolution")) {
             // Configure camera for full resolution output
-            camNode->setResolution(dai::ColorCameraProperties::SensorResolution::THE_1080_P);
             camNode->setFps(fps);
-            if(ph->getParam<bool>("i_use_max_resolution_possible")) {
-                camNode->setResolution(dai::ColorCameraProperties::SensorResolution::THE_4_K);
-            }
             defaultOut = &camNode->isp;
         } else {
             // Configure camera for specific resolution
@@ -66,11 +62,17 @@ void Camera::setInOut(std::shared_ptr<dai::Pipeline> pipeline) {
 
         rgbPub = setupOutput(pipeline, ispQName, defaultOut, ph->getParam<bool>(ParamNames::SYNCED), encConfig);
     }
+    
+    // Create XLinkIn node for camera control
+    auto controlIn = pipeline->create<dai::node::XLinkIn>();
+    controlIn->setStreamName(controlQName);
+    controlIn->out.link(camNode->inputControl);
+}
 }
 
 void Camera::setupQueues(std::shared_ptr<dai::Device> device) {
     using ParamNames = param_handlers::ParamNames;
-    controlQ = camNode->inputControl.createInputQueue(8, false);
+    controlQ = device->getInputQueue(controlQName, 8, false);
     if(ph->getParam<bool>(ParamNames::PUBLISH_TOPIC)) {
         auto tfPrefix = getOpticalFrameName(getSocketName(static_cast<dai::CameraBoardSocket>(ph->getParam<int>(ParamNames::BOARD_SOCKET_ID))));
         utils::ImgConverterConfig convConfig;

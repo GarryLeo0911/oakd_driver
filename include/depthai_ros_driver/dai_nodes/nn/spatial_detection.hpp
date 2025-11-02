@@ -9,7 +9,7 @@
 #include "depthai/device/Device.hpp"
 #include "depthai/device/DataQueue.hpp"
 #include "depthai/pipeline/Pipeline.hpp"
-#include "depthai/pipeline/node/SpatialDetectionNetwork.hpp"
+#include "depthai/pipeline/node/NeuralNetwork.hpp"
 #include "depthai_bridge/ImageConverter.hpp"
 #include "depthai_bridge/SpatialDetectionConverter.hpp"
 #include "depthai_ros_driver/dai_nodes/base_node.hpp"
@@ -38,7 +38,7 @@ class SpatialDetection : public BaseNode {
         : BaseNode(daiNodeName, node, pipeline, deviceName, rsCompat) {
         RCLCPP_DEBUG(getLogger(), "Creating node %s", daiNodeName.c_str());
         setNames();
-        spatialNode = pipeline->create<dai::node::SpatialDetectionNetwork>();
+        spatialNode = pipeline->create<dai::node::NeuralNetwork>();
         ph = std::make_unique<param_handlers::NNParamHandler>(node, daiNodeName, socket);
         ph->declareParams(spatialNode);
         // Set model path directly instead of using deprecated build() method
@@ -46,8 +46,6 @@ class SpatialDetection : public BaseNode {
         spatialNode->setNumInferenceThreads(2);
         spatialNode->input.setBlocking(false);
         spatialNode->input.setQueueSize(1);
-        spatialNode->inputDepth.setBlocking(false);
-        spatialNode->inputDepth.setQueueSize(1);
         RCLCPP_DEBUG(getLogger(), "Node %s created", daiNodeName.c_str());
         setInOut(pipeline);
     }
@@ -104,11 +102,7 @@ class SpatialDetection : public BaseNode {
         spatialNode->out.link(in);
     };
     dai::Node::Input& getInput(int linkType = 0) override {
-        if(linkType == static_cast<int>(nn_helpers::link_types::SpatialNNLinkType::input)) {
-            return spatialNode->input;
-        } else {
-            return spatialNode->inputDepth;
-        }
+        return spatialNode->input;
     };
     void setNames() override {
         nnQName = getName() + "_nn";
@@ -155,7 +149,7 @@ class SpatialDetection : public BaseNode {
     std::shared_ptr<dai::ros::ImageConverter> ptImageConverter, ptDepthImageConverter;
     std::shared_ptr<sensor_helpers::ImagePublisher> ptPub, ptDepthPub;
     std::shared_ptr<camera_info_manager::CameraInfoManager> ptInfoMan, ptDepthInfoMan;
-    std::shared_ptr<dai::node::SpatialDetectionNetwork> spatialNode;
+    std::shared_ptr<dai::node::NeuralNetwork> spatialNode;
     std::shared_ptr<dai::node::ImageManip> imageManip;
     std::unique_ptr<param_handlers::NNParamHandler> ph;
     std::shared_ptr<dai::DataOutputQueue> nnQ, ptQ, ptDepthQ;

@@ -59,7 +59,7 @@ class Camera : public BaseNode {
 
     std::shared_ptr<dai::node::Camera> camNode;
     std::unique_ptr<param_handlers::SensorParamHandler> ph;
-    std::shared_ptr<dai::InputQueue> controlQ;
+    std::shared_ptr<dai::DataInputQueue> controlQ;
     std::string ispQName, previewQName, controlQName;
     dai::Node::Output* defaultOut;
 };

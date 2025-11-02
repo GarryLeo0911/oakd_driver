@@ -13,5 +13,10 @@ void SyncParamHandler::declareParams(std::shared_ptr<dai::node::Sync> sync) {
     sync->setSyncAttempts(declareAndLogParam<int>("sync_attempts", 10));
 }
 
+dai::CameraControl SyncParamHandler::setRuntimeParams(const std::vector<rclcpp::Parameter>& /* params */) {
+    // Sync nodes don't typically have runtime camera controls
+    return dai::CameraControl();
+}
+
 }  // namespace param_handlers
 }  // namespace depthai_ros_driver

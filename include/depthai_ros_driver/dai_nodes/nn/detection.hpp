@@ -8,7 +8,7 @@
 #include "depthai/device/Device.hpp"
 #include "depthai/device/DataQueue.hpp"
 #include "depthai/pipeline/Pipeline.hpp"
-#include "depthai/pipeline/node/DetectionNetwork.hpp"
+#include "depthai/pipeline/node/NeuralNetwork.hpp"
 #include "depthai/pipeline/node/ImageManip.hpp"
 #include "depthai_bridge/ImageConverter.hpp"
 #include "depthai_bridge/ImgDetectionConverter.hpp"
@@ -43,7 +43,7 @@ class Detection : public BaseNode {
         : BaseNode(daiNodeName, node, pipeline, deviceName, rsCompat) {
         RCLCPP_DEBUG(getLogger(), "Creating node %s", daiNodeName.c_str());
         setNames();
-        detectionNode = pipeline->create<dai::node::DetectionNetwork>();
+        detectionNode = pipeline->create<dai::node::NeuralNetwork>();
         ph = std::make_unique<param_handlers::NNParamHandler>(node, daiNodeName, socket);
         ph->declareParams(detectionNode);
         // Set model path directly instead of using deprecated build() method
@@ -163,7 +163,7 @@ class Detection : public BaseNode {
     std::vector<std::string> labelNames;
     rclcpp::Publisher<vision_msgs::msg::Detection2DArray>::SharedPtr detPub;
     std::shared_ptr<sensor_helpers::ImagePublisher> ptPub;
-    std::shared_ptr<dai::node::DetectionNetwork> detectionNode;
+    std::shared_ptr<dai::node::NeuralNetwork> detectionNode;
     std::shared_ptr<dai::node::ImageManip> imageManip;
     std::unique_ptr<param_handlers::NNParamHandler> ph;
     std::shared_ptr<dai::DataOutputQueue> nnQ, ptQ;
