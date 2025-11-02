@@ -10,8 +10,14 @@ namespace depthai_ros_driver {
 namespace pipeline_gen {
 
 PipelineGenerator::PipelineGenerator() {
-    pluginTypeMap = {{"RGB", "depthai_ros_driver::pipeline_gen::RGB"}};
-    pipelineTypeMap = {{"RGB", PipelineType::RGB}};
+    pluginTypeMap = {
+        {"RGB", "depthai_ros_driver::pipeline_gen::RGB"},
+        {"RGBD", "depthai_ros_driver::pipeline_gen::RGBD"}  // Map RGBD to minimal RGB
+    };
+    pipelineTypeMap = {
+        {"RGB", PipelineType::RGB},
+        {"RGBD", PipelineType::RGB}  // Treat RGBD as RGB in minimal mode
+    };
 }
 
 PipelineGenerator::~PipelineGenerator() = default;
@@ -31,7 +37,10 @@ std::vector<std::unique_ptr<dai_nodes::BaseNode>> PipelineGenerator::createPipel
     
     // Ultra-minimal approach: Create empty node list but still connect the camera
     // This allows the device to initialize without complex node management
-    if (pipelineType == "RGB") {
+    if (pipelineType == "RGB" || pipelineType == "rgbd") {
+        if (pipelineType == "rgbd") {
+            RCLCPP_WARN(node->get_logger(), "RGBD pipeline requested but running in RGB-only minimal mode");
+        }
         RCLCPP_INFO(node->get_logger(), "Creating minimal RGB pipeline (camera only, no ROS nodes)");
         
         // Create a basic DAI camera node directly in the pipeline without ROS wrapper
@@ -47,7 +56,7 @@ std::vector<std::unique_ptr<dai_nodes::BaseNode>> PipelineGenerator::createPipel
         // Return empty nodes list - the camera will be accessible but won't publish to ROS
         // This avoids all the complex memory allocation in sensor wrappers
     } else {
-        RCLCPP_ERROR(node->get_logger(), "Only RGB pipeline is supported in minimal mode");
+        RCLCPP_ERROR(node->get_logger(), "Pipeline type '%s' not supported in minimal mode. Supported: RGB, rgbd", pipelineType.c_str());
         throw std::runtime_error("Unsupported pipeline type");
     }
 
@@ -59,11 +68,16 @@ std::string PipelineGenerator::validatePipeline(std::shared_ptr<rclcpp::Node> no
     (void)sensorNum;   // Mark as intentionally unused
     (void)deviceName;  // Mark as intentionally unused
     
-    // Only support RGB for now
-    if (pipelineType != "RGB") {
-        RCLCPP_ERROR(node->get_logger(), "Only RGB pipeline is supported in minimal mode");
+    // Support RGB and RGBD (but treat RGBD as RGB in minimal mode)
+    if (pipelineType != "RGB" && pipelineType != "rgbd") {
+        RCLCPP_ERROR(node->get_logger(), "Pipeline type '%s' not supported in minimal mode. Supported: RGB, rgbd", pipelineType.c_str());
         throw std::out_of_range("Unsupported pipeline type");
     }
+    
+    if (pipelineType == "rgbd") {
+        RCLCPP_WARN(node->get_logger(), "RGBD pipeline will run in RGB-only minimal mode");
+    }
+    
     return pipelineType;
 }
 
