@@ -117,6 +117,14 @@ sensor_msgs::msg::CameraInfo getCalibInfo(const rclcpp::Logger& logger,
                                           int width,
                                           int height) {
     sensor_msgs::msg::CameraInfo info;
+    // If the ImageConverter (depthai_bridge) is not available, return a safe default CameraInfo
+    // containing at least width/height to avoid dereferencing a null converter elsewhere.
+    if(!converter) {
+        RCLCPP_WARN(logger, "ImageConverter not available - returning default camera_info for socket %d.", static_cast<int>(socket));
+        info.width = width;
+        info.height = height;
+        return info;
+    }
     auto calibHandler = device->readCalibration();
     try {
         info = converter->calibrationToCameraInfo(calibHandler, socket, width, height);
