@@ -15,7 +15,7 @@ namespace depthai_ros_driver {
 namespace pipeline_gen {
 PipelineGenerator::PipelineGenerator() {
     pluginTypeMap = {{"RGB", "depthai_ros_driver::pipeline_gen::RGB"},
-                     {"RGBD", "depthai_ros_driver::pipeline_gen::RGBD"},
+                     // {"RGBD", "depthai_ros_driver::pipeline_gen::RGBD"},
                      {"RGBSTEREO", "depthai_ros_driver::pipeline_gen::RGBStereo"},
                      {"STEREO", "depthai_ros_driver::pipeline_gen::Stereo"},
                      {"DEPTH", "depthai_ros_driver::pipeline_gen::Depth"},
@@ -23,10 +23,10 @@ PipelineGenerator::PipelineGenerator() {
                      {"DEPTHTOF", "depthai_ros_driver::pipeline_gen::DepthToF"},
                      {"STEREOTOF", "depthai_ros_driver::pipeline_gen::StereoToF"},
                      {"TOF", "depthai_ros_driver::pipeline_gen::ToF"},
-                     {"RGBTOF", "depthai_ros_driver::pipeline_gen::RGBToF"},
-                     {"THERMAL", "depthai_ros_driver::pipeline_gen::Thermal"}};
+                     {"RGBTOF", "depthai_ros_driver::pipeline_gen::RGBToF"}};
+                     // {"THERMAL", "depthai_ros_driver::pipeline_gen::Thermal"}};
     pipelineTypeMap = {{"RGB", PipelineType::RGB},
-                       {"RGBD", PipelineType::RGBD},
+                       // {"RGBD", PipelineType::RGBD},
                        {"RGBSTEREO", PipelineType::RGBStereo},
                        {"STEREO", PipelineType::Stereo},
                        {"DEPTH", PipelineType::Depth},
@@ -34,8 +34,8 @@ PipelineGenerator::PipelineGenerator() {
                        {"DEPTHTOF", PipelineType::DepthToF},
                        {"STEREOTOF", PipelineType::StereoToF},
                        {"TOF", PipelineType::ToF},
-                       {"RGBTOF", PipelineType::RGBToF},
-                       {"THERMAL", PipelineType::Thermal}};
+                       {"RGBTOF", PipelineType::RGBToF}};
+                       // {"THERMAL", PipelineType::Thermal}};
 }
 
 PipelineGenerator::~PipelineGenerator() = default;

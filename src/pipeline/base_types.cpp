@@ -333,7 +333,7 @@ std::vector<std::unique_ptr<dai_nodes::BaseNode>> Thermal::createPipeline(std::s
 #include <pluginlib/class_list_macros.hpp>
 
 PLUGINLIB_EXPORT_CLASS(depthai_ros_driver::pipeline_gen::RGB, depthai_ros_driver::pipeline_gen::BasePipeline)
-PLUGINLIB_EXPORT_CLASS(depthai_ros_driver::pipeline_gen::RGBD, depthai_ros_driver::pipeline_gen::BasePipeline)
+// PLUGINLIB_EXPORT_CLASS(depthai_ros_driver::pipeline_gen::RGBD, depthai_ros_driver::pipeline_gen::BasePipeline)
 PLUGINLIB_EXPORT_CLASS(depthai_ros_driver::pipeline_gen::RGBStereo, depthai_ros_driver::pipeline_gen::BasePipeline)
 PLUGINLIB_EXPORT_CLASS(depthai_ros_driver::pipeline_gen::Stereo, depthai_ros_driver::pipeline_gen::BasePipeline)
 PLUGINLIB_EXPORT_CLASS(depthai_ros_driver::pipeline_gen::Depth, depthai_ros_driver::pipeline_gen::BasePipeline)
@@ -342,4 +342,4 @@ PLUGINLIB_EXPORT_CLASS(depthai_ros_driver::pipeline_gen::StereoToF, depthai_ros_
 PLUGINLIB_EXPORT_CLASS(depthai_ros_driver::pipeline_gen::DepthToF, depthai_ros_driver::pipeline_gen::BasePipeline)
 PLUGINLIB_EXPORT_CLASS(depthai_ros_driver::pipeline_gen::ToF, depthai_ros_driver::pipeline_gen::BasePipeline)
 PLUGINLIB_EXPORT_CLASS(depthai_ros_driver::pipeline_gen::RGBToF, depthai_ros_driver::pipeline_gen::BasePipeline)
-PLUGINLIB_EXPORT_CLASS(depthai_ros_driver::pipeline_gen::Thermal, depthai_ros_driver::pipeline_gen::BasePipeline)
+// PLUGINLIB_EXPORT_CLASS(depthai_ros_driver::pipeline_gen::Thermal, depthai_ros_driver::pipeline_gen::BasePipeline)
