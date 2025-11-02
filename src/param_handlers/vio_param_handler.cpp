@@ -2,7 +2,7 @@
 
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
-#include "depthai/basalt/BasaltVIO.hpp"
+#include "depthai/pipeline/node/BasaltVIO.hpp"
 #include "depthai/common/CameraBoardSocket.hpp"
 #include "depthai_ros_driver/utils.hpp"
 #include "rclcpp/node.hpp"

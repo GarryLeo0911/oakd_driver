@@ -129,6 +129,7 @@ add_library(
   # src/dai_nodes/sensors/thermal.cpp  # Missing ThermalConfig.hpp
   # src/dai_nodes/sensors/rgbd.cpp     # Missing RGBD.hpp
   # src/dai_nodes/sensors/vio.cpp      # Missing BasaltVIO.hpp
+  src/stubs.cpp  # Stub implementations for missing constructors
   src/dai_nodes/sensors/tof.cpp
   src/dai_nodes/sensors/sync.cpp
 )

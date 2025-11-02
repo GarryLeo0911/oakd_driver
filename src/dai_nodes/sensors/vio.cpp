@@ -3,6 +3,7 @@
 #include "depthai/device/Device.hpp"
 #include "depthai/pipeline/Pipeline.hpp"
 #include "depthai/pipeline/datatype/TransformData.hpp"
+#include "depthai/pipeline/node/BasaltVIO.hpp"
 #include "depthai_bridge/TransformDataConverter.hpp"
 #include "depthai_ros_driver/dai_nodes/sensors/imu.hpp"
 #include "depthai_ros_driver/dai_nodes/sensors/sensor_wrapper.hpp"

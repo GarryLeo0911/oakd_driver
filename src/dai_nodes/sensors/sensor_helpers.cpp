@@ -3,6 +3,7 @@
 #include "camera_info_manager/camera_info_manager.hpp"
 #include "depthai/depthai.hpp"
 #include "depthai_bridge/ImageConverter.hpp"
+#include "depthai_ros_msgs/conversions.hpp"
 #include "image_transport/image_transport.hpp"
 #include "rclcpp/logger.hpp"
 
@@ -80,6 +81,20 @@ const std::unordered_map<std::string, dai::CameraImageOrientation> cameraImageOr
     {"HORIZONTAL_MIRROR", dai::CameraImageOrientation::HORIZONTAL_MIRROR},
     {"VERTICAL_FLIP", dai::CameraImageOrientation::VERTICAL_FLIP},
 };
+
+void basicCameraPub(const std::string& /*name*/,
+                    const std::shared_ptr<dai::ADatatype>& data,
+                    dai::ros::ImageConverter& converter,
+                    image_transport::CameraPublisher& pub,
+                    std::shared_ptr<camera_info_manager::CameraInfoManager> infoManager) {
+    if(rclcpp::ok() && (pub.getNumSubscribers() > 0)) {
+        auto img = std::dynamic_pointer_cast<dai::ImgFrame>(data);
+        auto info = infoManager->getCameraInfo();
+        auto rawMsg = converter.toRosMsgRawPtr(img);
+        info.header = rawMsg.header;
+        pub.publish(rawMsg, info);
+    }
+}
 
 void basicCameraPub(const std::string& /*name*/,
                     const std::shared_ptr<dai::ADatatype>& data,
