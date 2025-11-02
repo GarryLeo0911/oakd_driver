@@ -3,6 +3,8 @@
 #include "depthai/device/Device.hpp"
 #include "depthai/pipeline/Pipeline.hpp"
 #include "depthai/common/CameraBoardSocket.hpp"
+#include "depthai_ros_driver/dai_nodes/sensors/camera.hpp"
+#include "depthai_ros_driver/dai_nodes/sensors/stereo.hpp"
 #include "depthai_ros_driver/dai_nodes/sensors/img_pub.hpp"
 #include "depthai_ros_driver/dai_nodes/sensors/sync.hpp"
 #include "depthai_ros_driver/dai_nodes/sys_logger.hpp"
@@ -63,8 +65,8 @@ public:
         std::vector<std::unique_ptr<dai_nodes::BaseNode>> daiNodes;
         
         try {
-            // Create RGB camera node
-            auto rgb = std::make_unique<dai_nodes::SensorWrapper>(
+            // Create RGB camera node using Camera directly (not SensorWrapper)
+            auto rgb = std::make_unique<dai_nodes::Camera>(
                 "rgb",                           // daiNodeName
                 node,                           // node
                 pipeline,                       // pipeline
@@ -75,15 +77,15 @@ public:
             );
             daiNodes.push_back(std::move(rgb));
             
-            // Create stereo depth node
-            auto stereo = std::make_unique<dai_nodes::SensorWrapper>(
+            // Create stereo depth node using Stereo directly
+            auto stereo = std::make_unique<dai_nodes::Stereo>(
                 "stereo",                        // daiNodeName
                 node,                           // node
                 pipeline,                       // pipeline
-                device->getDeviceName(),        // deviceName
+                device,                         // device (full device object needed)
                 false,                          // rsCompat
-                dai::CameraBoardSocket::CAM_B,  // socket (left stereo camera)
-                true                            // publish
+                dai::CameraBoardSocket::CAM_B,  // left socket
+                dai::CameraBoardSocket::CAM_C   // right socket
             );
             daiNodes.push_back(std::move(stereo));
             
