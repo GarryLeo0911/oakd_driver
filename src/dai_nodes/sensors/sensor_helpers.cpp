@@ -3,7 +3,6 @@
 #include "camera_info_manager/camera_info_manager.hpp"
 #include "depthai/depthai.hpp"
 #include "depthai_bridge/ImageConverter.hpp"
-#include "depthai_ros_msgs/conversions.hpp"
 #include "image_transport/image_transport.hpp"
 #include "rclcpp/logger.hpp"
 

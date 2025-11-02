@@ -17,7 +17,8 @@ Vio::Vio(const std::string& /*daiNodeName*/,
          std::shared_ptr<dai::Device> /*device*/,
          bool /*rsCompat*/,
          Stereo& /*stereo*/,
-         Imu& /*imu*/) {
+         Imu& /*imu*/)
+    : BaseNode("vio_stub", nullptr, nullptr, "stub", false) {
     throw std::runtime_error("VIO functionality not implemented - missing DepthAI BasaltVIO support");
 }
 
@@ -29,7 +30,8 @@ RGBD::RGBD(const std::string& /*daiNodeName*/,
            bool /*rsCompat*/,
            SensorWrapper& /*rgb*/,
            ToF& /*tof*/,
-           bool /*aligned*/) {
+           bool /*aligned*/)
+    : BaseNode("rgbd_stub", nullptr, nullptr, "stub", false) {
     throw std::runtime_error("RGBD with ToF functionality not implemented - missing DepthAI RGBD support");
 }
 
@@ -40,7 +42,8 @@ RGBD::RGBD(const std::string& /*daiNodeName*/,
            bool /*rsCompat*/,
            SensorWrapper& /*rgb*/,
            std::shared_ptr<dai::node::StereoDepth> /*stereoDepth*/,
-           bool /*aligned*/) {
+           bool /*aligned*/)
+    : BaseNode("rgbd_stub", nullptr, nullptr, "stub", false) {
     throw std::runtime_error("RGBD with StereoDepth functionality not implemented - missing DepthAI RGBD support");
 }
 
@@ -49,7 +52,8 @@ Thermal::Thermal(const std::string& /*daiNodeName*/,
                  std::shared_ptr<rclcpp::Node> /*node*/,
                  std::shared_ptr<dai::Pipeline> /*pipeline*/,
                  const std::string& /*deviceName*/,
-                 bool /*rsCompat*/) {
+                 bool /*rsCompat*/)
+    : BaseNode("thermal_stub", nullptr, nullptr, "stub", false) {
     throw std::runtime_error("Thermal functionality not implemented - missing DepthAI Thermal support");
 }
 
