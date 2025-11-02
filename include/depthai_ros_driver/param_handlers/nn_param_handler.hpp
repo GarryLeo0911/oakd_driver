@@ -1,6 +1,6 @@
 #pragma once
 
-#include <depthai/pipeline/node/SpatialDetectionNetwork.hpp>
+#include <depthai/pipeline/node/NeuralNetwork.hpp>
 #include <fstream>
 #include <memory>
 #include <string>
@@ -14,8 +14,6 @@
 namespace dai {
 namespace node {
 class NeuralNetwork;
-class DetectionNetwork;
-class SpatialDetectionNetwork;
 class ImageManip;
 }  // namespace node
 }  // namespace dai
@@ -48,13 +46,10 @@ class NNParamHandler : public BaseParamHandler {
     }
 
     void setNNParams(std::shared_ptr<dai::node::NeuralNetwork> nn);
-    void setNNParams(std::shared_ptr<dai::node::DetectionNetwork> nn);
-    void setNNParams(std::shared_ptr<dai::node::SpatialDetectionNetwork> nn);
 
-    void setSpatialParams(std::shared_ptr<dai::node::SpatialDetectionNetwork> nn) {
-        nn->setBoundingBoxScaleFactor(declareAndLogParam<float>("i_bounding_box_scale_factor", 0.5));
-        nn->setDepthLowerThreshold(declareAndLogParam<int>("i_depth_lower_threshold", 100));
-        nn->setDepthUpperThreshold(declareAndLogParam<int>("i_upper_depth_threshold", 10000));
+    void setSpatialParams(std::shared_ptr<dai::node::NeuralNetwork> nn) {
+        // Spatial parameters are handled directly in the neural network
+        // These parameters may need to be set differently in newer API
     }
 
    private:

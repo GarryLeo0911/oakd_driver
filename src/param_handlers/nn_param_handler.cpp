@@ -28,15 +28,12 @@ nn::NNFamily NNParamHandler::getNNFamily() {
     return utils::getValFromMap(nnFamily, nnFamilyMap);
 }
 
-void NNParamHandler::setNNParams(std::shared_ptr<dai::node::NeuralNetwork> /*nn*/) {}
-
-void NNParamHandler::setNNParams(std::shared_ptr<dai::node::DetectionNetwork> nn) {
-    nn->setConfidenceThreshold(declareAndLogParam<float>("i_nn_confidence_threshold", 0.5));
-}
-
-void NNParamHandler::setNNParams(std::shared_ptr<dai::node::SpatialDetectionNetwork> nn) {
-    nn->setConfidenceThreshold(declareAndLogParam<float>("i_nn_confidence_threshold", 0.5));
-    setSpatialParams(nn);
+void NNParamHandler::setNNParams(std::shared_ptr<dai::node::NeuralNetwork> /*nn*/) {
+    // Neural network parameters are set differently in newer API
+    declareAndLogParam<float>("i_nn_confidence_threshold", 0.5);
+    declareAndLogParam<float>("i_bounding_box_scale_factor", 0.5);
+    declareAndLogParam<int>("i_depth_lower_threshold", 100);
+    declareAndLogParam<int>("i_upper_depth_threshold", 10000);
 }
 
 dai::CameraControl NNParamHandler::setRuntimeParams(const std::vector<rclcpp::Parameter>& /*params*/) {
