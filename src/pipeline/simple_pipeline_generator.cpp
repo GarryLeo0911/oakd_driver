@@ -2,6 +2,7 @@
 
 #include "depthai/device/Device.hpp"
 #include "depthai/pipeline/Pipeline.hpp"
+#include "depthai/common/CameraBoardSocket.hpp"
 #include "depthai_ros_driver/dai_nodes/sensors/img_pub.hpp"
 #include "depthai_ros_driver/dai_nodes/sensors/sync.hpp"
 #include "depthai_ros_driver/dai_nodes/sys_logger.hpp"
@@ -22,11 +23,21 @@ public:
         std::shared_ptr<dai::Pipeline> pipeline,
         std::shared_ptr<param_handlers::PipelineGenParamHandler> ph) {
         
+        (void)ph; // Mark parameter as intentionally unused
         std::vector<std::unique_ptr<dai_nodes::BaseNode>> daiNodes;
         
         try {
-            // Create a simple RGB camera node with minimal configuration
-            auto rgb = std::make_unique<dai_nodes::SensorWrapper>("rgb", node, pipeline, device);
+            // Create a simple RGB camera node with correct constructor parameters
+            // Parameters: daiNodeName, node, pipeline, deviceName, rsCompat, socket, publish
+            auto rgb = std::make_unique<dai_nodes::SensorWrapper>(
+                "rgb",                           // daiNodeName
+                node,                           // node
+                pipeline,                       // pipeline
+                device->getDeviceName(),        // deviceName
+                false,                          // rsCompat
+                dai::CameraBoardSocket::CAM_A,  // socket (main RGB camera)
+                true                            // publish
+            );
             daiNodes.push_back(std::move(rgb));
             
             RCLCPP_INFO(node->get_logger(), "Simple RGB pipeline created successfully");
@@ -75,7 +86,10 @@ std::vector<std::unique_ptr<dai_nodes::BaseNode>> PipelineGenerator::createPipel
     return daiNodes;
 }
 
-std::string PipelineGenerator::validatePipeline(std::shared_ptr<rclcpp::Node> node, std::string pipelineType, int sensorNum, std::string deviceName) {
+std::string PipelineGenerator::validatePipeline(std::shared_ptr<rclcpp::Node> node, const std::string& pipelineType, int sensorNum, const std::string& deviceName) {
+    (void)sensorNum;   // Mark as intentionally unused
+    (void)deviceName;  // Mark as intentionally unused
+    
     // Only support RGB for now
     if (pipelineType != "RGB") {
         RCLCPP_ERROR(node->get_logger(), "Only RGB pipeline is supported in minimal mode");

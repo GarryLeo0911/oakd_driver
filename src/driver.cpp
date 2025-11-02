@@ -193,21 +193,42 @@ void Driver::getDeviceType() {
 
 void Driver::createPipeline() {
     auto generator = std::make_unique<pipeline_gen::PipelineGenerator>();
-    if(!ph->getParam<std::string>("i_external_calibration_path").empty()) {
-        loadCalib(ph->getParam<std::string>("i_external_calibration_path"));
+    // Skip external calibration loading to save memory
+    // if(!ph->getParam<std::string>("i_external_calibration_path").empty()) {
+    //     loadCalib(ph->getParam<std::string>("i_external_calibration_path"));
+    // }
+    
+    try {
+        daiNodes = generator->createPipeline(shared_from_this(), device, pipeline, ph->getParam<bool>("i_rs_compat"));
+        RCLCPP_INFO(get_logger(), "Pipeline created with %zu nodes", daiNodes.size());
+    } catch (const std::exception& e) {
+        RCLCPP_ERROR(get_logger(), "Failed to create pipeline: %s", e.what());
+        throw;
     }
-    daiNodes = generator->createPipeline(shared_from_this(), device, pipeline, ph->getParam<bool>("i_rs_compat"));
-    if(ph->getParam<bool>("i_pipeline_dump")) {
-        savePipeline();
-    }
-    if(ph->getParam<bool>("i_calibration_dump")) {
-        saveCalib();
-    }
+    
+    // Skip optional dumps to save memory
+    // if(ph->getParam<bool>("i_pipeline_dump")) {
+    //     savePipeline();
+    // }
+    // if(ph->getParam<bool>("i_calibration_dump")) {
+    //     saveCalib();
+    // }
 }
 
 void Driver::setupQueues() {
+    if (daiNodes.empty()) {
+        RCLCPP_INFO(get_logger(), "No DAI nodes to setup (minimal mode)");
+        return;
+    }
+    
+    RCLCPP_INFO(get_logger(), "Setting up queues for %zu DAI nodes", daiNodes.size());
     for(const auto& node : daiNodes) {
-        node->setupQueues(device);
+        try {
+            node->setupQueues(device);
+        } catch (const std::exception& e) {
+            RCLCPP_ERROR(get_logger(), "Failed to setup queue for node: %s", e.what());
+            // Continue with other nodes instead of failing completely
+        }
     }
 }
 

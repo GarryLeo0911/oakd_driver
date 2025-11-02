@@ -182,7 +182,7 @@ PUBLIC
 set(PIPELINE_LIB_NAME ${PROJECT_NAME}_pipelines)
 add_library(
   ${PIPELINE_LIB_NAME} SHARED
-  src/pipeline/simple_pipeline_generator.cpp
+  src/pipeline/ultra_minimal_pipeline.cpp
   src/pipeline/base_pipeline.cpp
   src/pipeline/base_types.cpp
 )
