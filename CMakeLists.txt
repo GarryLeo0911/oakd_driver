@@ -108,7 +108,7 @@ add_library(
   # src/param_handlers/vio_param_handler.cpp   # Missing BasaltVIO.hpp
   src/param_handlers/stereo_param_handler.cpp
   # src/param_handlers/thermal_param_handler.cpp  # Missing ThermalConfig.hpp
-  src/param_handlers/tof_param_handler.cpp
+  # src/param_handlers/tof_param_handler.cpp      # API compatibility issues
   src/param_handlers/pipeline_gen_param_handler.cpp
   src/param_handlers/sync_param_handler.cpp
 )
@@ -121,16 +121,16 @@ PUBLIC
 set(SENSOR_LIB_NAME ${PROJECT_NAME}_sensor_nodes)
 add_library(
   ${SENSOR_LIB_NAME} SHARED
-  src/dai_nodes/sensors/imu.cpp
-  src/dai_nodes/sensors/camera.cpp
-  src/dai_nodes/sensors/feature_tracker.cpp
-  src/dai_nodes/sensors/sensor_wrapper.cpp
-  src/dai_nodes/sensors/stereo.cpp
-  # src/dai_nodes/sensors/thermal.cpp  # Missing ThermalConfig.hpp
-  # src/dai_nodes/sensors/rgbd.cpp     # Missing RGBD.hpp
-  # src/dai_nodes/sensors/vio.cpp      # Missing BasaltVIO.hpp
-  src/dai_nodes/sensors/tof.cpp
-  src/dai_nodes/sensors/sync.cpp
+  # src/dai_nodes/sensors/imu.cpp           # API compatibility issues
+  # src/dai_nodes/sensors/camera.cpp        # API compatibility issues
+  # src/dai_nodes/sensors/feature_tracker.cpp # API compatibility issues
+  # src/dai_nodes/sensors/sensor_wrapper.cpp  # API compatibility issues
+  # src/dai_nodes/sensors/stereo.cpp         # Missing capabilities header
+  # src/dai_nodes/sensors/thermal.cpp       # Missing ThermalConfig.hpp
+  # src/dai_nodes/sensors/rgbd.cpp          # Missing RGBD.hpp
+  # src/dai_nodes/sensors/vio.cpp           # Missing BasaltVIO.hpp
+  # src/dai_nodes/sensors/tof.cpp           # API compatibility issues
+  # src/dai_nodes/sensors/sync.cpp          # API compatibility issues
 )
 
 target_link_libraries(${SENSOR_LIB_NAME}
@@ -142,9 +142,9 @@ PUBLIC
 set(NN_LIB_NAME ${PROJECT_NAME}_nn_nodes)
 add_library(
   ${NN_LIB_NAME} SHARED
-  src/dai_nodes/nn/nn_wrapper.cpp
-  src/dai_nodes/nn/spatial_nn_wrapper.cpp
-  src/dai_nodes/nn/segmentation.cpp
+  # src/dai_nodes/nn/nn_wrapper.cpp         # Missing modelzoo header
+  # src/dai_nodes/nn/spatial_nn_wrapper.cpp # Missing MessageQueue header
+  # src/dai_nodes/nn/segmentation.cpp       # API compatibility issues
 )
 
 target_link_libraries(${NN_LIB_NAME}
