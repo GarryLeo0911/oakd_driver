@@ -31,10 +31,13 @@ Segmentation::Segmentation(const std::string& daiNodeName,
     RCLCPP_DEBUG(getLogger(), "Creating node %s", daiNodeName.c_str());
     setNames();
     ph = std::make_unique<param_handlers::NNParamHandler>(node, daiNodeName, socket);
+    segNode = pipeline->create<dai::node::NeuralNetwork>();
     ph->declareParams(segNode);
-    description = std::make_shared<dai::NNModelDescription>();
-    description->model = ph->getParam<std::string>("i_nn_model");
-    segNode = pipeline->create<dai::node::NeuralNetwork>()->build(camNode.getUnderlyingNode(), *description);
+    // Set model path directly instead of using deprecated build() method
+    segNode->setBlobPath(ph->getParam<std::string>("i_nn_model"));
+    segNode->setNumInferenceThreads(2);
+    segNode->input.setBlocking(false);
+    segNode->input.setQueueSize(1);
     imageManip = pipeline->create<dai::node::ImageManip>();
     RCLCPP_DEBUG(getLogger(), "Node %s created", daiNodeName.c_str());
     imageManip->out.link(segNode->input);
@@ -48,15 +51,26 @@ void Segmentation::setNames() {
     ptQName = getName() + "_pt";
 }
 
-void Segmentation::setInOut(std::shared_ptr<dai::Pipeline> /* pipeline */) {}
+void Segmentation::setInOut(std::shared_ptr<dai::Pipeline> pipeline) {
+    // Create XLinkOut node for segmentation output
+    auto segOut = pipeline->create<dai::node::XLinkOut>();
+    segOut->setStreamName(nnQName);
+    segNode->out.link(segOut->input);
+    
+    if(ph->getParam<bool>("i_enable_passthrough")) {
+        auto ptOut = pipeline->create<dai::node::XLinkOut>();
+        ptOut->setStreamName(ptQName);
+        segNode->passthrough.link(ptOut->input);
+    }
+}
 
 void Segmentation::setupQueues(std::shared_ptr<dai::Device> device) {
-    nnQ = segNode->out.createOutputQueue(ph->getParam<int>("i_max_q_size"), false);
+    nnQ = device->getOutputQueue(nnQName, ph->getParam<int>("i_max_q_size"), false);
     nnPub = image_transport::create_camera_publisher(getROSNode().get(), "~/" + getName() + "/image_raw");
     nnQ->addCallback(std::bind(&Segmentation::segmentationCB, this, std::placeholders::_1, std::placeholders::_2));
     if(ph->getParam<bool>("i_enable_passthrough")) {
         auto tfPrefix = getOpticalFrameName(getSocketName(ph->getSocketID()));
-        ptQ = segNode->passthrough.createOutputQueue(ph->getParam<int>("i_max_q_size"), false);
+        ptQ = device->getOutputQueue(ptQName, ph->getParam<int>("i_max_q_size"), false);
         imageConverter = std::make_shared<dai::ros::ImageConverter>(tfPrefix, false);
         infoManager = std::make_shared<camera_info_manager::CameraInfoManager>(
             getROSNode()->create_sub_node(std::string(getROSNode()->get_name()) + "/" + getName()).get(), "/" + getName());

@@ -53,6 +53,7 @@ class ToF : public BaseNode {
 
    private:
     std::shared_ptr<sensor_helpers::ImagePublisher> tofPub;
+    std::shared_ptr<dai::node::Camera> camNode;
     std::shared_ptr<dai::node::ToF> tofNode;
     std::shared_ptr<dai::node::ImageAlign> alignNode;
     std::unique_ptr<param_handlers::ToFParamHandler> ph;

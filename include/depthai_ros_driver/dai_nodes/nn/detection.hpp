@@ -46,9 +46,11 @@ class Detection : public BaseNode {
         detectionNode = pipeline->create<dai::node::DetectionNetwork>();
         ph = std::make_unique<param_handlers::NNParamHandler>(node, daiNodeName, socket);
         ph->declareParams(detectionNode);
-        dai::NNModelDescription description;
-        description.model = ph->getParam<std::string>("i_nn_model");
-        detectionNode->build(camNode.getUnderlyingNode(), description);
+        // Set model path directly instead of using deprecated build() method
+        detectionNode->setBlobPath(ph->getParam<std::string>("i_nn_model"));
+        detectionNode->setNumInferenceThreads(2);
+        detectionNode->input.setBlocking(false);
+        detectionNode->input.setQueueSize(1);
 
         RCLCPP_DEBUG(getLogger(), "Node %s created", daiNodeName.c_str());
         setInOut(pipeline);
@@ -61,7 +63,7 @@ class Detection : public BaseNode {
      * @param      device  The device
      */
     void setupQueues(std::shared_ptr<dai::Device> device) override {
-        nnQ = detectionNode->out.createOutputQueue(ph->getParam<int>("i_max_q_size"), false);
+        nnQ = device->getOutputQueue(nnQName, ph->getParam<int>("i_max_q_size"), false);
         std::string socketName = getSocketName(static_cast<dai::CameraBoardSocket>(ph->getParam<int>("i_board_socket_id")));
         auto tfPrefix = getOpticalFrameName(socketName);
 
@@ -85,6 +87,7 @@ class Detection : public BaseNode {
             pubConf.socket = static_cast<dai::CameraBoardSocket>(ph->getParam<int>("i_board_socket_id"));
 
             ptPub->setup(device, convConf, pubConf);
+            ptQ = device->getOutputQueue(ptQName, ph->getParam<int>("i_max_q_size"), false);
         }
     };
     /**
@@ -120,6 +123,11 @@ class Detection : public BaseNode {
      * @param      pipeline  The pipeline
      */
     void setInOut(std::shared_ptr<dai::Pipeline> pipeline) override {
+        // Create XLinkOut node for detection output
+        auto detOut = pipeline->create<dai::node::XLinkOut>();
+        detOut->setStreamName(nnQName);
+        detectionNode->out.link(detOut->input);
+        
         if(ph->getParam<bool>("i_enable_passthrough")) {
             ptPub = setupOutput(pipeline, ptQName, &detectionNode->passthrough);
         }

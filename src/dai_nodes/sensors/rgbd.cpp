@@ -29,7 +29,7 @@ RGBD::RGBD(const std::string& daiNodeName,
     using namespace param_handlers;
     RCLCPP_DEBUG(getLogger(), "Creating node %s", daiNodeName.c_str());
     setNames();
-    rgbdNode = pipeline->create<dai::node::RGBD>()->build();
+    rgbdNode = pipeline->create<dai::node::RGBD>();
     ph = std::make_unique<RGBDParamHandler>(node, daiNodeName, device->getDeviceName(), rsCompat);
     ph->declareParams(rgbdNode, camNode.getSocketID());
     int threadNum = ph->getParam<int>("i_num_threads");
@@ -37,18 +37,13 @@ RGBD::RGBD(const std::string& daiNodeName,
         rgbdNode->useCPUMT(threadNum);
     }
     auto color = camNode.getUnderlyingNode();
-    auto platform = device->getPlatform();
+    // Removed platform check since platform API is deprecated
     rgbdNode->runSyncOnHost(ph->getParam<bool>("i_run_sync_on_host"));
     auto fps = ph->getOtherNodeParam<float>(camNode.getName(), ParamNames::FPS);
 
-    out = colorCam->requestOutput(std::make_pair(ph->getOtherNodeParam<int>(camNode.getName(), ParamNames::WIDTH),
-                                                         ph->getOtherNodeParam<int>(camNode.getName(), ParamNames::HEIGHT)),
-                                     dai::ImgFrame::Type::RGB888i,
-                                     fps,
-                                     true);
-    out->link(rgbdNode->inColor);
-    if(platform == dai::Platform::RVC4) {
-        if(!aligned) {
+    // Use camera outputs directly instead of deprecated requestOutput
+    color->isp.link(rgbdNode->inColor);
+    if(!aligned) {
             align = pipeline->create<dai::node::ImageAlign>();
             align->setRunOnHost(ph->getParam<bool>("i_run_align_on_host"));
             stereo->depth.link(align->input);
@@ -81,23 +76,19 @@ RGBD::RGBD(const std::string& daiNodeName,
     using namespace param_handlers;
     RCLCPP_DEBUG(getLogger(), "Creating node %s", daiNodeName.c_str());
     setNames();
-    rgbdNode = pipeline->create<dai::node::RGBD>()->build();
+    rgbdNode = pipeline->create<dai::node::RGBD>();
     ph = std::make_unique<RGBDParamHandler>(node, daiNodeName, device->getDeviceName(), rsCompat);
     ph->declareParams(rgbdNode, camNode.getSocketID());
     auto color = camNode.getUnderlyingNode();
     auto tof = tofNode.getUnderlyingNode();
     auto fps = ph->getOtherNodeParam<float>(camNode.getName(), ParamNames::FPS);
-    auto* out = color->requestOutput(std::pair<int, int>(ph->getOtherNodeParam<int>(camNode.getName(), ParamNames::WIDTH),
-                                                         ph->getOtherNodeParam<int>(camNode.getName(), ParamNames::HEIGHT)),
-                                     dai::ImgFrame::Type::RGB888i,
-                                     fps,
-                                     true);
-    out->link(rgbdNode->inColor);
+    // Use camera outputs directly instead of deprecated requestOutput
+    color->isp.link(rgbdNode->inColor);
     if(!aligned) {
         align = pipeline->create<dai::node::ImageAlign>();
         align->setRunOnHost(ph->getParam<bool>("i_run_align_on_host"));
         tof->depth.link(align->input);
-        out->link(align->inputAlignTo);
+        color->isp.link(align->inputAlignTo);
         align->inputAlignTo.setBlocking(false);
         align->input.setBlocking(false);
         align->outputAligned.link(rgbdNode->inDepth);
@@ -111,11 +102,16 @@ RGBD::~RGBD() = default;
 
 void RGBD::setNames() {}
 
-void RGBD::setInOut(std::shared_ptr<dai::Pipeline> /* pipeline */) {}
+void RGBD::setInOut(std::shared_ptr<dai::Pipeline> pipeline) {
+    // Create XLinkOut node for point cloud output
+    auto pclOut = pipeline->create<dai::node::XLinkOut>();
+    pclOut->setStreamName(getName() + "_pcl");
+    rgbdNode->pcl.link(pclOut->input);
+}
 
-void RGBD::setupQueues(std::shared_ptr<dai::Device> /* device */) {
+void RGBD::setupQueues(std::shared_ptr<dai::Device> device) {
     using ParamNames = param_handlers::ParamNames;
-    pclQ = rgbdNode->pcl.createOutputQueue(ph->getParam<int>(ParamNames::MAX_Q_SIZE), false);
+    pclQ = device->getOutputQueue(getName() + "_pcl", ph->getParam<int>(ParamNames::MAX_Q_SIZE), false);
     auto tfPrefix = getOpticalFrameName(getSocketName(ph->getSocketID()));
     rclcpp::PublisherOptions options;
     options.qos_overriding_options = rclcpp::QosOverridingOptions();

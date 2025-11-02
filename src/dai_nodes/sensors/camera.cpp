@@ -18,7 +18,8 @@ Camera::Camera(const std::string& daiNodeName,
     : BaseNode(daiNodeName, node, pipeline, deviceName, rsCompat) {
     RCLCPP_DEBUG(getLogger(), "Creating node %s", daiNodeName.c_str());
     setNames();
-    camNode = pipeline->create<dai::node::Camera>()->build(socket);
+    camNode = pipeline->create<dai::node::Camera>();
+    camNode->setBoardSocket(socket);
     ph = std::make_unique<param_handlers::SensorParamHandler>(node, daiNodeName, socket);
     ph->declareParams(camNode, publish);
     setInOut(pipeline);
@@ -42,12 +43,18 @@ void Camera::setInOut(std::shared_ptr<dai::Pipeline> pipeline) {
     dai::ImgFrame::Type type = dai::ImgFrame::Type::NV12;
     if(ph->getParam<bool>(ParamNames::PUBLISH_TOPIC)) {
         if(ph->getParam<bool>("i_publish_full_resolution")) {
-            defaultOut = camNode->requestFullResolutionOutput(type, fps, ph->getParam<bool>("i_use_max_resolution_possible"));
+            // Configure camera for full resolution output
+            camNode->setResolution(dai::ColorCameraProperties::SensorResolution::THE_1080_P);
+            camNode->setFps(fps);
+            if(ph->getParam<bool>("i_use_max_resolution_possible")) {
+                camNode->setResolution(dai::ColorCameraProperties::SensorResolution::THE_4_K);
+            }
+            defaultOut = &camNode->isp;
         } else {
-            defaultOut = camNode->requestOutput(std::pair<int, int>(width, height),
-                                                type,
-                                                fps,
-                                                ph->getParam<bool>(ParamNames::UNDISTORTED));
+            // Configure camera for specific resolution
+            camNode->setFps(fps);
+            // Modern API uses isp output directly without requestOutput
+            defaultOut = &camNode->isp;
         }
         utils::VideoEncoderConfig encConfig;
         bool lowBandwidth = ph->getParam<bool>(ParamNames::LOW_BANDWIDTH);

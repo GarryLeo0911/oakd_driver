@@ -20,7 +20,7 @@ void ThermalParamHandler::declareParams(std::shared_ptr<dai::node::Thermal> ther
                         {"FLIP", dai::ThermalConfig::ThermalImageOrientation::Flip},
                         {"MIRROR_FLIP", dai::ThermalConfig::ThermalImageOrientation::MirrorFlip}};
     auto socketID = declareAndLogParam<int>(ParamNames::BOARD_SOCKET_ID, static_cast<int>(dai::CameraBoardSocket::CAM_E));
-    thermal->build(static_cast<dai::CameraBoardSocket>(socketID));
+    thermal->setBoardSocket(static_cast<dai::CameraBoardSocket>(socketID));
     declareAndLogParam<int>(ParamNames::WIDTH, 256);
     declareAndLogParam<int>(ParamNames::HEIGHT, 162);
     declareAndLogParam<bool>(ParamNames::PUBLISH_TOPIC, true);

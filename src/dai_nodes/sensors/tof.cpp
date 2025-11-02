@@ -24,15 +24,16 @@ ToF::ToF(const std::string& daiNodeName,
     : BaseNode(daiNodeName, node, pipeline, deviceName, rsCompat) {
     RCLCPP_DEBUG(node->get_logger(), "Creating node %s", daiNodeName.c_str());
     setNames();
+    camNode = pipeline->create<dai::node::Camera>();
     tofNode = pipeline->create<dai::node::ToF>();
     boardSocket = socket;
-    ph = std::make_unique<param_handlers::ToFParamHandler>(node, daiNodeName, deviceName, rsCompat);
-    ph->declareParams(tofNode, socket);
+    ph = std::make_unique<param_handlers::ToFParamHandler>(node, daiNodeName);
+    ph->declareParams(camNode, tofNode);
     setInOut(pipeline);
     aligned = ph->getParam<bool>(param_handlers::ParamNames::ALIGNED);
     if(aligned) {
         alignNode = pipeline->create<dai::node::ImageAlign>();
-        alignNode->setRunOnHost(ph->getParam<bool>("i_run_align_on_host"));
+        // setRunOnHost is deprecated in newer DepthAI API
         alignNode->input.setBlocking(false);
         alignNode->inputAlignTo.setBlocking(false);
         RCLCPP_DEBUG(getLogger(), "ToF is aligned, make sure to connect inputs/outputs in pipeline creation");

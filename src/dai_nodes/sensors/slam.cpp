@@ -61,7 +61,8 @@ Slam::Slam(const std::string& daiNodeName,
     int height = ph->getOtherNodeParam<int>(stereo.getName(), ParamNames::HEIGHT);
     float fps = ph->getOtherNodeParam<float>(sens.getName(), ParamNames::FPS);
     slamNode->setFreq(ph->getParam<float>("i_frequency"));
-    sens.getUnderlyingNode()->requestOutput({width, height}, std::nullopt, fps, true)->link(slamNode->rect);
+    // Use camera output directly instead of deprecated requestOutput
+    sens.getUnderlyingNode()->isp.link(slamNode->rect);
     if(ph->getParam<bool>("i_use_external_odometry")) {
         tfBuffer = std::make_shared<tf2_ros::Buffer>(node->get_clock());
         tfListener = std::make_shared<tf2_ros::TransformListener>(*tfBuffer);
@@ -85,15 +86,36 @@ Slam::~Slam() = default;
 
 void Slam::setNames() {}
 
-void Slam::setInOut(std::shared_ptr<dai::Pipeline> /* pipeline */) {}
+void Slam::setInOut(std::shared_ptr<dai::Pipeline> pipeline) {
+    // Create XLinkOut nodes for all SLAM outputs
+    auto mapToOdomOut = pipeline->create<dai::node::XLinkOut>();
+    mapToOdomOut->setStreamName(getName() + "_map_to_odom");
+    slamNode->odomCorrection.link(mapToOdomOut->input);
+    
+    auto absolutePoseOut = pipeline->create<dai::node::XLinkOut>();
+    absolutePoseOut->setStreamName(getName() + "_absolute_pose");
+    slamNode->transform.link(absolutePoseOut->input);
+    
+    auto mapOut = pipeline->create<dai::node::XLinkOut>();
+    mapOut->setStreamName(getName() + "_map");
+    slamNode->occupancyGridMap.link(mapOut->input);
+    
+    auto groundPclOut = pipeline->create<dai::node::XLinkOut>();
+    groundPclOut->setStreamName(getName() + "_ground_pcl");
+    slamNode->groundPCL.link(groundPclOut->input);
+    
+    auto obstaclePclOut = pipeline->create<dai::node::XLinkOut>();
+    obstaclePclOut->setStreamName(getName() + "_obstacle_pcl");
+    slamNode->obstaclePCL.link(obstaclePclOut->input);
+}
 
-void Slam::setupQueues(std::shared_ptr<dai::Device> /* device */) {
+void Slam::setupQueues(std::shared_ptr<dai::Device> device) {
     using ParamNames = param_handlers::ParamNames;
     rclcpp::PublisherOptions options;
     options.qos_overriding_options = rclcpp::QosOverridingOptions();
     if(ph->getParam<bool>("i_publish_tf")) {
         tfBr = std::make_shared<tf2_ros::TransformBroadcaster>(getROSNode());
-        mapToOdomQ = slamNode->odomCorrection.createOutputQueue(ph->getParam<int>(ParamNames::MAX_Q_SIZE), false);
+        mapToOdomQ = device->getOutputQueue(getName() + "_map_to_odom", ph->getParam<int>(ParamNames::MAX_Q_SIZE), false);
         mapToOdomConv =
             std::make_unique<depthai_bridge::TransformDataConverter>(mapFrame, odomFrame, ph->getParam<bool>(ParamNames::GET_BASE_DEVICE_TIMESTAMP));
         mapToOdomConv->setUpdateRosBaseTimeOnToRosMsg(ph->getParam<bool>(ParamNames::UPDATE_ROS_BASE_TIME_ON_ROS_MSG));
@@ -101,7 +123,7 @@ void Slam::setupQueues(std::shared_ptr<dai::Device> /* device */) {
         mapToOdomQ->addCallback(std::bind(&Slam::mapToOdomCB, this, std::placeholders::_1, std::placeholders::_2));
     }
     if(ph->getParam<bool>("i_publish_absolute_pose")) {
-        absolutePoseQ = slamNode->transform.createOutputQueue(ph->getParam<int>(ParamNames::MAX_Q_SIZE), false);
+        absolutePoseQ = device->getOutputQueue(getName() + "_absolute_pose", ph->getParam<int>(ParamNames::MAX_Q_SIZE), false);
         absolutePosePub = getROSNode()->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
             "~/" + getName() + "/absolute_pose", ph->getParam<int>(ParamNames::MAX_Q_SIZE), options);
         absolutePoseConv =
@@ -110,14 +132,14 @@ void Slam::setupQueues(std::shared_ptr<dai::Device> /* device */) {
         absolutePoseQ->addCallback(std::bind(&Slam::absolutePoseCB, this, std::placeholders::_1, std::placeholders::_2));
     }
     if(ph->getParam<bool>("i_publish_map")) {
-        mapQ = slamNode->occupancyGridMap.createOutputQueue(ph->getParam<int>(ParamNames::MAX_Q_SIZE), false);
+        mapQ = device->getOutputQueue(getName() + "_map", ph->getParam<int>(ParamNames::MAX_Q_SIZE), false);
         mapConv = std::make_unique<depthai_bridge::GridMapConverter>(mapFrame, ph->getParam<bool>(ParamNames::GET_BASE_DEVICE_TIMESTAMP));
         mapConv->setUpdateRosBaseTimeOnToRosMsg(ph->getParam<bool>(ParamNames::UPDATE_ROS_BASE_TIME_ON_ROS_MSG));
         mapPub = getROSNode()->create_publisher<nav_msgs::msg::OccupancyGrid>("~/" + getName() + "/map", ph->getParam<int>(ParamNames::MAX_Q_SIZE), options);
         mapQ->addCallback(std::bind(&Slam::mapCB, this, std::placeholders::_1, std::placeholders::_2));
     }
     if(ph->getParam<bool>("i_publish_ground_pcl")) {
-        groundPclQ = slamNode->groundPCL.createOutputQueue(ph->getParam<int>(ParamNames::MAX_Q_SIZE), false);
+        groundPclQ = device->getOutputQueue(getName() + "_ground_pcl", ph->getParam<int>(ParamNames::MAX_Q_SIZE), false);
         groundPclConv = std::make_unique<depthai_bridge::PointCloudConverter>(mapFrame, ph->getParam<bool>(ParamNames::GET_BASE_DEVICE_TIMESTAMP));
         groundPclConv->setUpdateRosBaseTimeOnToRosMsg(ph->getParam<bool>(ParamNames::UPDATE_ROS_BASE_TIME_ON_ROS_MSG));
         groundPclPub =
@@ -125,7 +147,7 @@ void Slam::setupQueues(std::shared_ptr<dai::Device> /* device */) {
         groundPclQ->addCallback(std::bind(&Slam::groundPclCB, this, std::placeholders::_1, std::placeholders::_2));
     }
     if(ph->getParam<bool>("i_publish_obstacle_pcl")) {
-        obstaclePclQ = slamNode->obstaclePCL.createOutputQueue(ph->getParam<int>(ParamNames::MAX_Q_SIZE), false);
+        obstaclePclQ = device->getOutputQueue(getName() + "_obstacle_pcl", ph->getParam<int>(ParamNames::MAX_Q_SIZE), false);
         obstaclePclConv = std::make_unique<depthai_bridge::PointCloudConverter>(mapFrame, ph->getParam<bool>(ParamNames::GET_BASE_DEVICE_TIMESTAMP));
         obstaclePclConv->setUpdateRosBaseTimeOnToRosMsg(ph->getParam<bool>(ParamNames::UPDATE_ROS_BASE_TIME_ON_ROS_MSG));
         obstaclePclPub = getROSNode()->create_publisher<sensor_msgs::msg::PointCloud2>(

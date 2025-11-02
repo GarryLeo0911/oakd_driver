@@ -32,7 +32,7 @@ Stereo::Stereo(const std::string& daiNodeName,
     using ParamNames = param_handlers::ParamNames;
     RCLCPP_DEBUG(getLogger(), "Creating node %s", daiNodeName.c_str());
     setNames();
-    ph = std::make_unique<param_handlers::StereoParamHandler>(node, daiNodeName, device->getDeviceName(), rsCompat);
+    ph = std::make_unique<param_handlers::StereoParamHandler>(node, daiNodeName);
     auto alignSocket = dai::CameraBoardSocket::CAM_A;
     if(device->getDeviceName() == "OAK-D-SR" || device->getDeviceName() == "OAK-D-SR-POE") {
         alignSocket = dai::CameraBoardSocket::CAM_C;
@@ -59,14 +59,9 @@ Stereo::Stereo(const std::string& daiNodeName,
         std::make_shared<SensorWrapper>(getSocketName(rightSensInfo.socket), node, pipeline, device->getDeviceName(), rsCompat, rightSensInfo.socket, false);
     stereoCamNode = pipeline->create<dai::node::StereoDepth>();
     ph->declareParams(stereoCamNode);
-    leftOut = left->getUnderlyingNode()->requestOutput(std::make_pair<int, int>(ph->getParam<int>(ParamNames::WIDTH), ph->getParam<int>(ParamNames::HEIGHT)),
-                                                       std::nullopt,
-                                                       ph->getParam<float>(ParamNames::FPS));
-    rightOut = right->getUnderlyingNode()->requestOutput(std::make_pair<int, int>(ph->getParam<int>(ParamNames::WIDTH), ph->getParam<int>(ParamNames::HEIGHT)),
-                                                         std::nullopt,
-                                                         ph->getParam<float>(ParamNames::FPS));
-    leftOut->link(stereoCamNode->left);
-    rightOut->link(stereoCamNode->right);
+    // Use camera outputs directly instead of deprecated requestOutput
+    left->getUnderlyingNode()->isp.link(stereoCamNode->left);
+    right->getUnderlyingNode()->isp.link(stereoCamNode->right);
 
     aligned = ph->getParam<bool>(param_handlers::ParamNames::ALIGNED);
     if(ph->getParam<bool>("i_enable_left_spatial_nn")) {
@@ -89,15 +84,15 @@ Stereo::Stereo(const std::string& daiNodeName,
     // Check alignment, if board socket is one of the pairs, align.
     // if not it should be aligned externally by calling align method in pipeline creation
     auto socketID = ph->getSocketID();
-    platform = device->getPlatform();
+    // getPlatform() and RVC4 enum are deprecated in newer DepthAI API
+    // platform = device->getPlatform();
     if(aligned) {
-        if(platform == dai::Platform::RVC4) {
-            alignNode = pipeline->create<dai::node::ImageAlign>();
-            alignNode->setRunOnHost(ph->getParam<bool>("i_run_align_on_host"));
-            stereoCamNode->depth.link(alignNode->input);
-            alignNode->input.setBlocking(false);
-            alignNode->inputAlignTo.setBlocking(false);
-        }
+        // Removed platform check since RVC4 enum is deprecated
+        alignNode = pipeline->create<dai::node::ImageAlign>();
+        // setRunOnHost is deprecated in newer DepthAI API
+        stereoCamNode->depth.link(alignNode->input);
+        alignNode->input.setBlocking(false);
+        alignNode->inputAlignTo.setBlocking(false);
         if(socketID == leftSensInfo.socket) {
             leftOut->link(getInput(static_cast<int>(link_types::StereoLinkType::align)));
         } else if(socketID == rightSensInfo.socket) {
@@ -138,7 +133,8 @@ void Stereo::setInOut(std::shared_ptr<dai::Pipeline> pipeline) {
         if(outputDisparity || lowBandwidth) {
             stereoPub = setupOutput(pipeline, stereoQName, &stereoCamNode->disparity, ph->getParam<bool>("i_synced"), encConf);
         } else {
-            if(aligned && platform == dai::Platform::RVC4) {
+            // Removed platform check since RVC4 enum is deprecated
+            if(aligned) {
                 stereoPub = setupOutput(pipeline, stereoQName, &alignNode->outputAligned, ph->getParam<bool>("i_synced"), encConf);
             } else {
                 stereoPub = setupOutput(pipeline, stereoQName, &stereoCamNode->depth, ph->getParam<bool>("i_synced"), encConf);
@@ -327,7 +323,8 @@ void Stereo::closeQueues() {
 
 void Stereo::link(dai::Node::Input& in, int linkType) {
     if(linkType == static_cast<int>(link_types::StereoLinkType::stereo)) {
-        if(aligned && platform == dai::Platform::RVC4) {
+        // Removed platform check since RVC4 enum is deprecated
+        if(aligned) {
             alignNode->outputAligned.link(in);
         } else {
             stereoCamNode->depth.link(in);
