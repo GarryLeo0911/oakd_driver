@@ -7,18 +7,31 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_compile_options(-Wall -Wextra -Wpedantic -Wno-deprecated-declarations -Wno-maybe-uninitialized)
     # Reduce memory usage during compilation to avoid "Killed" errors
-    add_compile_options(-g1)  # Reduced debug info
+    add_compile_options(-g1 -O2)  # Reduced debug info with optimization
+    # Memory optimization flags
+    add_compile_options(-fno-omit-frame-pointer)
+    add_compile_options(-fstack-protector-strong)
+    # Reduce template instantiation memory usage
+    add_compile_options(-ftemplate-backtrace-limit=0)
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         add_compile_options(-O1)  # Basic optimization in debug mode
+    else()
+        add_compile_options(-O2 -DNDEBUG)  # Full optimization in release mode
     endif()
 endif()
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
     set(CMAKE_C_STANDARD 99)
 endif()
-# Default to C++17
+# Default to C++17 for better memory management
 if(NOT CMAKE_CXX_STANDARD)
     set(CMAKE_CXX_STANDARD 17)
+endif()
+
+# Add memory optimization settings
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing")
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -DNDEBUG")
 endif()
 
 # find dependencies
@@ -104,13 +117,16 @@ add_library(
   src/param_handlers/nn_param_handler.cpp
   src/param_handlers/sensor_param_handler.cpp
   src/param_handlers/feature_tracker_param_handler.cpp
-  # src/param_handlers/rgbd_param_handler.cpp  # Missing RGBD.hpp
-  # src/param_handlers/vio_param_handler.cpp   # Missing BasaltVIO.hpp
   src/param_handlers/stereo_param_handler.cpp
-  # src/param_handlers/thermal_param_handler.cpp  # Missing ThermalConfig.hpp
   src/param_handlers/tof_param_handler.cpp
   src/param_handlers/pipeline_gen_param_handler.cpp
   src/param_handlers/sync_param_handler.cpp
+)
+
+# Set memory optimization properties
+set_target_properties(${COMMON_LIB_NAME} PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
+    LINK_WHAT_YOU_USE ON
 )
 
 target_link_libraries(${COMMON_LIB_NAME}
@@ -126,12 +142,14 @@ add_library(
   src/dai_nodes/sensors/feature_tracker.cpp
   src/dai_nodes/sensors/sensor_wrapper.cpp
   src/dai_nodes/sensors/stereo.cpp
-  # src/dai_nodes/sensors/thermal.cpp  # Missing ThermalConfig.hpp
-  # src/dai_nodes/sensors/rgbd.cpp     # Missing RGBD.hpp
-  # src/dai_nodes/sensors/vio.cpp      # Missing BasaltVIO.hpp
-  # src/stubs.cpp  # Disabled - stub implementations cause incomplete type issues
   src/dai_nodes/sensors/tof.cpp
   src/dai_nodes/sensors/sync.cpp
+)
+
+# Set memory optimization properties
+set_target_properties(${SENSOR_LIB_NAME} PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
+    LINK_WHAT_YOU_USE ON
 )
 
 target_link_libraries(${SENSOR_LIB_NAME}
@@ -148,6 +166,12 @@ add_library(
   src/dai_nodes/nn/segmentation.cpp
 )
 
+# Set memory optimization properties  
+set_target_properties(${NN_LIB_NAME} PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
+    LINK_WHAT_YOU_USE ON
+)
+
 target_link_libraries(${NN_LIB_NAME}
 PUBLIC
   ${NN_DEPS}
@@ -160,6 +184,12 @@ add_library(
   src/pipeline/pipeline_generator.cpp
   src/pipeline/base_pipeline.cpp
   src/pipeline/base_types.cpp
+)
+
+# Set memory optimization properties
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
+    LINK_WHAT_YOU_USE ON
 )
 
 target_link_libraries(
