@@ -10,8 +10,8 @@
 
 namespace depthai_ros_driver {
 namespace param_handlers {
-ToFParamHandler::ToFParamHandler(std::shared_ptr<rclcpp::Node> node, const std::string& name)
-    : BaseParamHandler(node, name) {
+ToFParamHandler::ToFParamHandler(std::shared_ptr<rclcpp::Node> node, const std::string& name, const std::string& deviceName, bool rsCompat)
+    : BaseParamHandler(node, name, deviceName, rsCompat) {
     medianFilterMap = {{"MEDIAN_OFF", dai::MedianFilter::MEDIAN_OFF},
                        {"KERNEL_3x3", dai::MedianFilter::KERNEL_3x3},
                        {"KERNEL_5x5", dai::MedianFilter::KERNEL_5x5},
