@@ -118,40 +118,41 @@ PUBLIC
   ${COMMON_DEPS}
 )
 
-set(SENSOR_LIB_NAME ${PROJECT_NAME}_sensor_nodes)
-add_library(
-  ${SENSOR_LIB_NAME} SHARED
-  # src/dai_nodes/sensors/imu.cpp           # API compatibility issues
-  # src/dai_nodes/sensors/camera.cpp        # API compatibility issues
-  # src/dai_nodes/sensors/feature_tracker.cpp # API compatibility issues
-  # src/dai_nodes/sensors/sensor_wrapper.cpp  # API compatibility issues
-  # src/dai_nodes/sensors/stereo.cpp         # Missing capabilities header
-  # src/dai_nodes/sensors/thermal.cpp       # Missing ThermalConfig.hpp
-  # src/dai_nodes/sensors/rgbd.cpp          # Missing RGBD.hpp
-  # src/dai_nodes/sensors/vio.cpp           # Missing BasaltVIO.hpp
-  # src/dai_nodes/sensors/tof.cpp           # API compatibility issues
-  # src/dai_nodes/sensors/sync.cpp          # API compatibility issues
-)
+# Temporarily disable sensor and NN libraries due to API compatibility issues
+# set(SENSOR_LIB_NAME ${PROJECT_NAME}_sensor_nodes)
+# add_library(
+#   ${SENSOR_LIB_NAME} SHARED
+#   # src/dai_nodes/sensors/imu.cpp           # API compatibility issues
+#   # src/dai_nodes/sensors/camera.cpp        # API compatibility issues
+#   # src/dai_nodes/sensors/feature_tracker.cpp # API compatibility issues
+#   # src/dai_nodes/sensors/sensor_wrapper.cpp  # API compatibility issues
+#   # src/dai_nodes/sensors/stereo.cpp         # Missing capabilities header
+#   # src/dai_nodes/sensors/thermal.cpp       # Missing ThermalConfig.hpp
+#   # src/dai_nodes/sensors/rgbd.cpp          # Missing RGBD.hpp
+#   # src/dai_nodes/sensors/vio.cpp           # Missing BasaltVIO.hpp
+#   # src/dai_nodes/sensors/tof.cpp           # API compatibility issues
+#   # src/dai_nodes/sensors/sync.cpp          # API compatibility issues
+# )
 
-target_link_libraries(${SENSOR_LIB_NAME}
-PUBLIC
-  ${SENSOR_DEPS}
-  ${COMMON_LIB_NAME}
-)
+# target_link_libraries(${SENSOR_LIB_NAME}
+# PUBLIC
+#   ${SENSOR_DEPS}
+#   ${COMMON_LIB_NAME}
+# )
 
-set(NN_LIB_NAME ${PROJECT_NAME}_nn_nodes)
-add_library(
-  ${NN_LIB_NAME} SHARED
-  # src/dai_nodes/nn/nn_wrapper.cpp         # Missing modelzoo header
-  # src/dai_nodes/nn/spatial_nn_wrapper.cpp # Missing MessageQueue header
-  # src/dai_nodes/nn/segmentation.cpp       # API compatibility issues
-)
+# set(NN_LIB_NAME ${PROJECT_NAME}_nn_nodes)
+# add_library(
+#   ${NN_LIB_NAME} SHARED
+#   # src/dai_nodes/nn/nn_wrapper.cpp         # Missing modelzoo header
+#   # src/dai_nodes/nn/spatial_nn_wrapper.cpp # Missing MessageQueue header
+#   # src/dai_nodes/nn/segmentation.cpp       # API compatibility issues
+# )
 
-target_link_libraries(${NN_LIB_NAME}
-PUBLIC
-  ${NN_DEPS}
-  ${COMMON_LIB_NAME}
-)
+# target_link_libraries(${NN_LIB_NAME}
+# PUBLIC
+#   ${NN_DEPS}
+#   ${COMMON_LIB_NAME}
+# )
 
 add_library(
   ${PROJECT_NAME} SHARED
@@ -165,8 +166,8 @@ target_link_libraries(
   ${PROJECT_NAME}
 PUBLIC
   ${CAM_DEPS}
-  ${SENSOR_LIB_NAME}
-  ${NN_LIB_NAME}
+  # ${SENSOR_LIB_NAME}  # Disabled due to API compatibility issues
+  # ${NN_LIB_NAME}      # Disabled due to API compatibility issues
   ${COMMON_LIB_NAME}
 )
 
@@ -176,8 +177,8 @@ add_executable(
 target_link_libraries(oakd_driver_node
 PUBLIC
   ${PROJECT_NAME}
-  ${SENSOR_LIB_NAME}
-  ${NN_LIB_NAME}
+  # ${SENSOR_LIB_NAME}  # Disabled due to API compatibility issues
+  # ${NN_LIB_NAME}      # Disabled due to API compatibility issues
   ${COMMON_LIB_NAME})
 
 rclcpp_components_register_nodes(${PROJECT_NAME} "depthai_ros_driver::Driver")
