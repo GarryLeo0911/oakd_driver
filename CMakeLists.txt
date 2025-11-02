@@ -118,6 +118,7 @@ add_library(
   src/param_handlers/sensor_param_handler.cpp
   src/param_handlers/feature_tracker_param_handler.cpp
   src/param_handlers/stereo_param_handler.cpp
+  src/param_handlers/rgbd_param_handler.cpp
   src/param_handlers/tof_param_handler.cpp
   src/param_handlers/pipeline_gen_param_handler.cpp
   src/param_handlers/sync_param_handler.cpp
@@ -182,7 +183,7 @@ PUBLIC
 set(PIPELINE_LIB_NAME ${PROJECT_NAME}_pipelines)
 add_library(
   ${PIPELINE_LIB_NAME} SHARED
-  src/pipeline/ultra_minimal_pipeline.cpp
+  src/pipeline/simple_pipeline_generator.cpp
   src/pipeline/base_pipeline.cpp
   src/pipeline/base_types.cpp
 )

@@ -50,9 +50,58 @@ public:
     }
 };
 
+// Simple RGBD Pipeline Implementation - RGB + Depth for RTAB-Map
+class SimpleRGBDPipeline {
+public:
+    static std::vector<std::unique_ptr<dai_nodes::BaseNode>> createSimpleRGBD(
+        std::shared_ptr<rclcpp::Node> node,
+        std::shared_ptr<dai::Device> device,
+        std::shared_ptr<dai::Pipeline> pipeline,
+        std::shared_ptr<param_handlers::PipelineGenParamHandler> ph) {
+        
+        (void)ph; // Mark parameter as intentionally unused
+        std::vector<std::unique_ptr<dai_nodes::BaseNode>> daiNodes;
+        
+        try {
+            // Create RGB camera node
+            auto rgb = std::make_unique<dai_nodes::SensorWrapper>(
+                "rgb",                           // daiNodeName
+                node,                           // node
+                pipeline,                       // pipeline
+                device->getDeviceName(),        // deviceName
+                false,                          // rsCompat
+                dai::CameraBoardSocket::CAM_A,  // socket (main RGB camera)
+                true                            // publish
+            );
+            daiNodes.push_back(std::move(rgb));
+            
+            // Create stereo depth node
+            auto stereo = std::make_unique<dai_nodes::SensorWrapper>(
+                "stereo",                        // daiNodeName
+                node,                           // node
+                pipeline,                       // pipeline
+                device->getDeviceName(),        // deviceName
+                false,                          // rsCompat
+                dai::CameraBoardSocket::CAM_B,  // socket (left stereo camera)
+                true                            // publish
+            );
+            daiNodes.push_back(std::move(stereo));
+            
+            RCLCPP_INFO(node->get_logger(), "Simple RGBD pipeline created successfully");
+        } catch (const std::exception& e) {
+            RCLCPP_ERROR(node->get_logger(), "Error creating simple RGBD pipeline: %s", e.what());
+            throw;
+        }
+        
+        return daiNodes;
+    }
+};
+
 PipelineGenerator::PipelineGenerator() {
-    pluginTypeMap = {{"RGB", "depthai_ros_driver::pipeline_gen::RGB"}};
-    pipelineTypeMap = {{"RGB", PipelineType::RGB}};
+    pluginTypeMap = {{"RGB", "depthai_ros_driver::pipeline_gen::RGB"},
+                     {"RGBD", "depthai_ros_driver::pipeline_gen::RGBD"}};
+    pipelineTypeMap = {{"RGB", PipelineType::RGB},
+                       {"RGBD", PipelineType::RGBD}};
 }
 
 PipelineGenerator::~PipelineGenerator() = default;
@@ -75,8 +124,11 @@ std::vector<std::unique_ptr<dai_nodes::BaseNode>> PipelineGenerator::createPipel
     if (pipelineType == "RGB") {
         RCLCPP_INFO(node->get_logger(), "Using direct RGB pipeline implementation (no plugins)");
         daiNodes = SimpleRGBPipeline::createSimpleRGB(node, device, pipeline, ph);
+    } else if (pipelineType == "RGBD" || pipelineType == "rgbd") {
+        RCLCPP_INFO(node->get_logger(), "Using direct RGBD pipeline implementation (no plugins)");
+        daiNodes = SimpleRGBDPipeline::createSimpleRGBD(node, device, pipeline, ph);
     } else {
-        RCLCPP_ERROR(node->get_logger(), "Only RGB pipeline type is supported in this minimal implementation");
+        RCLCPP_ERROR(node->get_logger(), "Only RGB and RGBD pipeline types are supported in this minimal implementation");
         throw std::runtime_error("Unsupported pipeline type");
     }
 
@@ -90,9 +142,9 @@ std::string PipelineGenerator::validatePipeline(std::shared_ptr<rclcpp::Node> no
     (void)sensorNum;   // Mark as intentionally unused
     (void)deviceName;  // Mark as intentionally unused
     
-    // Only support RGB for now
-    if (pipelineType != "RGB") {
-        RCLCPP_ERROR(node->get_logger(), "Only RGB pipeline is supported in minimal mode");
+    // Support both RGB and RGBD
+    if (pipelineType != "RGB" && pipelineType != "RGBD" && pipelineType != "rgbd") {
+        RCLCPP_ERROR(node->get_logger(), "Only RGB and RGBD pipeline types are supported in minimal mode");
         throw std::out_of_range("Unsupported pipeline type");
     }
     return pipelineType;
