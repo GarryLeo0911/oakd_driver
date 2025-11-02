@@ -39,7 +39,7 @@ class SpatialDetection : public BaseNode {
         RCLCPP_DEBUG(getLogger(), "Creating node %s", daiNodeName.c_str());
         setNames();
         spatialNode = pipeline->create<dai::node::SpatialDetectionNetwork>();
-        ph = std::make_unique<param_handlers::NNParamHandler>(node, daiNodeName, deviceName, rsCompat, socket);
+        ph = std::make_unique<param_handlers::NNParamHandler>(node, daiNodeName, socket);
         ph->declareParams(spatialNode);
         dai::NNModelDescription description;
         description.model = ph->getParam<std::string>("i_nn_model");
@@ -52,7 +52,7 @@ class SpatialDetection : public BaseNode {
         nnQ = spatialNode->out.createOutputQueue(ph->getParam<int>("i_max_q_size"), false);
         std::string socketName = getSocketName(ph->getSocketID());
         auto tfPrefix = getOpticalFrameName(socketName);
-        detConverter = std::make_unique<depthai_bridge::SpatialDetectionConverter>(tfPrefix, false, ph->getParam<bool>("i_get_base_device_timestamp"));
+        detConverter = std::make_unique<dai::ros::SpatialDetectionConverter>(tfPrefix, false, ph->getParam<bool>("i_get_base_device_timestamp"));
         detConverter->setUpdateRosBaseTimeOnToRosMsg(ph->getParam<bool>("i_update_ros_base_time_on_ros_msg"));
         nnQ->addCallback(std::bind(&SpatialDetection::spatialCB, this, std::placeholders::_1, std::placeholders::_2));
         rclcpp::PublisherOptions options;
@@ -138,7 +138,7 @@ class SpatialDetection : public BaseNode {
             deq.pop_front();
         }
     };
-    std::unique_ptr<depthai_bridge::SpatialDetectionConverter> detConverter;
+    std::unique_ptr<dai::ros::SpatialDetectionConverter> detConverter;
     std::vector<std::string> labelNames;
     rclcpp::Publisher<vision_msgs::msg::Detection3DArray>::SharedPtr detPub;
     std::shared_ptr<depthai_bridge::ImageConverter> ptImageConverter, ptDepthImageConverter;

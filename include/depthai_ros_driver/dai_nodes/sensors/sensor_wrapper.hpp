@@ -19,7 +19,7 @@ namespace node {
 class Camera;
 }
 }  // namespace dai
-namespace depthai_bridge {
+namespace dai::ros {
 class ImageConverter;
 }
 
@@ -62,7 +62,7 @@ class SensorWrapper : public BaseNode {
     std::unique_ptr<Camera> sensorNode;
     std::unique_ptr<BaseNode> featureTrackerNode, nnNode;
     std::unique_ptr<param_handlers::SensorParamHandler> ph;
-    std::unique_ptr<depthai_bridge::ImageConverter> converter;
+    std::unique_ptr<dai::ros::ImageConverter> converter;
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr sub;
     std::shared_ptr<dai::DataOutputQueue> inQ;
     std::string inQName;

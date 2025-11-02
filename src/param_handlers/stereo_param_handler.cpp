@@ -201,5 +201,12 @@ void StereoParamHandler::declareParams(std::shared_ptr<dai::node::StereoDepth> s
     declareAndLogParam("i_height", height, true);
     stereo->initialConfig.set(config);
 }
+
+dai::CameraControl StereoParamHandler::setRuntimeParams(const std::vector<rclcpp::Parameter>& params) {
+    dai::CameraControl ctrl;
+    // StereoDepth nodes don't typically have runtime camera controls
+    // This implementation returns an empty control
+    return ctrl;
+}
 }  // namespace param_handlers
 }  // namespace depthai_ros_driver

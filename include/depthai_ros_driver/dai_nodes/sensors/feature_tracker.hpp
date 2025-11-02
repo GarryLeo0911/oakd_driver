@@ -14,7 +14,7 @@ class FeatureTracker;
 }  // namespace node
 }  // namespace dai
 
-namespace depthai_bridge {
+namespace dai::ros {
 class TrackedFeaturesConverter;
 }
 namespace rclcpp {
@@ -45,7 +45,7 @@ class FeatureTracker : public BaseNode {
     void getParentName(const std::string& fullName);
 
    private:
-    std::unique_ptr<depthai_bridge::TrackedFeaturesConverter> featureConverter;
+    std::unique_ptr<dai::ros::TrackedFeaturesConverter> featureConverter;
     void featureQCB(const std::string& name, const std::shared_ptr<dai::ADatatype>& data);
     rclcpp::Publisher<depthai_ros_msgs::msg::TrackedFeatures>::SharedPtr featurePub;
     std::shared_ptr<dai::node::FeatureTracker> featureNode;

@@ -30,7 +30,7 @@ SensorWrapper::SensorWrapper(const std::string& daiNodeName,
             topicName = "~/" + getName() + "/input";
         }
         sub = node->create_subscription<sensor_msgs::msg::Image>(topicName, 10, std::bind(&SensorWrapper::subCB, this, std::placeholders::_1));
-        converter = std::make_unique<depthai_bridge::ImageConverter>("sub", true);
+        converter = std::make_unique<dai::ros::ImageConverter>("sub", true);
         setNames();
         setInOut(pipeline);
     }

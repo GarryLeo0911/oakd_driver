@@ -44,7 +44,7 @@ class Detection : public BaseNode {
         RCLCPP_DEBUG(getLogger(), "Creating node %s", daiNodeName.c_str());
         setNames();
         detectionNode = pipeline->create<dai::node::DetectionNetwork>();
-        ph = std::make_unique<param_handlers::NNParamHandler>(node, daiNodeName, deviceName, rsCompat, socket);
+        ph = std::make_unique<param_handlers::NNParamHandler>(node, daiNodeName, socket);
         ph->declareParams(detectionNode);
         dai::NNModelDescription description;
         description.model = ph->getParam<std::string>("i_nn_model");
@@ -65,7 +65,7 @@ class Detection : public BaseNode {
         std::string socketName = getSocketName(static_cast<dai::CameraBoardSocket>(ph->getParam<int>("i_board_socket_id")));
         auto tfPrefix = getOpticalFrameName(socketName);
 
-        detConverter = std::make_unique<depthai_bridge::ImgDetectionConverter>(tfPrefix, false, ph->getParam<bool>("i_get_base_device_timestamp"));
+        detConverter = std::make_unique<dai::ros::ImgDetectionConverter>(tfPrefix, false, ph->getParam<bool>("i_get_base_device_timestamp"));
         detConverter->setUpdateRosBaseTimeOnToRosMsg(ph->getParam<bool>("i_update_ros_base_time_on_ros_msg"));
         rclcpp::PublisherOptions options;
         options.qos_overriding_options = rclcpp::QosOverridingOptions();
@@ -151,7 +151,7 @@ class Detection : public BaseNode {
             deq.pop_front();
         }
     };
-    std::unique_ptr<depthai_bridge::ImgDetectionConverter> detConverter;
+    std::unique_ptr<dai::ros::ImgDetectionConverter> detConverter;
     std::vector<std::string> labelNames;
     rclcpp::Publisher<vision_msgs::msg::Detection2DArray>::SharedPtr detPub;
     std::shared_ptr<sensor_helpers::ImagePublisher> ptPub;

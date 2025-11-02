@@ -16,7 +16,7 @@ class IMU;
 }  // namespace node
 }  // namespace dai
 
-namespace depthai_bridge {
+namespace dai::ros {
 class ImuConverter;
 }
 namespace rclcpp {
@@ -45,7 +45,7 @@ class Imu : public BaseNode {
     void closeQueues() override;
 
    private:
-    std::unique_ptr<depthai_bridge::ImuConverter> imuConverter;
+    std::unique_ptr<dai::ros::ImuConverter> imuConverter;
     void imuRosQCB(const std::string& name, const std::shared_ptr<dai::ADatatype>& data);
     void imuDaiRosQCB(const std::string& name, const std::shared_ptr<dai::ADatatype>& data);
     void imuMagQCB(const std::string& name, const std::shared_ptr<dai::ADatatype>& data);

@@ -25,6 +25,7 @@ class StereoParamHandler : public BaseParamHandler {
     ~StereoParamHandler();
     void declareParams(std::shared_ptr<dai::node::StereoDepth> stereo);
     void updateSocketsFromParams(dai::CameraBoardSocket& left, dai::CameraBoardSocket& right, dai::CameraBoardSocket& align);
+    dai::CameraControl setRuntimeParams(const std::vector<rclcpp::Parameter>& params = {}) override;
 
    private:
     std::unordered_map<std::string, dai::node::StereoDepth::PresetMode> depthPresetMap;
