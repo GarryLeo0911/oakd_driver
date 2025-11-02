@@ -39,7 +39,7 @@ enum class StereoLinkType { stereo, left, right, align };
 namespace sensor_helpers {
 class ImagePubliser;
 }
-class RGBD;
+// class RGBD;
 class Stereo : public BaseNode {
    public:
     explicit Stereo(const std::string& daiNodeName,
@@ -74,7 +74,7 @@ class Stereo : public BaseNode {
     std::shared_ptr<dai::node::StereoDepth> stereoCamNode;
     std::shared_ptr<dai::node::ImageAlign> alignNode;
     dai::Platform platform;
-    std::unique_ptr<RGBD> rgbdNodeLeft, rgbdNodeRight;
+    // std::unique_ptr<RGBD> rgbdNodeLeft, rgbdNodeRight;
     std::shared_ptr<SensorWrapper> left, right;
     std::unique_ptr<BaseNode> featureTrackerLeftR, featureTrackerRightR, nnNodeLeft, nnNodeRight;
     std::unique_ptr<param_handlers::StereoParamHandler> ph;

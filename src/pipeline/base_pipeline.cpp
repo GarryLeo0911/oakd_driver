@@ -31,6 +31,7 @@ void BasePipeline::addRgbdNode(std::vector<std::unique_ptr<dai_nodes::BaseNode>>
                                bool rsCompat,
                                dai_nodes::SensorWrapper& rgb,
                                dai_nodes::Stereo& stereo) {
+    (void)daiNodes; (void)device; (void)pipeline; (void)rsCompat; (void)rgb; (void)stereo;
     if(ph->getParam<bool>("i_enable_rgbd")) {
         // auto rgbd = std::make_unique<dai_nodes::RGBD>("rgbd", node, pipeline, device, rsCompat, rgb, stereo.getUnderlyingNode(), stereo.isAligned());
         // auto deviceInfo = device->getDeviceInfo();
@@ -51,6 +52,7 @@ void BasePipeline::addRgbdNode(std::vector<std::unique_ptr<dai_nodes::BaseNode>>
                                bool rsCompat,
                                dai_nodes::SensorWrapper& rgb,
                                dai_nodes::ToF& tof) {
+    (void)daiNodes; (void)device; (void)pipeline; (void)rsCompat; (void)rgb; (void)tof;
     if(ph->getParam<bool>("i_enable_rgbd")) {
         // auto rgbd = std::make_unique<dai_nodes::RGBD>("rgbd", node, pipeline, device, rsCompat, rgb, tof, tof.isAligned());
         // if(tof.isAligned()) {

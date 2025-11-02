@@ -11,7 +11,7 @@
 #include "depthai_ros_driver/dai_nodes/nn/spatial_nn_wrapper.hpp"
 #include "depthai_ros_driver/dai_nodes/sensors/feature_tracker.hpp"
 #include "depthai_ros_driver/dai_nodes/sensors/img_pub.hpp"
-#include "depthai_ros_driver/dai_nodes/sensors/rgbd.hpp"
+// #include "depthai_ros_driver/dai_nodes/sensors/rgbd.hpp"
 #include "depthai_ros_driver/dai_nodes/sensors/sensor_helpers.hpp"
 #include "depthai_ros_driver/dai_nodes/sensors/sensor_wrapper.hpp"
 #include "depthai_ros_driver/param_handlers/base_param_handler.hpp"
@@ -73,12 +73,14 @@ Stereo::Stereo(const std::string& daiNodeName,
             getName() + "_" + right->getName() + "_spatial_nn", getROSNode(), pipeline, device->getDeviceName(), rsCompat, *right, *this);
     }
     if(ph->getParam<bool>("i_enable_left_rgbd")) {
-        rgbdNodeLeft = std::make_unique<dai_nodes::RGBD>(
-            getName() + "_" + left->getName() + "_rgbd", node, pipeline, device, rsCompat, *left, getUnderlyingNode(), aligned);
+        // rgbdNodeLeft = std::make_unique<dai_nodes::RGBD>(
+        //     getName() + "_" + left->getName() + "_rgbd", node, pipeline, device, rsCompat, *left, getUnderlyingNode(), aligned);
+        RCLCPP_WARN(getROSNode()->get_logger(), "Left RGBD functionality disabled - missing DepthAI RGBD support");
     }
     if(ph->getParam<bool>("i_enable_right_rgbd")) {
-        rgbdNodeRight = std::make_unique<dai_nodes::RGBD>(
-            getName() + "_" + right->getName() + "_rgbd", node, pipeline, device, rsCompat, *right, getUnderlyingNode(), aligned);
+        // rgbdNodeRight = std::make_unique<dai_nodes::RGBD>(
+        //     getName() + "_" + right->getName() + "_rgbd", node, pipeline, device, rsCompat, *right, getUnderlyingNode(), aligned);
+        RCLCPP_WARN(getROSNode()->get_logger(), "Right RGBD functionality disabled - missing DepthAI RGBD support");
     }
 
     // Check alignment, if board socket is one of the pairs, align.
@@ -265,10 +267,10 @@ void Stereo::setupQueues(std::shared_ptr<dai::Device> device) {
         setupStereoQueue(device);
     }
     if(ph->getParam<bool>("i_enable_left_rgbd")) {
-        rgbdNodeLeft->setupQueues(device);
+        // rgbdNodeLeft->setupQueues(device);
     }
     if(ph->getParam<bool>("i_enable_right_rgbd")) {
-        rgbdNodeRight->setupQueues(device);
+        // rgbdNodeRight->setupQueues(device);
     }
     if(ph->getParam<bool>("i_left_rect_publish_topic")) {
         setupLeftRectQueue(device);
@@ -296,10 +298,10 @@ void Stereo::closeQueues() {
         stereoPub->closeQueue();
     }
     if(ph->getParam<bool>("i_enable_left_rgbd")) {
-        rgbdNodeLeft->closeQueues();
+        // rgbdNodeLeft->closeQueues();
     }
     if(ph->getParam<bool>("i_enable_right_rgbd")) {
-        rgbdNodeRight->closeQueues();
+        // rgbdNodeRight->closeQueues();
     }
     if(ph->getParam<bool>("i_left_rect_publish_topic")) {
         leftRectPub->closeQueue();
