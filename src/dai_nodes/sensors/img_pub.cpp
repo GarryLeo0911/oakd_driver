@@ -22,18 +22,22 @@ ImagePublisher::ImagePublisher(std::shared_ptr<rclcpp::Node> node,
                                bool ipcEnabled,
                                const utils::VideoEncoderConfig& encoderConfig)
     : node(node), encConfig(encoderConfig), out(out), qName(qName), ipcEnabled(ipcEnabled), synced(synced) {
-    if(encoderConfig.enabled) {
-        encoder = createEncoder(pipeline, encoderConfig);
-        this->out->link(encoder->input);
+    if(!synced) {
+        xout = utils::setupXout(pipeline, qName);
     }
     
-    // Create XLinkOut node for data output if not synced
-    if(!synced) {
-        xout = pipeline->create<dai::node::XLinkOut>();
-        xout->setStreamName(qName);
-        if(encoderConfig.enabled) {
-            encoder->bitstream.link(xout->input);
-        } else {
+    if(encoderConfig.enabled) {
+        encoder = createEncoder(pipeline, encoderConfig);
+        if(!synced) {
+            if(encoderConfig.profile == dai::VideoEncoderProperties::Profile::MJPEG) {
+                encoder->bitstream.link(xout->input);
+            } else {
+                encoder->out.link(xout->input);
+            }
+        }
+        this->out->link(encoder->input);
+    } else {
+        if(!synced) {
             out->link(xout->input);
         }
     }

@@ -9,6 +9,9 @@
 
 namespace dai {
 class Pipeline;
+namespace node {
+class XLinkOut;
+}
 }  // namespace dai
 
 namespace depthai_ros_driver {
@@ -28,6 +31,7 @@ T getValFromMap(const std::string& name, const std::unordered_map<std::string, T
     }
 }
 std::string getUpperCaseStr(const std::string& string);
+std::shared_ptr<dai::node::XLinkOut> setupXout(std::shared_ptr<dai::Pipeline> pipeline, const std::string& name);
 struct VideoEncoderConfig {
     bool enabled = false;
     int quality = 50;
