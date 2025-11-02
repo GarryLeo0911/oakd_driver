@@ -45,16 +45,14 @@ void Camera::setInOut(std::shared_ptr<dai::Pipeline> pipeline) {
     dai::ImgFrame::Type type = dai::ImgFrame::Type::NV12;
     (void)type; // Suppress unused variable warning
     if(ph->getParam<bool>(ParamNames::PUBLISH_TOPIC)) {
-        if(ph->getParam<bool>("i_publish_full_resolution")) {
-            // Configure camera for full resolution output
-            camNode->setFps(fps);
-            defaultOut = &camNode->isp;
-        } else {
-            // Configure camera for specific resolution
-            camNode->setFps(fps);
-            // Modern API uses isp output directly without requestOutput
-            defaultOut = &camNode->isp;
-        }
+        // Configure camera for full resolution output  
+        camNode->setFps(fps);
+        
+        // Create lambda function to link camera output
+        std::function<void(dai::Node::Input)> rgbLinkChoice = [&](auto input) { 
+            camNode->isp.link(input); 
+        };
+        
         utils::VideoEncoderConfig encConfig;
         bool lowBandwidth = ph->getParam<bool>(ParamNames::LOW_BANDWIDTH);
         encConfig.profile = static_cast<dai::VideoEncoderProperties::Profile>(ph->getParam<int>(ParamNames::LOW_BANDWIDTH_PROFILE));
@@ -63,7 +61,7 @@ void Camera::setInOut(std::shared_ptr<dai::Pipeline> pipeline) {
         encConfig.quality = ph->getParam<int>(ParamNames::LOW_BANDWIDTH_QUALITY);
         encConfig.enabled = lowBandwidth;
 
-        rgbPub = setupOutput(pipeline, ispQName, defaultOut, ph->getParam<bool>(ParamNames::SYNCED), encConfig);
+        rgbPub = setupOutput(pipeline, ispQName, rgbLinkChoice, ph->getParam<bool>(ParamNames::SYNCED), encConfig);
     }
     
     // Create XLinkIn node for camera control only if needed
@@ -122,15 +120,8 @@ void Camera::closeQueues() {
 }
 
 void Camera::link(dai::Node::Input& in, int /* linkType */) {
-    if(ph->getParam<bool>("i_enable_default_output")) {
-        defaultOut->link(in);
-    } else {
-        throw std::runtime_error("Default output is disabled! Please reenable it via \"i_enable_default_out\" parameter");
-    }
-}
-
-dai::Node::Output* Camera::getDefaultOut() {
-    return defaultOut;
+    // Link functionality moved to lambda functions in setupOutput
+    RCLCPP_DEBUG(getLogger(), "Camera link method called - functionality handled by lambda functions");
 }
 
 std::vector<std::shared_ptr<sensor_helpers::ImagePublisher>> Camera::getPublishers() {

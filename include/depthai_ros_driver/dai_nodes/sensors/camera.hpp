@@ -48,7 +48,6 @@ class Camera : public BaseNode {
     void closeQueues() override;
     std::vector<std::shared_ptr<sensor_helpers::ImagePublisher>> getPublishers() override;
     std::shared_ptr<dai::node::Camera> getUnderlyingNode();
-    dai::Node::Output* getDefaultOut();
     int getWidth();
     int getHeight();
 
@@ -61,7 +60,6 @@ class Camera : public BaseNode {
     std::unique_ptr<param_handlers::SensorParamHandler> ph;
     std::shared_ptr<dai::DataInputQueue> controlQ;
     std::string ispQName, previewQName, controlQName;
-    dai::Node::Output* defaultOut;
 };
 
 }  // namespace dai_nodes

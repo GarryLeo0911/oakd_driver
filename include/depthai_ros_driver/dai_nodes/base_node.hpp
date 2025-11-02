@@ -61,7 +61,7 @@ class BaseNode {
     virtual void setInOut(std::shared_ptr<dai::Pipeline> pipeline) = 0;
     std::shared_ptr<sensor_helpers::ImagePublisher> setupOutput(std::shared_ptr<dai::Pipeline> pipeline,
                                                                 const std::string& qName,
-                                                                dai::Node::Output* out,
+                                                                std::function<void(dai::Node::Input input)> nodeLink,
                                                                 bool isSynced = false,
                                                                 const utils::VideoEncoderConfig& encoderConfig = {});
     virtual void closeQueues() = 0;

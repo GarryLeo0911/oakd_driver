@@ -132,16 +132,19 @@ void Stereo::setInOut(std::shared_ptr<dai::Pipeline> pipeline) {
         encConf.quality = ph->getParam<int>("i_low_bandwidth_quality");
         encConf.enabled = lowBandwidth;
 
+        // Create lambda function to choose the correct stereo output
+        std::function<void(dai::Node::Input)> stereoLinkChoice;
         if(outputDisparity || lowBandwidth) {
-            stereoPub = setupOutput(pipeline, stereoQName, &stereoCamNode->disparity, ph->getParam<bool>("i_synced"), encConf);
+            stereoLinkChoice = [&](auto input) { stereoCamNode->disparity.link(input); };
         } else {
-            // Removed platform check since RVC4 enum is deprecated
             if(aligned) {
-                stereoPub = setupOutput(pipeline, stereoQName, &alignNode->outputAligned, ph->getParam<bool>("i_synced"), encConf);
+                stereoLinkChoice = [&](auto input) { alignNode->outputAligned.link(input); };
             } else {
-                stereoPub = setupOutput(pipeline, stereoQName, &stereoCamNode->depth, ph->getParam<bool>("i_synced"), encConf);
+                stereoLinkChoice = [&](auto input) { stereoCamNode->depth.link(input); };
             }
         }
+        
+        stereoPub = setupOutput(pipeline, stereoQName, stereoLinkChoice, ph->getParam<bool>("i_synced"), encConf);
     }
 
     if(ph->getParam<bool>("i_left_rect_publish_topic")) {
@@ -152,7 +155,7 @@ void Stereo::setInOut(std::shared_ptr<dai::Pipeline> pipeline) {
         encConf.quality = ph->getParam<int>("i_left_rect_low_bandwidth_quality");
         encConf.enabled = ph->getParam<bool>("i_left_rect_low_bandwidth");
 
-        leftRectPub = setupOutput(pipeline, leftRectQName, &stereoCamNode->rectifiedLeft, ph->getParam<bool>("i_left_rect_synced"), encConf);
+        leftRectPub = setupOutput(pipeline, leftRectQName, [&](auto input) { stereoCamNode->rectifiedLeft.link(input); }, ph->getParam<bool>("i_left_rect_synced"), encConf);
     }
 
     if(ph->getParam<bool>("i_right_rect_publish_topic")) {
@@ -162,7 +165,8 @@ void Stereo::setInOut(std::shared_ptr<dai::Pipeline> pipeline) {
         encConf.frameFreq = ph->getParam<int>("i_right_rect_low_bandwidth_frame_freq");
         encConf.quality = ph->getParam<int>("i_right_rect_low_bandwidth_quality");
         encConf.enabled = ph->getParam<bool>("i_right_rect_low_bandwidth");
-        rightRectPub = setupOutput(pipeline, rightRectQName, &stereoCamNode->rectifiedRight, ph->getParam<bool>("i_right_rect_synced"), encConf);
+        
+        rightRectPub = setupOutput(pipeline, rightRectQName, [&](auto input) { stereoCamNode->rectifiedRight.link(input); }, ph->getParam<bool>("i_right_rect_synced"), encConf);
     }
 
     if(ph->getParam<bool>("i_left_rect_enable_feature_tracker")) {

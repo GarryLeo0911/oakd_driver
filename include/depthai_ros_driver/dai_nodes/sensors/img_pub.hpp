@@ -67,7 +67,7 @@ class ImagePublisher {
     ImagePublisher(std::shared_ptr<rclcpp::Node> node,
                    std::shared_ptr<dai::Pipeline> pipeline,
                    const std::string& qName,
-                   dai::Node::Output* out,
+                   std::function<void(dai::Node::Input in)> linkFunc,
                    bool synced = false,
                    bool ipcEnabled = false,
                    const utils::VideoEncoderConfig& encoderConfig = {});
@@ -85,7 +85,7 @@ class ImagePublisher {
     void closeQueue();
     bool isSynced();
     std::shared_ptr<dai::DataOutputQueue> getQueue();
-    void link(dai::Node::Input& in);
+    void link(dai::Node::Input in);
     std::string getQueueName();
     void publish(const std::shared_ptr<dai::ADatatype>& data);
     void publish(std::shared_ptr<Image> img);
@@ -104,6 +104,7 @@ class ImagePublisher {
     std::shared_ptr<dai::ros::ImageConverter> converter;
     std::shared_ptr<dai::node::XLinkOut> xout;
     std::shared_ptr<dai::node::VideoEncoder> encoder;
+    std::function<void(dai::Node::Input in)> linkCB;
     dai::Node::Output* out;
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr imgPub;
     rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr infoPub;

@@ -77,8 +77,12 @@ void BaseNode::closeQueues() {
 };
 
 std::shared_ptr<sensor_helpers::ImagePublisher> BaseNode::setupOutput(
-    std::shared_ptr<dai::Pipeline> pipeline, const std::string& qName, dai::Node::Output* out, bool isSynced, const utils::VideoEncoderConfig& encoderConfig) {
-    return std::make_shared<sensor_helpers::ImagePublisher>(getROSNode(), pipeline, qName, out, isSynced, ipcEnabled(), encoderConfig);
+    std::shared_ptr<dai::Pipeline> pipeline,
+    const std::string& qName,
+    std::function<void(dai::Node::Input input)> nodeLink,
+    bool isSynced,
+    const utils::VideoEncoderConfig& encoderConfig) {
+    return std::make_shared<sensor_helpers::ImagePublisher>(getROSNode(), pipeline, qName, nodeLink, isSynced, ipcEnabled(), encoderConfig);
 };
 
 void BaseNode::setNames() {

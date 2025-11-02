@@ -17,28 +17,34 @@ namespace sensor_helpers {
 ImagePublisher::ImagePublisher(std::shared_ptr<rclcpp::Node> node,
                                std::shared_ptr<dai::Pipeline> pipeline,
                                const std::string& qName,
-                               dai::Node::Output* out,
+                               std::function<void(dai::Node::Input in)> linkFunc,
                                bool synced,
                                bool ipcEnabled,
                                const utils::VideoEncoderConfig& encoderConfig)
-    : node(node), encConfig(encoderConfig), out(out), qName(qName), ipcEnabled(ipcEnabled), synced(synced) {
+    : node(node), encConfig(encoderConfig), qName(qName), ipcEnabled(ipcEnabled), synced(synced) {
     if(!synced) {
         xout = utils::setupXout(pipeline, qName);
     }
-    
+    linkCB = linkFunc;
     if(encoderConfig.enabled) {
         encoder = createEncoder(pipeline, encoderConfig);
+        linkFunc(encoder->input);
         if(!synced) {
             if(encoderConfig.profile == dai::VideoEncoderProperties::Profile::MJPEG) {
                 encoder->bitstream.link(xout->input);
             } else {
                 encoder->out.link(xout->input);
             }
+        } else {
+            if(encoderConfig.profile == dai::VideoEncoderProperties::Profile::MJPEG) {
+                linkCB = [&](dai::Node::Input input) { encoder->bitstream.link(input); };
+            } else {
+                linkCB = [&](dai::Node::Input input) { encoder->out.link(input); };
+            }
         }
-        this->out->link(encoder->input);
     } else {
         if(!synced) {
-            out->link(xout->input);
+            linkFunc(xout->input);
         }
     }
 }
@@ -147,8 +153,8 @@ ImagePublisher::~ImagePublisher() {
 void ImagePublisher::closeQueue() {
     if(dataQ) dataQ->close();
 }
-void ImagePublisher::link(dai::Node::Input& in) {
-    out->link(in);
+void ImagePublisher::link(dai::Node::Input in) {
+    linkCB(in);
 }
 std::shared_ptr<dai::DataOutputQueue> ImagePublisher::getQueue() {
     return dataQ;
