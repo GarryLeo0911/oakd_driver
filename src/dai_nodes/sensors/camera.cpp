@@ -66,15 +66,28 @@ void Camera::setInOut(std::shared_ptr<dai::Pipeline> pipeline) {
         rgbPub = setupOutput(pipeline, ispQName, defaultOut, ph->getParam<bool>(ParamNames::SYNCED), encConfig);
     }
     
-    // Create XLinkIn node for camera control
-    auto controlIn = pipeline->create<dai::node::XLinkIn>();
-    controlIn->setStreamName(controlQName);
-    controlIn->out.link(camNode->inputControl);
+    // Create XLinkIn node for camera control only if needed
+    // In simplified pipelines, we may not need camera control
+    try {
+        auto controlIn = pipeline->create<dai::node::XLinkIn>();
+        controlIn->setStreamName(controlQName);
+        controlIn->out.link(camNode->inputControl);
+    } catch (const std::exception& e) {
+        RCLCPP_DEBUG(getLogger(), "Camera control setup skipped: %s", e.what());
+    }
 }
 
 void Camera::setupQueues(std::shared_ptr<dai::Device> device) {
     using ParamNames = param_handlers::ParamNames;
-    controlQ = device->getInputQueue(controlQName, 8, false);
+    
+    // Try to get control queue, but don't fail if it doesn't exist
+    try {
+        controlQ = device->getInputQueue(controlQName, 8, false);
+    } catch (const std::exception& e) {
+        RCLCPP_DEBUG(getLogger(), "Control queue '%s' not available: %s", controlQName.c_str(), e.what());
+        controlQ = nullptr;
+    }
+    
     if(ph->getParam<bool>(ParamNames::PUBLISH_TOPIC)) {
         auto tfPrefix = getOpticalFrameName(sensor_helpers::getSocketName(getROSNode(), static_cast<dai::CameraBoardSocket>(ph->getParam<int>(ParamNames::BOARD_SOCKET_ID))));
         utils::ImgConverterConfig convConfig;
@@ -130,7 +143,11 @@ std::vector<std::shared_ptr<sensor_helpers::ImagePublisher>> Camera::getPublishe
 
 void Camera::updateParams(const std::vector<rclcpp::Parameter>& params) {
     auto ctrl = ph->setRuntimeParams(params);
-    controlQ->send(ctrl);
+    if(controlQ) {
+        controlQ->send(ctrl);
+    } else {
+        RCLCPP_DEBUG(getLogger(), "Control queue not available for runtime parameter updates");
+    }
 }
 int Camera::getWidth() {
     return ph->getParam<int>(param_handlers::ParamNames::WIDTH);
