@@ -2,17 +2,26 @@
   ros__parameters:
     driver:
       i_enable_ir: true
+      i_publish_tf_from_calibration: true
+      i_tf_tf_prefix: "oak"
+      i_tf_base_frame: "oak"
+      i_tf_parent_frame: "oak_parent_frame"
     pipeline_gen:
       i_nn_type: none
       i_pipeline_type: rgbd
       i_enable_vio: true
+      i_enable_rgbd: true
+      i_enable_sync: true
     vio:
       i_fps: 30.0
     stereo:
       i_synced: true
       i_depth_preset: DEFAULT
+      i_publish_topic: true
     rgb:
       i_synced: true
+      i_publish_topic: true
+      i_fps: 30.0
     imu:
       i_batch_report_threshold: 1
       i_max_batch_reports: 10
