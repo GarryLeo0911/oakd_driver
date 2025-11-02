@@ -6,14 +6,14 @@
 #include "depthai_ros_driver/dai_nodes/nn/nn_wrapper.hpp"
 #include "depthai_ros_driver/dai_nodes/nn/spatial_nn_wrapper.hpp"
 #include "depthai_ros_driver/dai_nodes/sensors/imu.hpp"
-#include "depthai_ros_driver/dai_nodes/sensors/rgbd.hpp"
+// #include "depthai_ros_driver/dai_nodes/sensors/rgbd.hpp"  // Missing RGBD.hpp
 #include "depthai_ros_driver/dai_nodes/sensors/sensor_helpers.hpp"
 #include "depthai_ros_driver/dai_nodes/sensors/sensor_wrapper.hpp"
 // #include "depthai_ros_driver/dai_nodes/sensors/slam.hpp"
 #include "depthai_ros_driver/dai_nodes/sensors/stereo.hpp"
-#include "depthai_ros_driver/dai_nodes/sensors/thermal.hpp"
+// #include "depthai_ros_driver/dai_nodes/sensors/thermal.hpp"  // Missing ThermalConfig.hpp
 #include "depthai_ros_driver/dai_nodes/sensors/tof.hpp"
-#include "depthai_ros_driver/dai_nodes/sensors/vio.hpp"
+// #include "depthai_ros_driver/dai_nodes/sensors/vio.hpp"  // Missing BasaltVIO.hpp
 #include "depthai_ros_driver/pipeline/base_pipeline.hpp"
 #include "depthai_ros_driver/utils.hpp"
 #include "rclcpp/node.hpp"
@@ -61,7 +61,8 @@ std::vector<std::unique_ptr<dai_nodes::BaseNode>> RGBD::createPipeline(std::shar
     if(checkForImu(ph, device, node->get_logger())) {
         auto imu = std::make_unique<dai_nodes::Imu>("imu", node, pipeline, device, rsCompat);
         if(ph->getParam<bool>("i_enable_vio")) {
-            auto vio = std::make_unique<dai_nodes::Vio>("vio", node, pipeline, device, rsCompat, *stereo, *imu);
+            // auto vio = std::make_unique<dai_nodes::Vio>("vio", node, pipeline, device, rsCompat, *stereo, *imu);
+            RCLCPP_WARN(node->get_logger(), "VIO functionality disabled - missing DepthAI BasaltVIO support");
             // if(ph->getParam<bool>("i_enable_slam")) {
             //     std::unique_ptr<dai_nodes::Slam> slam;
             //     if(stereo->getSocketID() == stereo->getLeftSensor()->getSocketID()) {
