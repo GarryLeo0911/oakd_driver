@@ -6,7 +6,7 @@
 
 #include "depthai_bridge/TFPublisher.hpp"
 #include "depthai_ros_driver/dai_nodes/base_node.hpp"
-#include "depthai_ros_driver/param_handlers/driver_param_handler.hpp"
+#include "depthai_ros_driver/param_handlers/camera_param_handler.hpp"
 #include "diagnostic_msgs/msg/diagnostic_array.hpp"
 #include "rclcpp/callback_group.hpp"
 #include "rclcpp/node.hpp"
@@ -15,14 +15,17 @@
 namespace dai {
 class Pipeline;
 class Device;
-enum class Platform;
 }  // namespace dai
 
 namespace depthai_ros_driver {
 using Trigger = std_srvs::srv::Trigger;
-class Driver : public rclcpp::Node {
+class Camera : public rclcpp::Node {
    public:
-    explicit Driver(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+    explicit Camera(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+    /**
+     * @brief      Destructor of the class Camera. Stops the device and destroys the pipeline.
+     */
+    ~Camera();
     /**
      * @brief Creates the pipeline and starts the device. Also sets up parameter callback and services.
      */
@@ -64,7 +67,7 @@ class Driver : public rclcpp::Node {
     void loadCalib(const std::string& path);
     rcl_interfaces::msg::SetParametersResult parameterCB(const std::vector<rclcpp::Parameter>& params);
     OnSetParametersCallbackHandle::SharedPtr paramCBHandle;
-    std::unique_ptr<param_handlers::DriverParamHandler> ph;
+    std::unique_ptr<param_handlers::CameraParamHandler> ph;
     rclcpp::Service<Trigger>::SharedPtr startSrv, stopSrv, savePipelineSrv, saveCalibSrv;
     rclcpp::Subscription<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr diagSub;
     /*
@@ -90,11 +93,9 @@ class Driver : public rclcpp::Node {
     std::shared_ptr<dai::Pipeline> pipeline;
     std::shared_ptr<dai::Device> device;
     std::vector<std::unique_ptr<dai_nodes::BaseNode>> daiNodes;
-    std::string deviceName;
-    dai::Platform platform;
     std::atomic<bool> camRunning = false;
     bool initialized = false;
-    std::unique_ptr<depthai_bridge::TFPublisher> tfPub;
+    std::unique_ptr<dai::ros::TFPublisher> tfPub;
     rclcpp::TimerBase::SharedPtr startTimer;
     rclcpp::CallbackGroup::SharedPtr srvGroup;
 };

@@ -47,7 +47,7 @@ def launch_setup(context, *args, **kwargs):
     )
 
     parent_frame = LaunchConfiguration(
-        "parent_frame", default="oak_parent_frame"
+        "parent_frame", default="oak-d-base-frame"
     ).perform(context)
     cam_pos_x = LaunchConfiguration("cam_pos_x", default="0.0")
     cam_pos_y = LaunchConfiguration("cam_pos_y", default="0.0")
@@ -65,25 +65,24 @@ def launch_setup(context, *args, **kwargs):
     camera_model = LaunchConfiguration("camera_model", default="OAK-D")
     rs_compat = LaunchConfiguration("rs_compat", default="false")
     pointcloud_enable = LaunchConfiguration("pointcloud.enable", default="false")
+    rectify_rgb = LaunchConfiguration("rectify_rgb", default="true")
     namespace = LaunchConfiguration("namespace", default="").perform(context)
     name = LaunchConfiguration("name").perform(context)
 
-    # QoS configuration for wireless robot communication
-    # Use BEST_EFFORT reliability for better wireless performance
-    # Use KEEP_LAST history with small depth to avoid old data buildup
-    wireless_qos_params = {
-        "driver": {
-            "i_qos_reliability": "best_effort",  # BEST_EFFORT for wireless
-            "i_qos_durability": "volatile",      # VOLATILE for real-time data
-            "i_qos_history": "keep_last",        # KEEP_LAST to avoid buildup
-            "i_qos_depth": 1,                    # Small depth for real-time
-        }
-    }
-
     # If RealSense compatibility is enabled, we need to override some parameters, topics and node names
     parameter_overrides = {}
-    points_topic_name = f"{name}/rgbd/points"
+    color_sens_name = "rgb"
+    stereo_sens_name = "stereo"
+    points_topic_name = f"{name}/points"
+    if pointcloud_enable.perform(context) == "true":
+        parameter_overrides = {
+            "pipeline_gen": {"i_enable_sync": True},
+            "rgb": {"i_synced": True},
+            "stereo": {"i_synced": True},
+        }
+    depth_topic_suffix = "image_raw"
     if rs_compat.perform(context) == "true":
+        depth_topic_suffix = "image_rect_raw"
         depth_profile = LaunchConfiguration("depth_module.depth_profile").perform(
             context
         )
@@ -102,15 +101,17 @@ def launch_setup(context, *args, **kwargs):
         color_profile = color_profile.split(delimiter)
         infra_profile = infra_profile.split(delimiter)
 
+        color_sens_name = "color"
+        stereo_sens_name = "depth"
         if name == "oak":
             name = "camera"
         points_topic_name = f"{name}/depth/color/points"
         if namespace == "":
             namespace = "camera"
-        if parent_frame == "oak_parent_frame":
+        if parent_frame == "oak-d-base-frame":
             parent_frame = f"{name}_link"
         parameter_overrides = {
-            "driver": {
+            "camera": {
                 "i_rs_compat": True,
             },
             "pipeline_gen": {
@@ -126,12 +127,9 @@ def launch_setup(context, *args, **kwargs):
             "depth": {
                 "i_publish_topic": is_launch_config_true(context, "enable_depth"),
                 "i_synced": True,
-                "i_subpixel": True,
                 "i_width": int(depth_profile[0]),
                 "i_height": int(depth_profile[1]),
                 "i_fps": float(depth_profile[2]),
-                "i_left_rect_publish_topic": is_launch_config_true(context, "enable_infra1"),
-                "i_right_rect_publish_topic": is_launch_config_true(context, "enable_infra2"),
             },
             "infra1": {
                 "i_width": int(infra_profile[0]),
@@ -144,16 +142,18 @@ def launch_setup(context, *args, **kwargs):
                 "i_fps": float(infra_profile[2]),
             },
         }
-        if pointcloud_enable.perform(context) == "true":
-            parameter_overrides["pipeline_gen"]["i_enable_rgbd"] = True
+        parameter_overrides["depth"] = {
+            "i_left_rect_publish_topic": True,
+            "i_right_rect_publish_topic": True,
+        }
 
-    params = {}
+    tf_params = {}
     if publish_tf_from_calibration.perform(context) == "true":
         cam_model = ""
         if override_cam_model.perform(context) == "true":
             cam_model = camera_model.perform(context)
-        params = {
-            "driver": {
+        tf_params = {
+            "camera": {
                 "i_publish_tf_from_calibration": True,
                 "i_tf_tf_prefix": name,
                 "i_tf_camera_model": cam_model,
@@ -168,14 +168,6 @@ def launch_setup(context, *args, **kwargs):
                 "i_tf_imu_from_descr": imu_from_descr.perform(context),
             }
         }
-    if pointcloud_enable.perform(context) == "true":
-        params["pipeline_gen"] = {"i_enable_rgbd" : True}
-
-    # Merge wireless QoS settings with existing params
-    if "driver" in params:
-        params["driver"].update(wireless_qos_params["driver"])
-    else:
-        params.update(wireless_qos_params)
 
     launch_prefix = setup_launch_prefix(context)
 
@@ -217,24 +209,72 @@ def launch_setup(context, *args, **kwargs):
             composable_node_descriptions=[
                 ComposableNode(
                     package="depthai_ros_driver",
-                    plugin="depthai_ros_driver::Driver",
+                    plugin="depthai_ros_driver::Camera",
                     name=name,
                     namespace=namespace,
                     parameters=[
                         params_file,
-                        params,
+                        tf_params,
                         parameter_overrides,
                     ],
-                    remappings=[
-                        (
-                            f"{name}/rgbd/points", points_topic_name
-                        )
-                    ]
                 )
             ],
             arguments=["--ros-args", "--log-level", log_level],
             prefix=[launch_prefix],
             output="both",
+        ),
+        LoadComposableNodes(
+            condition=IfCondition(rectify_rgb),
+            target_container=f"{namespace}/{name}_container",
+            composable_node_descriptions=[
+                ComposableNode(
+                    package="image_proc",
+                    plugin="image_proc::RectifyNode",
+                    name="rectify_color_node",
+                    namespace=namespace,
+                    remappings=[
+                        ("image", f"{name}/{color_sens_name}/image_raw"),
+                        ("camera_info", f"{name}/{color_sens_name}/camera_info"),
+                        ("image_rect", f"{name}/{color_sens_name}/image_rect"),
+                        (
+                            "image_rect/compressed",
+                            f"{name}/{color_sens_name}/image_rect/compressed",
+                        ),
+                        (
+                            "image_rect/compressedDepth",
+                            f"{name}/{color_sens_name}/image_rect/compressedDepth",
+                        ),
+                        (
+                            "image_rect/theora",
+                            f"{name}/{color_sens_name}/image_rect/theora",
+                        ),
+                    ],
+                )
+            ],
+        ),
+        LoadComposableNodes(
+            condition=IfCondition(pointcloud_enable),
+            target_container=f"{namespace}/{name}_container",
+            composable_node_descriptions=[
+                ComposableNode(
+                    package="depth_image_proc",
+                    plugin="depth_image_proc::PointCloudXyzrgbNode",
+                    name="point_cloud_xyzrgb_node",
+                    namespace=namespace,
+                    remappings=[
+                        (
+                            "depth_registered/image_rect",
+                            f"{name}/{stereo_sens_name}/{depth_topic_suffix}",
+                        ),
+                        (
+                            "rgb/image_rect_color",
+                            f"{name}/{color_sens_name}/image_rect",
+                        ),
+                        ("rgb/camera_info", f"{name}/{color_sens_name}/camera_info"),
+                        ("points", points_topic_name),
+                    ],
+                ),
+            ],
         ),
     ]
 
@@ -245,7 +285,7 @@ def generate_launch_description():
     declared_arguments = [
         DeclareLaunchArgument("name", default_value="oak"),
         DeclareLaunchArgument("namespace", default_value=""),
-        DeclareLaunchArgument("parent_frame", default_value="oak_parent_frame"),
+        DeclareLaunchArgument("parent_frame", default_value="oak-d-base-frame"),
         DeclareLaunchArgument("camera_model", default_value="OAK-D-PRO"),
         DeclareLaunchArgument("cam_pos_x", default_value="0.0"),
         DeclareLaunchArgument("cam_pos_y", default_value="0.0"),
@@ -255,7 +295,7 @@ def generate_launch_description():
         DeclareLaunchArgument("cam_yaw", default_value="0.0"),
         DeclareLaunchArgument(
             "params_file",
-            default_value=os.path.join(depthai_prefix, "config", "wireless_rgbd.yaml"),
+            default_value=os.path.join(depthai_prefix, "config", "camera.yaml"),
         ),
         DeclareLaunchArgument("use_rviz", default_value="false"),
         DeclareLaunchArgument(
@@ -265,7 +305,7 @@ def generate_launch_description():
         DeclareLaunchArgument("rsp_use_composition", default_value="true"),
         DeclareLaunchArgument(
             "publish_tf_from_calibration",
-            default_value="true",
+            default_value="false",
             description="Enables TF publishing from camera calibration file.",
         ),
         DeclareLaunchArgument(
@@ -292,9 +332,9 @@ def generate_launch_description():
         DeclareLaunchArgument("enable_depth", default_value="true"),
         DeclareLaunchArgument("enable_infra1", default_value="false"),
         DeclareLaunchArgument("enable_infra2", default_value="false"),
-        DeclareLaunchArgument("depth_module.depth_profile", default_value="640,400,30"),
-        DeclareLaunchArgument("rgb_camera.color_profile", default_value="640,400,30"),
-        DeclareLaunchArgument("depth_module.infra_profile", default_value="640,400,30"),
+        DeclareLaunchArgument("depth_module.depth_profile", default_value="1280,720,30"),
+        DeclareLaunchArgument("rgb_camera.color_profile", default_value="1280,720,30"),
+        DeclareLaunchArgument("depth_module.infra_profile", default_value="1280,720,30"),
     ]
 
     return LaunchDescription(

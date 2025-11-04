@@ -4,7 +4,6 @@
 #include <unordered_map>
 
 #include "depthai_ros_driver/param_handlers/base_param_handler.hpp"
-#include "rclcpp/qos.hpp"
 
 namespace dai {
 enum class UsbSpeed;
@@ -18,13 +17,13 @@ class Parameter;
 namespace depthai_ros_driver {
 namespace param_handlers {
 
-class DriverParamHandler : public BaseParamHandler {
+class CameraParamHandler : public BaseParamHandler {
    public:
-    explicit DriverParamHandler(std::shared_ptr<rclcpp::Node> node, const std::string& name, const std::string& deviceName = "", bool rsCompat = false);
-    ~DriverParamHandler();
+    explicit CameraParamHandler(std::shared_ptr<rclcpp::Node> node, const std::string& name);
+    ~CameraParamHandler();
     void declareParams();
+    dai::CameraControl setRuntimeParams(const std::vector<rclcpp::Parameter>& params) override;
     dai::UsbSpeed getUSBSpeed();
-    rclcpp::QoS getQoSProfile();
 
    private:
     std::unordered_map<std::string, dai::UsbSpeed> usbSpeedMap;

@@ -27,18 +27,17 @@ def launch_setup(context, *args, **kwargs):
     if LaunchConfiguration("rectify_rgb").perform(context) == "true":
         rgb_topic_name = name + "/rgb/image_rect"
 
-    parent_frame = LaunchConfiguration("parent_frame", default="oak_parent_frame")
+    parent_frame = LaunchConfiguration("parent_frame", default="oak-d-base-frame")
     cam_pos_x = LaunchConfiguration("cam_pos_x", default="0.0")
     cam_pos_y = LaunchConfiguration("cam_pos_y", default="0.0")
     cam_pos_z = LaunchConfiguration("cam_pos_z", default="0.0")
     cam_roll = LaunchConfiguration("cam_roll", default="0.0")
     cam_pitch = LaunchConfiguration("cam_pitch", default="0.0")
     cam_yaw = LaunchConfiguration("cam_yaw", default="0.0")
-    use_composition = LaunchConfiguration("rsp_use_composition", default="false")
-    camera_model = LaunchConfiguration("camera_model", default="OAK-D")
+    use_composition = LaunchConfiguration("rsp_use_composition", default="true")
     imu_from_descr = LaunchConfiguration("imu_from_descr", default="false")
     publish_tf_from_calibration = LaunchConfiguration(
-        "publish_tf_from_calibration", default="true"
+        "publish_tf_from_calibration", default="false"
     )
     override_cam_model = LaunchConfiguration("override_cam_model", default="false")
 
@@ -73,13 +72,51 @@ def launch_setup(context, *args, **kwargs):
             composable_node_descriptions=[
                 ComposableNode(
                     package="depthai_ros_driver",
-                    plugin="depthai_ros_driver::Driver",
+                    plugin="depthai_ros_driver::Camera",
                     name=name,
                     parameters=[params_file, tf_params],
                 )
             ],
             arguments=["--ros-args", "--log-level", log_level],
             output="both",
+        ),
+        LoadComposableNodes(
+            condition=IfCondition(LaunchConfiguration("rectify_rgb")),
+            target_container=name + "_container",
+            composable_node_descriptions=[
+                ComposableNode(
+                    package="image_proc",
+                    plugin="image_proc::RectifyNode",
+                    name=name + "_rectify_color_node",
+                    remappings=[
+                        ("image", name + "/rgb/image_raw"),
+                        ("camera_info", name + "/rgb/camera_info"),
+                        ("image_rect", name + "/rgb/image_rect"),
+                        ("image_rect/compressed", name + "/rgb/image_rect/compressed"),
+                        (
+                            "image_rect/compressedDepth",
+                            name + "/rgb/image_rect/compressedDepth",
+                        ),
+                        ("image_rect/theora", name + "/rgb/image_rect/theora"),
+                    ],
+                )
+            ],
+        ),
+        LoadComposableNodes(
+            target_container=name + "_container",
+            composable_node_descriptions=[
+                ComposableNode(
+                    package="depth_image_proc",
+                    plugin="depth_image_proc::PointCloudXyzrgbNode",
+                    name=name + "_point_cloud_xyzrgb_node",
+                    remappings=[
+                        ("depth_registered/image_rect", name + "/stereo/image_raw"),
+                        ("rgb/image_rect_color", rgb_topic_name),
+                        ("rgb/camera_info", name + "/rgb/camera_info"),
+                        ("points", name + "/points"),
+                    ],
+                ),
+            ],
         ),
     ]
 
@@ -89,7 +126,7 @@ def generate_launch_description():
     declared_arguments = [
         DeclareLaunchArgument("name", default_value="oak"),
         DeclareLaunchArgument("camera_model", default_value="OAK-D"),
-        DeclareLaunchArgument("parent_frame", default_value="oak_parent_frame"),
+        DeclareLaunchArgument("parent_frame", default_value="oak-d-base-frame"),
         DeclareLaunchArgument("cam_pos_x", default_value="0.0"),
         DeclareLaunchArgument("cam_pos_y", default_value="0.0"),
         DeclareLaunchArgument("cam_pos_z", default_value="0.0"),
@@ -101,7 +138,7 @@ def generate_launch_description():
             default_value=os.path.join(depthai_prefix, "config", "rgbd.yaml"),
         ),
         DeclareLaunchArgument("rectify_rgb", default_value="False"),
-        DeclareLaunchArgument("rsp_use_composition", default_value="false"),
+        DeclareLaunchArgument("rsp_use_composition", default_value="true"),
         DeclareLaunchArgument(
             "publish_tf_from_calibration",
             default_value="false",
