@@ -1,0 +1,1 @@
+# This package contains ROS2 wrappers for depthai core

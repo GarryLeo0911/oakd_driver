@@ -20,7 +20,7 @@ def launch_setup(context, *args, **kwargs):
             launch_arguments={"name": name,
                               "params_file": params_file}.items()),
         Node(
-        package="oakd_driver",
+        package="depthai_ros_driver",
         executable="obj_pub.py",
         )
     ]

@@ -20,7 +20,7 @@ def launch_setup(context, *args, **kwargs):
         log_level = "debug"
 
     params_file = LaunchConfiguration("params_file")
-    depthai_prefix = get_package_share_directory("oakd_driver")
+    depthai_prefix = get_package_share_directory("depthai_ros_driver")
 
     name = LaunchConfiguration("name").perform(context)
     rgb_topic_name = name + "/rgb/image_raw"
@@ -71,7 +71,7 @@ def launch_setup(context, *args, **kwargs):
             executable="component_container",
             composable_node_descriptions=[
                 ComposableNode(
-                    package="oakd_driver",
+                    package="depthai_ros_driver",
                     plugin="depthai_ros_driver::Camera",
                     name=name,
                     parameters=[params_file, tf_params],
@@ -122,7 +122,7 @@ def launch_setup(context, *args, **kwargs):
 
 
 def generate_launch_description():
-    depthai_prefix = get_package_share_directory("oakd_driver")
+    depthai_prefix = get_package_share_directory("depthai_ros_driver")
     declared_arguments = [
         DeclareLaunchArgument("name", default_value="oak"),
         DeclareLaunchArgument("camera_model", default_value="OAK-D"),

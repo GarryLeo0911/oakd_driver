@@ -23,4 +23,4 @@
       i_qos_durability: "volatile"
       i_qos_history_depth: 5
     nn:
-      i_nn_config_path: oakd_driver/mobilenet
+      i_nn_config_path: depthai_ros_driver/mobilenet
