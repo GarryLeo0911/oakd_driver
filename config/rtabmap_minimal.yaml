@@ -1,0 +1,40 @@
+/oak:
+  ros__parameters:
+    driver:
+      i_enable_ir: false  # Disabled for memory optimization
+      i_enable_imu: false  # Disabled for memory optimization
+      i_publish_tf_from_calibration: false  # Disabled for memory optimization
+      i_usb_timeout: 10000
+      i_pipeline_dump: false
+      i_calibration_dump: false
+      i_enable_diagnostics: false
+      i_restart_on_diagnostics_error: false
+    pipeline_gen:
+      i_nn_type: none
+      i_pipeline_type: rgbd  # RGBD pipeline for both RGB and depth
+      i_enable_vio: false    # Disabled for memory optimization
+      i_enable_rgbd: true    # ENABLE RGBD for stereo depth
+      i_enable_sync: false   # Disabled for memory optimization
+      i_enable_imu: false    # Disabled for memory optimization
+      i_enable_ir: false     # Disabled for memory optimization
+    color:
+      i_width: 320
+      i_height: 240
+      i_fps: 10.0
+      i_resolution: THE_240_P
+      i_interleaved: false
+      i_publish_topic: true   # ENABLE topic publishing
+      i_synced: false
+      i_board_socket_id: 0
+    stereo:
+      i_publish_topic: true   # ENABLE stereo depth publishing
+      i_width: 320
+      i_height: 240
+      i_fps: 10.0
+      i_left_socket_id: 1
+      i_right_socket_id: 2
+      i_synced: false
+      i_output_disparity: false
+      i_lr_check: false
+      i_subpixel: false
+      i_extended_disparity: false

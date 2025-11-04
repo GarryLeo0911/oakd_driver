@@ -1,0 +1,69 @@
+/oak:
+  ros__parameters:
+    # Pipeline configuration for wireless robot communication
+    pipeline_gen:
+      i_nn_type: none
+      i_enable_rgbd: true
+      i_pipeline_type: rgbd
+      i_enable_sync: true
+      
+    # Driver QoS settings optimized for wireless communication
+    driver:
+      i_enable_ir: true
+      # QoS settings for wireless robot-to-laptop communication
+      i_qos_reliability: "best_effort"     # BEST_EFFORT for better wireless performance
+      i_qos_durability: "volatile"         # VOLATILE for real-time streaming
+      i_qos_history: "keep_last"          # KEEP_LAST to avoid message buildup
+      i_qos_depth: 1                      # Small depth for low latency
+      
+    # RGB camera settings - optimized for wireless
+    rgb:
+      i_fps: 15.0                         # Lower FPS for bandwidth conservation
+      i_resolution: 720                   # 720p resolution for balance of quality/bandwidth
+      i_publish_topic: true
+      i_board_socket_id: 0
+      i_set_isp_scale: true
+      i_isp_num: 2
+      i_isp_den: 3
+      
+    # Stereo/Depth settings
+    stereo:
+      i_depth_preset: DEFAULT
+      i_confidence: 200                   # Higher confidence for better quality
+      i_lr_check: true                    # Enable left-right check for accuracy
+      i_subpixel: false                   # Disable for lower computational load
+      i_extended_disparity: false         # Disable to save bandwidth
+      i_publish_topic: true
+      
+    # Left camera settings  
+    left:
+      i_fps: 15.0                         # Match RGB FPS
+      i_resolution: 720                   # Match RGB resolution
+      i_publish_topic: false              # Disable to save bandwidth
+      
+    # Right camera settings
+    right:
+      i_fps: 15.0                         # Match RGB FPS  
+      i_resolution: 720                   # Match RGB resolution
+      i_publish_topic: false              # Disable to save bandwidth
+      
+    # Depth processing settings
+    depth:
+      i_publish_topic: true
+      i_publish_rectified_topic: false    # Disable to save bandwidth
+      i_use_spec_translation: false
+      
+    # IMU settings - keep enabled for odometry
+    imu:
+      i_enable_rotation_vector: false     # Disable to save bandwidth
+      i_enable_accelerometer: true
+      i_enable_gyroscope: true
+      i_enable_magnetometer: false        # Disable to save bandwidth
+      
+    # Feature tracker settings - disable to save computation
+    feature_tracker:
+      i_enable_feature_tracker: false
+      
+    # Sync settings for better performance
+    sync:
+      i_sync_threshold_ms: 5              # Tight sync for real-time performance
