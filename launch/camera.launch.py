@@ -208,7 +208,7 @@ def launch_setup(context, *args, **kwargs):
             executable="component_container",
             composable_node_descriptions=[
                 ComposableNode(
-                    package="depthai_ros_driver",
+                    package="oakd_driver",
                     plugin="depthai_ros_driver::Camera",
                     name=name,
                     namespace=namespace,
@@ -280,7 +280,7 @@ def launch_setup(context, *args, **kwargs):
 
 
 def generate_launch_description():
-    depthai_prefix = get_package_share_directory("depthai_ros_driver")
+    depthai_prefix = get_package_share_directory("oakd_driver")
 
     declared_arguments = [
         DeclareLaunchArgument("name", default_value="oak"),
