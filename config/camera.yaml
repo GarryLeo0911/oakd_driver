@@ -10,25 +10,21 @@
       i_qos_reliability: "best_effort"
       i_qos_durability: "volatile"
       i_qos_history_depth: 2
-      i_publish_compressed: true
       i_fps: 15.0
     stereo:
       i_qos_reliability: "best_effort"
       i_qos_durability: "volatile"
       i_qos_history_depth: 2
-      i_publish_compressed: true
       i_fps: 15.0
     left:
       i_qos_reliability: "best_effort"
       i_qos_durability: "volatile"
       i_qos_history_depth: 2
-      i_publish_compressed: true
       i_fps: 15.0
     right:
       i_qos_reliability: "best_effort"
       i_qos_durability: "volatile"
       i_qos_history_depth: 2
-      i_publish_compressed: true
       i_fps: 15.0
     nn:
       i_nn_config_path: depthai_ros_driver/mobilenet
