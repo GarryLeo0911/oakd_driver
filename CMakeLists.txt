@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
-project(depthai_ros_driver VERSION 2.11.2)
+project(oakd_driver VERSION 2.11.2)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_BUILD_SHARED_LIBS ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -133,7 +133,7 @@ add_executable(
 	src/camera_node.cpp)
 ament_target_dependencies(camera_node ${CAM_DEPS} ${COMMON_DEPS} ${SENSOR_DEPS} ${NN_DEPS})
 target_link_libraries(camera_node ${PROJECT_NAME} ${SENSOR_LIB_NAME} ${NN_LIB_NAME} ${COMMON_LIB_NAME})
-rclcpp_components_register_nodes(${PROJECT_NAME} "${PROJECT_NAME}::Camera")
+rclcpp_components_register_nodes(${PROJECT_NAME} "depthai_ros_driver::Camera")
 pluginlib_export_plugin_description_file(${PROJECT_NAME} plugins.xml)
 ament_export_include_directories(include)
 
