@@ -1,145 +1,176 @@
-cmake_minimum_required(VERSION 3.5)
-project(oakd_driver)
+cmake_minimum_required(VERSION 3.22)
+project(oakd_driver VERSION 2.11.2)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_BUILD_SHARED_LIBS ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    add_compile_options(-Wall -Wextra -Wpedantic -Wno-deprecated-declarations -Wno-maybe-uninitialized)
+endif()
+# Default to C99
+if(NOT CMAKE_C_STANDARD)
+  set(CMAKE_C_STANDARD 99)
+endif()
 # Default to C++17
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 17)
 endif()
 
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
-endif()
+# find dependencies
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
 
-# Find dependencies
-find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(rclcpp_components REQUIRED)
-find_package(std_msgs REQUIRED)
-find_package(std_srvs REQUIRED)
-find_package(sensor_msgs REQUIRED)
-find_package(geometry_msgs REQUIRED)
-find_package(diagnostic_msgs REQUIRED)
-find_package(tf2_ros REQUIRED)
-find_package(tf2_geometry_msgs REQUIRED)
-find_package(cv_bridge REQUIRED)
-find_package(image_transport REQUIRED)
-find_package(camera_info_manager REQUIRED)
+set(COMMON_DEPS
+camera_info_manager
+cv_bridge
+depthai
+depthai_bridge
+image_transport
+rclcpp
+sensor_msgs
+diagnostic_updater
+diagnostic_msgs
+ffmpeg_image_transport_msgs
+)
 
-# Find OpenCV
-find_package(OpenCV REQUIRED)
+set(SENSOR_DEPS
+cv_bridge 
+camera_info_manager
+depthai 
+depthai_bridge 
+rclcpp  
+std_msgs 
+sensor_msgs 
+image_transport)
 
-# Find DepthAI
-find_package(depthai CONFIG REQUIRED)
+set(NN_DEPS
+depthai 
+depthai_bridge 
+rclcpp 
+vision_msgs 
+)
 
-# Print debug information
-message(STATUS "OpenCV version: ${OpenCV_VERSION}")
-message(STATUS "OpenCV include dirs: ${OpenCV_INCLUDE_DIRS}")
-message(STATUS "cv_bridge found: ${cv_bridge_FOUND}")
+set(CAM_DEPS
+depthai 
+rclcpp 
+rclcpp_components 
+std_srvs
+pluginlib
+)
 
-# Include directories
+
 include_directories(include)
 
-# Create the simple test executable first (no complex dependencies)
-add_executable(simple_oakd_driver
-  src/simple_oakd_driver.cpp
+set(COMMON_LIB_NAME ${PROJECT_NAME}_common)
+add_library(
+  ${COMMON_LIB_NAME} SHARED
+  src/utils.cpp
+  src/dai_nodes/base_node.cpp
+  src/dai_nodes/sys_logger.cpp
+  src/dai_nodes/sensors/img_pub.cpp
+  src/dai_nodes/sensors/sensor_helpers.cpp # TODO: Figure out different place for this 
+  src/param_handlers/camera_param_handler.cpp
+  src/param_handlers/imu_param_handler.cpp
+  src/param_handlers/nn_param_handler.cpp
+  src/param_handlers/sensor_param_handler.cpp
+  src/param_handlers/feature_tracker_param_handler.cpp
+  src/param_handlers/stereo_param_handler.cpp
+  src/param_handlers/tof_param_handler.cpp
+  src/param_handlers/pipeline_gen_param_handler.cpp
+  src/param_handlers/sync_param_handler.cpp
 )
 
-ament_target_dependencies(simple_oakd_driver
-  rclcpp
-  std_msgs
-  sensor_msgs
-  geometry_msgs
+ament_target_dependencies(${COMMON_LIB_NAME} ${COMMON_DEPS})
+
+set(SENSOR_LIB_NAME ${PROJECT_NAME}_sensor_nodes)
+add_library(
+  ${SENSOR_LIB_NAME} SHARED
+  src/dai_nodes/sensors/imu.cpp
+  src/dai_nodes/sensors/rgb.cpp
+  src/dai_nodes/sensors/mono.cpp
+  src/dai_nodes/sensors/feature_tracker.cpp
+  src/dai_nodes/sensors/sensor_wrapper.cpp
+  src/dai_nodes/sensors/stereo.cpp
+  src/dai_nodes/sensors/thermal.cpp
+  src/dai_nodes/sensors/tof.cpp
+  src/dai_nodes/sensors/sync.cpp
 )
 
-# Create the oakd_publisher_node executable (test mode)
-add_executable(oakd_publisher_node
-  src/oakd_publisher_node.cpp
+ament_target_dependencies(${SENSOR_LIB_NAME} ${SENSOR_DEPS})
+target_link_libraries(
+  ${SENSOR_LIB_NAME}
+  ${COMMON_LIB_NAME}
+)
+set(NN_LIB_NAME ${PROJECT_NAME}_nn_nodes)
+add_library(
+  ${NN_LIB_NAME} SHARED
+  src/dai_nodes/nn/nn_wrapper.cpp
+  src/dai_nodes/nn/spatial_nn_wrapper.cpp
+  src/dai_nodes/nn/segmentation.cpp
+)
+ament_target_dependencies(${NN_LIB_NAME} ${NN_DEPS})
+target_link_libraries(
+  ${NN_LIB_NAME}
+  ${COMMON_LIB_NAME}
 )
 
-ament_target_dependencies(oakd_publisher_node
-  rclcpp
-  std_msgs
-  sensor_msgs
-  geometry_msgs
+add_library(
+  ${PROJECT_NAME} SHARED
+  src/camera.cpp
+  src/pipeline/pipeline_generator.cpp
+  src/pipeline/base_types.cpp
 )
 
-# Only build the full driver if all dependencies are available
-find_package(depthai CONFIG QUIET)
-if(depthai_FOUND AND cv_bridge_FOUND)
-  message(STATUS "Building full OAK-D driver with DepthAI support")
-  
-  # Create the oakd_driver_node executable
-  add_executable(oakd_driver_node
-    src/oakd_driver_node.cpp
-    src/oakd_driver.cpp
-  )
+ament_target_dependencies(${PROJECT_NAME} ${CAM_DEPS})
+target_link_libraries(
+  ${PROJECT_NAME}
+  ${SENSOR_LIB_NAME}
+  ${NN_LIB_NAME}
+  ${COMMON_LIB_NAME}
+)
+add_executable(
+	camera_node
+	src/camera_node.cpp)
+ament_target_dependencies(camera_node ${CAM_DEPS} ${COMMON_DEPS} ${SENSOR_DEPS} ${NN_DEPS})
+target_link_libraries(camera_node ${PROJECT_NAME} ${SENSOR_LIB_NAME} ${NN_LIB_NAME} ${COMMON_LIB_NAME})
+rclcpp_components_register_nodes(${PROJECT_NAME} "depthai_ros_driver::Camera")
+pluginlib_export_plugin_description_file(${PROJECT_NAME} plugins.xml)
+ament_export_include_directories(include)
 
-  # Specify libraries to link
-  ament_target_dependencies(oakd_driver_node
-    rclcpp
-    rclcpp_components
-    std_msgs
-    std_srvs
-    sensor_msgs
-    geometry_msgs
-    diagnostic_msgs
-    tf2_ros
-    tf2_geometry_msgs
-    cv_bridge
-    image_transport
-    camera_info_manager
-  )
+ament_export_targets(${PROJECT_NAME}Targets HAS_LIBRARY_TARGET)
+ament_export_libraries(${PROJECT_NAME})
+ament_export_dependencies(${COMMON_DEPS} ${SENSOR_DEPS} ${NN_DEPS} ${CAM_DEPS})
 
-  # Link OpenCV and DepthAI
-  target_link_libraries(oakd_driver_node
-    ${OpenCV_LIBRARIES}
-    depthai::opencv
-  )
-  
-  set(FULL_DRIVER_BUILT TRUE)
-else()
-  message(WARNING "DepthAI or cv_bridge not found. Building simple test driver only.")
-  message(STATUS "To install DepthAI: wget -qO- https://raw.githubusercontent.com/luxonis/depthai/main/install_dependencies.sh | bash")
-  message(STATUS "Then: sudo apt install libdepthai-dev")
-  message(STATUS "For cv_bridge: sudo apt install ros-jazzy-cv-bridge")
-  set(FULL_DRIVER_BUILT FALSE)
-endif()
+install(DIRECTORY launch config DESTINATION share/${PROJECT_NAME})
 
-target_link_libraries(oakd_publisher_node
-  ${OpenCV_LIBRARIES}
+install(TARGETS ${PROJECT_NAME}  ${SENSOR_LIB_NAME}
+${NN_LIB_NAME}
+${COMMON_LIB_NAME}
+EXPORT ${PROJECT_NAME}Targets
+        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION lib
+        RUNTIME DESTINATION bin
+        INCLUDES DESTINATION include
 )
 
-# Install executables
-if(FULL_DRIVER_BUILT)
-  install(TARGETS
-    oakd_driver_node
-    oakd_publisher_node
-    simple_oakd_driver
-    DESTINATION lib/${PROJECT_NAME}
-  )
-else()
-  install(TARGETS
-    oakd_publisher_node
-    simple_oakd_driver
-    DESTINATION lib/${PROJECT_NAME}
-  )
-endif()
-
-# Install directories
-install(DIRECTORY
-  launch
-  config
-  DESTINATION share/${PROJECT_NAME}
+install(EXPORT ${PROJECT_NAME}Targets
+      DESTINATION share/${PROJECT_NAME}/cmake)
+install(TARGETS camera_node DESTINATION lib/${PROJECT_NAME})
+ament_python_install_package(${PROJECT_NAME})
+# Install Python executables
+install(
+  PROGRAMS
+  scripts/obj_pub.py
+  DESTINATION lib/${PROJECT_NAME}
 )
 
-# Install include headers
-install(DIRECTORY include/
-  DESTINATION include/
+ament_export_include_directories(
+  include
 )
 
-if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  ament_lint_auto_find_test_dependencies()
-endif()
+install(
+    DIRECTORY include/
+    DESTINATION include
+)
 
 ament_package()
