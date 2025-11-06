@@ -9,22 +9,22 @@
     rgb:
       i_qos_reliability: "best_effort"
       i_qos_durability: "volatile"
-      i_qos_history_depth: 4
+      i_qos_history_depth: 1
       i_qos_lifespan: 0.15
     stereo:
       i_qos_reliability: "best_effort"
       i_qos_durability: "volatile"
-      i_qos_history_depth: 4
+      i_qos_history_depth: 1
       i_qos_lifespan: 0.15
     left:
       i_qos_reliability: "best_effort"
       i_qos_durability: "volatile"
-      i_qos_history_depth: 4
+      i_qos_history_depth: 1
       i_qos_lifespan: 0.15
     right:
       i_qos_reliability: "best_effort"
       i_qos_durability: "volatile"
-      i_qos_history_depth: 4
+      i_qos_history_depth: 1
       i_qos_lifespan: 0.15
     nn:
       i_nn_config_path: depthai_ros_driver/mobilenet
