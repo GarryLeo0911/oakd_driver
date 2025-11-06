@@ -8,8 +8,10 @@
       i_qos_reliability: "best_effort"
       i_qos_durability: "volatile"
       i_qos_history_depth: 4
+      i_qos_lifespan: 0.15
     rgb:
       # QoS settings optimized for wireless communication
       i_qos_reliability: "best_effort"
       i_qos_durability: "volatile"
       i_qos_history_depth: 4
+      i_qos_lifespan: 0.15
